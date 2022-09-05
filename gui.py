@@ -1,3 +1,4 @@
+import tkinter
 import tkinter as tk
 from tkinter import *
 import tkinter as ttk
@@ -21,14 +22,16 @@ root.geometry(f'{root_wid}x{root_hi}+{cent_screen}+{cent_screenh}')
 #frames
 frem = Frame(root, height=600, width=100, )
 frem.columnconfigure(0,weight=1)
-frem.grid(pady=25,padx=1)
+frem.grid(pady=0,padx=0)
 frem2= Frame(root)
 frem2.grid(column=1,row=1)
-
+logfield= tk.Text(root,background='black',foreground='white')
+logfield.grid(column=2,row=0,pady=40)
+logfield.insert(tk.END,'scanning device',*log)
 #button
 def butt(txt, nem ):
     nem = tk.Button(frem, text=txt, )
-    nem.configure(bg='black', foreground='black', borderwidth=2,width=14)
+    nem.configure(bg='black',background='white', borderwidth=0,width=14)
     nem.grid(pady=10,padx=10,sticky=W)
     return nem
 
@@ -63,19 +66,23 @@ BackUpEfs.grid(row=5,column=0)
 
 def model_selection():
     def selection(model):
-        print(model)
+        return model
         '''if model == str('sm-a125f'):
             print('the selectd model is mtk')
 '''
-        if model == str('sm-a127f') or model == str('sm-a135f'):
-          print('selected model is eynos')
+
+        '''if model == str('sm-a127f') or model == str('sm-a135f'):
+          print('selected model is eynos')'''
     mdellist = ['sm-a125f', 'sm-a127f', 'sm-a135f', 'sm-a022f', 'sm-a225f']
     fast = StringVar()
     fast.set('model')
+
     modeloption = OptionMenu(root, fast, *mdellist, command=selection)
     modeloption.place(x=400, y=10)
-
-
+    modeloption.config(borderwidth=0,
+                       compound="bottom"
+                       ,anchor="center"
+                       ,direction="below",)
 
 model_selection()
 root.mainloop()
