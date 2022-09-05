@@ -39,8 +39,10 @@ for umdel in mdellist:
     umdel.upper()
 
 #drop list
-model=tk.Listbox(root,height=2,listvariable=tk.StringVar(value=(for umdel in mdellist:
-umdel.upper())))
+model=tk.Listbox(root,height=2,
+                 listvariable=
+                 tk.StringVar(value=
+                              (umdel)))
 model.grid(row=0,column=10,sticky=NW,pady=25,padx=10)
 
 
