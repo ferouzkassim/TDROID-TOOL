@@ -1,0 +1,9 @@
+*.pyc
+.cache/
+.coverage
+adb.egg-info/
+.tox/
+/adb.zip
+/fastboot.zip
+.idea/
+*.DS_Store*
