@@ -27,7 +27,7 @@ frem2= Frame(root)
 frem2.grid(column=1,row=1)
 logfield= tk.Text(root,background='black',foreground='white')
 logfield.grid(column=2,row=0,pady=40)
-logfield.insert(tk.END,'scanning device',*log)
+logfield.insert(tk.END,'scanning device',)
 #button
 def butt(txt, nem ):
     nem = tk.Button(frem, text=txt, )
@@ -77,12 +77,22 @@ def model_selection():
     fast = StringVar()
     fast.set('model')
 
+   # if fast.get()=='model':
+      #   return fast.get()
+    #else:
+     #    logfield.insert(tkinter.END,f'scanning for {fast.get()}')
     modeloption = OptionMenu(root, fast, *mdellist, command=selection)
     modeloption.place(x=400, y=10)
     modeloption.config(borderwidth=0,
                        compound="bottom"
                        ,anchor="center"
                        ,direction="below",)
+    if fast.get() != str('model'):
+        logfield.insert(tkinter.END, f'scanning for {fast.get()}')
+        print({fast.get()})
+
+    else:
+     return 0
 
 model_selection()
 root.mainloop()

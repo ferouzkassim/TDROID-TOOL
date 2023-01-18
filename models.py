@@ -1,3 +1,6 @@
+import tkinter
+
+import gui
 class modelSelector:
     def __init__(self,model):
         self.model = model
@@ -12,7 +15,3 @@ class modelSelector:
         return(cpu)
 
 
-a125f = modelSelector
-a125f.modelXtics("mtk",0,0,0,0,0,0)
-a127f = modelSelector
-a127f.modelXtics("exynos",0,0,0,0,0,0)
