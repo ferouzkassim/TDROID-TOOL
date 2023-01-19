@@ -6,6 +6,12 @@ from adbcon import *
 
 def Dtect():
     startDaemon()
+    #managing loggs
+
     from gui import logfield
-    logfield.insert(tkinter.END,f'    connecting through {client.host}:{client.port}')
+    with open(logs,"r") as txt:
+        logging=txt.read()
+        print(logging)
+    logfield.insert(tkinter.END,f'' )
+
 
