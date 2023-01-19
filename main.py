@@ -1,2 +1,4 @@
-import gui
 from adbcon import *
+import detect
+import gui
+

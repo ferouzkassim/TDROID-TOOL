@@ -2,6 +2,7 @@ import tkinter
 import tkinter as tk
 from tkinter import *
 import tkinter as ttk
+from detect import Dtect
 root = tk.Tk()
 #root the frame poatiioning and such
 root.title('Tdroid_Tool')
@@ -50,6 +51,7 @@ BackUp=butt(txt='BackUp Nv',nem='BackUp')
 BackUp.grid(row=1,column=0)
 Detect=butt(txt='Detect',nem='Detect',)
 Detect.grid(row=0,column=0,)
+Detect.configure(command=Dtect)
 Restore=butt(txt='Restore Nv',nem='Restore')
 Restore.grid(row=2,column=0)
 fix=butt(txt='fix baseband',nem='fix')
