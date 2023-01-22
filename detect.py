@@ -1,11 +1,14 @@
+
 from adbcon import *
-from ppadb.device import Device
+import tkinter as tk
+
+
 logs=open('logs/logs.txt','w')
+
 
 def detectfunc():
     startDaemon.start
-    client.devices()
-    for device in client.devices():
-        snmbr = device.serial
-        print(type(snmbr),snmbr)
+
+
+
 detectfunc()

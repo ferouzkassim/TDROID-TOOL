@@ -29,10 +29,9 @@ frem.columnconfigure(0,weight=1)
 frem.grid(pady=0,padx=0)
 frem2= Frame(root)
 frem2.grid(column=1,row=1)
-logfield= tk.Text(root,background='black',foreground='white')
+logfield = tk.Text(root,background='black',foreground='white')
 logfield.grid(column=2,row=0,pady=40)
-logfield.insert(END,'work logs')
-#button
+
 def butt(txt, nem ):
     nem = tk.Button(frem, text=txt, )
     nem.configure(bg='black',background='white', borderwidth=0,width=14)
@@ -69,7 +68,9 @@ BackUpEfs=butt(txt='Backup Efs',nem='BackupEfs')
 BackUpEfs.grid(row=5,column=0)
 Listpackages = butt(txt='List Apps',nem='apps')
 Listpackages.grid(row=6,column=0)
-
+def logging (str=logs):
+    detectfunc()
+    logfield.insert(END,logs)
 def model_selection():
     def selection(model):
         return model
@@ -78,26 +79,30 @@ def model_selection():
         '''if model == str('sm-a127f') or model == str('sm-a135f'):
           print('selected model is eynos')'''
     mdellist = ['sm-a125f', 'sm-a127f', 'sm-a135f', 'sm-a022f', 'sm-a225f']
-    fast = StringVar()
-    fast.set('model')
-
+    sel=tk.StringVar()
 
    # if fast.get()=='model':
       #   return fast.get()
     #else:
      #    logfield.insert(tkinter.END,f'scanning for {fast.get()}')
-    modeloption = tkinter.ttk.Combobox(root, textvariable=fast,justify="center")
+    modeloption = tkinter.ttk.Combobox(root, textvariable=sel,justify="center")
+    modeloption['state']='readonly'
     #modeloption = ttk.OptionMenu(root, fast, *mdellist, command=selection)
 
     modeloption.place(x=400, y=10)
     #modeloption.configure(compound="bottom",anchor="center",direction="below",)
 
-    if fast.get() != str('model'):
+    '''if fast.get() != str('model'):
         logfield.insert(tkinter.END, f'scanning for {fast.get()}')
         print({fast.get()})
 
     else:
-     return 0
-
+     return 0'''
+flashfield=tk.Frame(root,height=130,width=640)
+fileselector=tk.Frame(root,height=130,width=100)
+fileselector.grid(column=0,row=1)
+fileselector.config(background='white')
+flashfield.grid(column=2,row=1)
+flashfield.config(bg='white')
 model_selection()
 root.mainloop()

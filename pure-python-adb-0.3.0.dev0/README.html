@@ -1,0 +1,658 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<title>README.rst</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 8954 2022-01-20 10:10:25Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See https://docutils.sourceforge.io/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+.subscript {
+  vertical-align: sub;
+  font-size: smaller }
+
+.superscript {
+  vertical-align: super;
+  font-size: smaller }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+object[type="image/svg+xml"], object[type="application/x-shockwave-flash"] {
+  overflow: hidden;
+}
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title, .code .error {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left, object.align-left, table.align-left {
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right, object.align-right, table.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+img.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+table.align-center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: inherit }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+.align-top    {
+  vertical-align: top }
+
+.align-middle {
+  vertical-align: middle }
+
+.align-bottom {
+  vertical-align: bottom }
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block, pre.math, pre.code {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+pre.code .ln { color: grey; } /* line numbers */
+pre.code, code { background-color: #eeeeee }
+pre.code .comment, code .comment { color: #5C6576 }
+pre.code .keyword, code .keyword { color: #3B0D06; font-weight: bold }
+pre.code .literal.string, code .literal.string { color: #0C5404 }
+pre.code .name.builtin, code .name.builtin { color: #352B84 }
+pre.code .deleted, code .deleted { background-color: #DEB0A1}
+pre.code .inserted, code .inserted { background-color: #A3D289}
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+/* "booktabs" style (no vertical lines) */
+table.docutils.booktabs {
+  border: 0px;
+  border-top: 2px solid;
+  border-bottom: 2px solid;
+  border-collapse: collapse;
+}
+table.docutils.booktabs * {
+  border: 0px;
+}
+table.docutils.booktabs th {
+  border-bottom: thin solid;
+  text-align: left;
+}
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document">
+
+
+<div class="section" id="the-package-name-has-been-renamed-from-adb-to-ppadb">
+<h1>The package name has been renamed from 'adb' to 'ppadb'</h1>
+<p>From version <strong>v0.2.1-dev</strong>, the package name has been renamed from 'adb' to 'ppadb' to avoid conflit with Google <a class="reference external" href="https://github.com/google/python-adb">google/python-adb</a></p>
+</div>
+<div class="section" id="introduction">
+<h1>Introduction</h1>
+<p>This is pure-python implementation of the ADB client.</p>
+<p>You can use it to communicate with adb server (not the adb daemon on the device/emulator).</p>
+<p>When you use <cite>adb</cite> command</p>
+<img alt="https://raw.githubusercontent.com/Swind/pure-python-adb/master/docs/adb_cli.png" src="https://raw.githubusercontent.com/Swind/pure-python-adb/master/docs/adb_cli.png" />
+<p>Now you can use <cite>pure-python-adb</cite> to connect to adb server as adb command line</p>
+<img alt="https://raw.githubusercontent.com/Swind/pure-python-adb/master/docs/adb_pure_python_adb.png" src="https://raw.githubusercontent.com/Swind/pure-python-adb/master/docs/adb_pure_python_adb.png" />
+<p>This package supports most of the adb command line tool's functionality.</p>
+<ol class="arabic simple">
+<li>adb devices</li>
+<li>adb shell</li>
+<li>adb forward</li>
+<li>adb pull/push</li>
+<li>adb install/uninstall</li>
+</ol>
+</div>
+<div class="section" id="requirements">
+<h1>Requirements</h1>
+<p>Python 3.6+</p>
+</div>
+<div class="section" id="installation">
+<h1>Installation</h1>
+<pre class="code console literal-block">
+$pip install -U pure-python-adb
+</pre>
+</div>
+<div class="section" id="examples">
+<h1>Examples</h1>
+<div class="section" id="connect-to-adb-server-and-get-the-version">
+<h2>Connect to adb server and get the version</h2>
+<pre class="code python literal-block">
+from ppadb.client import Client as AdbClient
+# Default is &quot;127.0.0.1&quot; and 5037
+client = AdbClient(host=&quot;127.0.0.1&quot;, port=5037)
+print(client.version())
+
+&gt;&gt;&gt; 39
+</pre>
+</div>
+<div class="section" id="connect-to-a-device">
+<h2>Connect to a device</h2>
+<pre class="code python literal-block">
+from ppadb.client import Client as AdbClient
+# Default is &quot;127.0.0.1&quot; and 5037
+client = AdbClient(host=&quot;127.0.0.1&quot;, port=5037)
+device = client.device(&quot;emulator-5554&quot;)
+</pre>
+</div>
+<div class="section" id="list-all-devices-adb-devices-and-install-uninstall-an-apk-on-all-devices">
+<h2>List all devices ( adb devices ) and install/uninstall an APK on all devices</h2>
+<pre class="code python literal-block">
+from ppadb.client import Client as AdbClient
+
+apk_path = &quot;example.apk&quot;
+
+# Default is &quot;127.0.0.1&quot; and 5037
+client = AdbClient(host=&quot;127.0.0.1&quot;, port=5037)
+devices = client.devices()
+
+for device in devices:
+    device.install(apk_path)
+
+# Check apk is installed
+for device in devices:
+    print(device.is_installed(&quot;example.package&quot;))
+
+# Uninstall
+for device in devices:
+    device.uninstall(&quot;example.package&quot;)
+</pre>
+</div>
+<div class="section" id="adb-shell">
+<h2>adb shell</h2>
+<pre class="code python literal-block">
+from ppadb.client import Client as AdbClient
+# Default is &quot;127.0.0.1&quot; and 5037
+client = AdbClient(host=&quot;127.0.0.1&quot;, port=5037)
+device = client.device(&quot;emulator-5554&quot;)
+device.shell(&quot;echo hello world !&quot;)
+</pre>
+<pre class="code python literal-block">
+def dump_logcat(connection):
+    while True:
+        data = connection.read(1024)
+        if not data:
+            break
+        print(data.decode('utf-8'))
+
+    connection.close()
+
+from ppadb.client import Client as AdbClient
+# Default is &quot;127.0.0.1&quot; and 5037
+client = AdbClient(host=&quot;127.0.0.1&quot;, port=5037)
+device = client.device(&quot;emulator-5554&quot;)
+device.shell(&quot;logcat&quot;, handler=dump_logcat)
+</pre>
+<p>read logcat line by line</p>
+<pre class="code python literal-block">
+from ppadb.client import Client
+
+def dump_logcat_by_line(connect):
+    file_obj = connect.socket.makefile()
+    for index in range(0, 10):
+        print(&quot;Line {}: {}&quot;.format(index, file_obj.readline().strip()))
+
+file_obj.close()
+connect.close()
+
+client = Client()
+device = client.device(&quot;emulator-5554&quot;)
+device.shell(&quot;logcat&quot;, handler=dump_logcat_by_line)
+</pre>
+</div>
+<div class="section" id="screenshot">
+<h2>Screenshot</h2>
+<pre class="code python literal-block">
+from ppadb.client import Client as AdbClient
+client = AdbClient(host=&quot;127.0.0.1&quot;, port=5037)
+device = client.device(&quot;emulator-5554&quot;)
+result = device.screencap()
+with open(&quot;screen.png&quot;, &quot;wb&quot;) as fp:
+    fp.write(result)
+</pre>
+</div>
+<div class="section" id="push-file-or-folder">
+<h2>Push file or folder</h2>
+<pre class="code python literal-block">
+from ppadb.client import Client as AdbClient
+client = AdbClient(host=&quot;127.0.0.1&quot;, port=5037)
+device = client.device(&quot;emulator-5554&quot;)
+
+device.push(&quot;example.apk&quot;, &quot;/sdcard/example.apk&quot;)
+</pre>
+</div>
+<div class="section" id="pull">
+<h2>Pull</h2>
+<pre class="code python literal-block">
+from ppadb.client import Client as AdbClient
+client = AdbClient(host=&quot;127.0.0.1&quot;, port=5037)
+device = client.device(&quot;emulator-5554&quot;)
+
+device.shell(&quot;screencap -p /sdcard/screen.png&quot;)
+device.pull(&quot;/sdcard/screen.png&quot;, &quot;screen.png&quot;)
+</pre>
+</div>
+<div class="section" id="connect-to-device">
+<h2>Connect to device</h2>
+<pre class="code python literal-block">
+from ppadb.client import Client as AdbClient
+client = AdbClient(host=&quot;127.0.0.1&quot;, port=5037)
+client.remote_connect(&quot;172.20.0.1&quot;, 5555)
+
+device = client.device(&quot;172.20.0.1:5555&quot;)
+
+# Disconnect all devices
+client.remote_disconnect()
+
+##Disconnect 172.20.0.1
+# client.remote_disconnect(&quot;172.20.0.1&quot;)
+##Or
+# client.remote_disconnect(&quot;172.20.0.1&quot;, 5555)
+</pre>
+</div>
+<div class="section" id="enable-debug-logger">
+<h2>Enable debug logger</h2>
+<pre class="code python literal-block">
+logging.getLogger(&quot;ppadb&quot;).setLevel(logging.DEBUG)
+</pre>
+</div>
+<div class="section" id="async-client">
+<h2>Async Client</h2>
+<pre class="code python literal-block">
+import asyncio
+import aiofiles
+from ppadb.client_async import ClientAsync as AdbClient
+
+async def _save_screenshot(device):
+    result = await device.screencap()
+    file_name = f&quot;{device.serial}.png&quot;
+    async with aiofiles.open(f&quot;{file_name}&quot;, mode='wb') as f:
+        await f.write(result)
+
+    return file_name
+
+async def main():
+    client = AdbClient(host=&quot;127.0.0.1&quot;, port=5037)
+    devices = await client.devices()
+    for device in devices:
+        print(device.serial)
+
+    result = await asyncio.gather(*[_save_screenshot(device) for device in devices])
+    print(result)
+
+asyncio.run(main())
+</pre>
+</div>
+</div>
+<div class="section" id="how-to-run-test-cases">
+<h1>How to run test cases</h1>
+<div class="section" id="prepare">
+<h2>Prepare</h2>
+<ol class="arabic simple">
+<li>Install Docker</li>
+<li>Install Docker Compose</li>
+</ol>
+<pre class="code console literal-block">
+pip install docker-compose
+</pre>
+<ol class="arabic simple" start="3">
+<li>Modify <cite>test/conftest.py</cite></li>
+</ol>
+<p>Change the value of <cite>adb_host</cite> to the &quot;emulator&quot;</p>
+<pre class="code python literal-block">
+adb_host=&quot;emulator&quot;
+</pre>
+<ol class="arabic simple" start="4">
+<li>Run testcases</li>
+</ol>
+<pre class="code console literal-block">
+docker-compose up
+</pre>
+<p>Result</p>
+<pre class="code console literal-block">
+Starting purepythonadb_emulator_1 ... done
+Recreating purepythonadb_python_environment_1 ... done
+Attaching to purepythonadb_emulator_1, purepythonadb_python_environment_1
+emulator_1            | + echo n
+emulator_1            | + /home/user/android-sdk-linux/tools/bin/avdmanager create avd -k system-images;android-25;google_apis;x86 -n Docker -b x86 -g google_apis --device 8 --force
+Parsing /home/user/android-sdk-linux/emulator/package.xmlParsing /home/user/android-sdk-linux/patcher/v4/package.xmlParsing /home/user/android-sdk-linux/platform-tools/package.xmlParsing /home/user/android-sdk-linux/platforms/android-25/package.xmlParsing /home/user/android-sdk-linux/system-images/android-25/google_apis/x86/package.xmlParsing /home/user/android-sdk-linux/tools/package.xml+ echo hw.keyboard = true
+emulator_1            | + adb start-server
+emulator_1            | * daemon not running; starting now at tcp:5037
+python_environment_1  | ============================= test session starts ==============================
+python_environment_1  | platform linux -- Python 3.6.1, pytest-3.6.3, py-1.5.4, pluggy-0.6.0
+python_environment_1  | rootdir: /code, inifile:
+python_environment_1  | collected 27 items
+python_environment_1  |
+emulator_1            | * daemon started successfully
+emulator_1            | + exec /usr/bin/supervisord
+emulator_1            | /usr/lib/python2.7/dist-packages/supervisor/options.py:298: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a &quot;-c&quot; argument specifying an absolute path to a configuration file for improved security.
+emulator_1            |   'Supervisord is running as root and it is searching '
+emulator_1            | 2018-07-07 17:19:47,560 CRIT Supervisor running as root (no user in config file)
+emulator_1            | 2018-07-07 17:19:47,560 INFO Included extra file &quot;/etc/supervisor/conf.d/supervisord.conf&quot; during parsing
+emulator_1            | 2018-07-07 17:19:47,570 INFO RPC interface 'supervisor' initialized
+emulator_1            | 2018-07-07 17:19:47,570 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+emulator_1            | 2018-07-07 17:19:47,570 INFO supervisord started with pid 1
+emulator_1            | 2018-07-07 17:19:48,573 INFO spawned: 'socat-5554' with pid 74
+emulator_1            | 2018-07-07 17:19:48,574 INFO spawned: 'socat-5555' with pid 75
+emulator_1            | 2018-07-07 17:19:48,576 INFO spawned: 'socat-5037' with pid 76
+emulator_1            | 2018-07-07 17:19:48,578 INFO spawned: 'novnc' with pid 77
+emulator_1            | 2018-07-07 17:19:48,579 INFO spawned: 'socat-9008' with pid 78
+emulator_1            | 2018-07-07 17:19:48,582 INFO spawned: 'emulator' with pid 80
+emulator_1            | 2018-07-07 17:19:49,607 INFO success: socat-5554 entered RUNNING state, process has stayed up for &gt; than 1 seconds (startsecs)
+emulator_1            | 2018-07-07 17:19:49,607 INFO success: socat-5555 entered RUNNING state, process has stayed up for &gt; than 1 seconds (startsecs)
+emulator_1            | 2018-07-07 17:19:49,607 INFO success: socat-5037 entered RUNNING state, process has stayed up for &gt; than 1 seconds (startsecs)
+emulator_1            | 2018-07-07 17:19:49,607 INFO success: novnc entered RUNNING state, process has stayed up for &gt; than 1 seconds (startsecs)
+emulator_1            | 2018-07-07 17:19:49,608 INFO success: socat-9008 entered RUNNING state, process has stayed up for &gt; than 1 seconds (startsecs)
+emulator_1            | 2018-07-07 17:19:49,608 INFO success: emulator entered RUNNING state, process has stayed up for &gt; than 1 seconds (startsecs)
+python_environment_1  | test/test_device.py ..............                                       [ 51%]
+python_environment_1  | test/test_host.py ..                                                     [ 59%]
+python_environment_1  | test/test_host_serial.py ........                                        [ 88%]
+python_environment_1  | test/test_plugins.py ...                                                 [100%]
+python_environment_1  |
+python_environment_1  | ------------------ generated xml file: /code/test_result.xml -------------------
+python_environment_1  | ========================= 27 passed in 119.15 seconds ==========================
+purepythonadb_python_environment_1 exited with code 0
+Aborting on container exit...
+Stopping purepythonadb_emulator_1 ... done
+</pre>
+</div>
+</div>
+<div class="section" id="more-information">
+<h1>More Information</h1>
+<div class="section" id="a-pure-node-js-client-for-the-android-debug-bridge">
+<h2>A pure Node.js client for the Android Debug Bridge</h2>
+<p><a class="reference external" href="https://github.com/openstf/stf">adbkit</a></p>
+</div>
+<div class="section" id="adb-documents">
+<h2>ADB documents</h2>
+<ul class="simple">
+<li><a class="reference external" href="https://android.googlesource.com/platform/system/core/+/master/adb/protocol.txt">protocol</a></li>
+<li><a class="reference external" href="https://android.googlesource.com/platform/system/core/+/master/adb/SERVICES.TXT">services</a></li>
+<li><a class="reference external" href="https://android.googlesource.com/platform/system/core/+/master/adb/SYNC.TXT">sync</a></li>
+</ul>
+</div>
+</div>
+</div>
+</body>
+</html>

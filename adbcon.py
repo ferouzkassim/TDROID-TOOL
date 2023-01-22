@@ -6,12 +6,13 @@ from ppadb.client import Client as AdbClient
 logs = open('logs/logs.txt', 'w')
 host='127.0.0.1'
 port=5037
-client = AdbClient(host,port)
 
 class startDaemon:
     # try:
     start = subprocess.run(['daemon/adb.exe', 'start-server'])
-
+client = AdbClient(host,port)
+for device in client.devices():
+    snmbr = device.serial
 # starting
 #
 # the adb server using adb.exe
