@@ -1,8 +1,11 @@
-import tkinter
+import tkinter.ttk
 import tkinter as tk
 from tkinter import *
-import tkinter as ttk
-from detect import Dtect
+from tkinter.ttk import *
+
+from detect import detectfunc
+from adbcon import logs
+
 root = tk.Tk()
 #root the frame poatiioning and such
 root.title('Tdroid_Tool')
@@ -28,7 +31,7 @@ frem2= Frame(root)
 frem2.grid(column=1,row=1)
 logfield= tk.Text(root,background='black',foreground='white')
 logfield.grid(column=2,row=0,pady=40)
-logfield.insert(tk.END,'scanning device',)
+logfield.insert(END,'work logs')
 #button
 def butt(txt, nem ):
     nem = tk.Button(frem, text=txt, )
@@ -51,7 +54,7 @@ BackUp=butt(txt='BackUp Nv',nem='BackUp')
 BackUp.grid(row=1,column=0)
 Detect=butt(txt='Detect',nem='Detect',)
 Detect.grid(row=0,column=0,)
-Detect.configure(command=Dtect)
+Detect.config(command=detectfunc)
 Restore=butt(txt='Restore Nv',nem='Restore')
 Restore.grid(row=2,column=0)
 fix=butt(txt='fix baseband',nem='fix')
@@ -64,14 +67,13 @@ mount.config(font='ubuntu 9')
 mount.config(padx=10)
 BackUpEfs=butt(txt='Backup Efs',nem='BackupEfs')
 BackUpEfs.grid(row=5,column=0)
-
+Listpackages = butt(txt='List Apps',nem='apps')
+Listpackages.grid(row=6,column=0)
 
 def model_selection():
     def selection(model):
         return model
-        '''if model == str('sm-a125f'):
-            print('the selectd model is mtk')
-'''
+
 
         '''if model == str('sm-a127f') or model == str('sm-a135f'):
           print('selected model is eynos')'''
@@ -79,16 +81,17 @@ def model_selection():
     fast = StringVar()
     fast.set('model')
 
+
    # if fast.get()=='model':
       #   return fast.get()
     #else:
      #    logfield.insert(tkinter.END,f'scanning for {fast.get()}')
-    modeloption = OptionMenu(root, fast, *mdellist, command=selection)
+    modeloption = tkinter.ttk.Combobox(root, textvariable=fast,justify="center")
+    #modeloption = ttk.OptionMenu(root, fast, *mdellist, command=selection)
+
     modeloption.place(x=400, y=10)
-    modeloption.config(borderwidth=0,
-                       compound="bottom"
-                       ,anchor="center"
-                       ,direction="below",)
+    #modeloption.configure(compound="bottom",anchor="center",direction="below",)
+
     if fast.get() != str('model'):
         logfield.insert(tkinter.END, f'scanning for {fast.get()}')
         print({fast.get()})

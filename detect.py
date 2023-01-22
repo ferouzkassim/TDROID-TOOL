@@ -1,17 +1,11 @@
-import tkinter
-
 from adbcon import *
-#from gui import logfield
+from ppadb.device import Device
+logs=open('logs/logs.txt','w')
 
-
-def Dtect():
-    startDaemon()
-    #managing loggs
-
-    from gui import logfield
-    with open(logs,"r") as txt:
-        logging=txt.read()
-        print(logging)
-    logfield.insert(tkinter.END,f'' )
-
-
+def detectfunc():
+    startDaemon.start
+    client.devices()
+    for device in client.devices():
+        snmbr = device.serial
+        print(type(snmbr),snmbr)
+detectfunc()
