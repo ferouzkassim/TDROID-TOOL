@@ -87,6 +87,8 @@ def model_selection():
      #    logfield.insert(tkinter.END,f'scanning for {fast.get()}')
     modeloption = tkinter.ttk.Combobox(root, textvariable=sel,justify="center")
     modeloption['state']='readonly'
+    modeloption['values']=mdellist
+
     #modeloption = ttk.OptionMenu(root, fast, *mdellist, command=selection)
 
     modeloption.place(x=400, y=10)
