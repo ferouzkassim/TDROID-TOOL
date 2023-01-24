@@ -15,20 +15,10 @@ class startDaemon:
 
 
 client = AdbClient(host, port)
-for device in client.devices():
-    snmbr = device.serial
+
+
 
 
 # starting
 #
 # the adb server using adb.exe
-def startShell():
-    startDaemon.start
-    # client.create_connection(timeout=200)
-    client.devices()
-    for initdevice in client.devices():
-        print(initdevice.serial)
-
-    for package in device.list_packages():
-            print(package)
-startShell()

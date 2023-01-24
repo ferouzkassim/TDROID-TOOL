@@ -1,4 +1,3 @@
-from adbcon import *
-import detect
 import gui
-
+import detect
+from adbcon import *
