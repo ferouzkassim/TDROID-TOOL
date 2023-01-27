@@ -4,8 +4,9 @@ from usb import *
 '''for dev in usb.core.find(find_all=True):
     print (dev.serial_number)'''
 
-print (usb.core.show_devices())
+dev_list = usb.core.show_devices()
+usb.TYPE_VENDOR
+vend= usb.busses()
+#for dev in vend:
+ #   print(dev)
 
-for dev in usb1.USBContext.getDeviceList():
-    print(dev)
-    

@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import *
 from tkinter.ttk import *
 from detect import *
-
+import customtkinter
 
 root = tk.Tk()
 # root the frame poatiioning and such
@@ -30,11 +30,12 @@ frem2 = Frame(root)
 frem2.grid(column=1, row=1)
 logfield = tk.Text(root, background='black', foreground='white')
 logfield.grid(column=2, row=0, pady=40)
+logfield.insert(END,'logging')
 
 
 def butt(txt, nem):
     nem = tk.Button(frem, text=txt, )
-    nem.configure(bg='black', background='white', borderwidth=0, width=14)
+    nem.configure(fg='white', background='black', borderwidth=1, width=14)
     nem.grid(pady=10, padx=10, sticky=W)
     return nem
 
@@ -53,7 +54,7 @@ BackUp = butt(txt='BackUp Nv', nem='BackUp')
 BackUp.grid(row=1, column=0)
 Detect = butt(txt='Detect', nem='Detect', )
 Detect.grid(row=0, column=0, )
-Detect.configure(command=detectfunc)
+Detect.configure(command=detecting.detectfunc())
 Restore = butt(txt='Restore Nv', nem='Restore')
 Restore.grid(row=2, column=0)
 fix = butt(txt='fix baseband', nem='fix')
@@ -68,7 +69,9 @@ BackUpEfs = butt(txt='Backup Efs', nem='BackupEfs')
 BackUpEfs.grid(row=5, column=0)
 Listpackages = butt(txt='List Apps', nem='apps')
 Listpackages.grid(row=6, column=0)
-Listpackages.config(command=listApps)
+
+
+# Listpackages.config(command=listApps)
 
 
 def model_selection():

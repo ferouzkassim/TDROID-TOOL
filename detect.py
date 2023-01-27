@@ -1,19 +1,23 @@
-import sys
 
 from adbcon import *
+import tkinter as tk
 
-logs = open('logs/logs.txt', 'w')
-startDaemon.start
-for dev in client.devices():
-    pass
-def detectfunc():
-    dev.serial
+
+def detectfunc(self):
+    devices = client.devices()
+    for dev in devices:
+        serial = dev.serial
+    return serial
+
 
 def listApps():
-    startDaemon.start
-    client.devices()
-    #the pass gives us the attached deivce
+    devices = client.devices()
+class detecting :
+    def __init__(self):
+        pass
 
-    for prop in dev.list_packages():
-        print(prop)
+
+#writitng /pprinting function
+
+
 

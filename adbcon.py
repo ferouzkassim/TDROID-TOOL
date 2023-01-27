@@ -14,9 +14,10 @@ class startDaemon:
     start = subprocess.run(['daemon/adb.exe', 'start-server'])
 
 
+
 client = AdbClient(host, port)
-
-
+client.devices()
+startDaemon.start
 
 
 # starting
