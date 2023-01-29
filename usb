@@ -38,4 +38,4 @@ def month_changed(event):
 
 month_cb.bind('<<ComboboxSelected>>', month_changed)
 
-root.mainloop()
+root.mainloop()a42a4d61

@@ -30,7 +30,7 @@ frem2 = Frame(root)
 frem2.grid(column=1, row=1)
 logfield = tk.Text(root, background='black', foreground='white')
 logfield.grid(column=2, row=0, pady=40)
-logfield.insert(END,'logging')
+logfield.insert(END, 'logging')
 
 
 def butt(txt, nem):
@@ -54,7 +54,10 @@ BackUp = butt(txt='BackUp Nv', nem='BackUp')
 BackUp.grid(row=1, column=0)
 Detect = butt(txt='Detect', nem='Detect', )
 Detect.grid(row=0, column=0, )
-Detect.configure(command=detecting.detectfunc())
+
+Detect.configure(command=lambda
+                 :logfield.insert(END,f"\n{detecting.detectfunc()}"))
+
 Restore = butt(txt='Restore Nv', nem='Restore')
 Restore.grid(row=2, column=0)
 fix = butt(txt='fix baseband', nem='fix')
