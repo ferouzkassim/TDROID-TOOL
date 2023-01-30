@@ -30,6 +30,15 @@ def detct():
            log.write(detect)
     return detect
     print('bingo')
-
-
+#detct()
+def listApps():
+    detect = detecting.detectfunc()
+    applist=[]
+    for dev in  client.devices():
+        dev.list_packages()
+        for app in dev.list_packages():
+             applist.append(app)
+             print(applist)
+             return applist,app
+listApps()
 
