@@ -11,5 +11,3 @@ def startserver():
     starting = subprocess.run(['daemon/adb.exe','start-server'])
     logs = starting.stdout
     print(logs)
-#startserver()
-startserver()

@@ -2,6 +2,8 @@
 from adbcon import *
 import tkinter as tk
 
+from adbpp import startserver
+
 
 #importing the class to do detecting and exposing the srial number
 class detecting :
@@ -9,6 +11,7 @@ class detecting :
         pass
     @classmethod
     def detectfunc(cls):
+        startserver()
         devices = client.devices()
         if devices:
 
