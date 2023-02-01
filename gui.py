@@ -18,12 +18,9 @@ root.resizable(False, False)
 root_wid = 900
 root_hi = 600
 #menu bar like
-menubar = tk.Menu(root)
-menubar.add_cascade(label='Samsung')
-menubar.add_cascade(label='Adb Tool')
-menubar.place()
-menubar.configure(activebackground='cyan')
-root.config(menu=menubar)
+#menubar actions
+
+
 
 screen_wdth = root.winfo_screenwidth()
 scree_height = root.winfo_screenwidth()
@@ -69,7 +66,10 @@ model.grid(row=0,column=10,sticky=NW,pady=25,padx=10)
 def filedialog(name):
     namedir = filer.asksaveasfile(filetypes=[('bin file','*.bin')]
                                ,initialdir=f"{os.getcwd()}/backup")
-    return name
+    restore = filer.askopenfilename(filetypes=['*.bin','*.img'])
+    return namedir
+
+# fastboot pane frame
 
 # detect.place(x=10,y=50)
 # detect.configure(bg='black',foreground='white',borderwidth=2,font='ubuntu')
@@ -84,7 +84,7 @@ usbdet.grid(column=3,row=0)
 usbdet.configure(command=lambda :(logfield.insert(END,list(usbdevices))))
 
 Detect.configure(command=lambda
-                 :logfield.insert(END,f"\nDevice with sn \n{detecting.detectfunc()}"))
+                 :logfield.insert(END,f"\nDevice with sn \n\t{detecting.detectfunc()}"))
 
 Restore = butt(txt='Restore Nv', nem='Restore')
 Restore.grid(row=2, column=0)
@@ -96,11 +96,19 @@ mount.grid(row=4, column=0)
 mount.configure(width=14)
 mount.config(font='ubuntu 9')
 mount.config(padx=10)
+
 BackUpEfs = butt(txt='Backup Efs', nem='BackupEfs')
 BackUpEfs.grid(row=5, column=0)
-Listpackages = butt(txt='List Apps', nem='apps')
-Listpackages.grid(row=6, column=0)
+BackUpEfs.config(command=lambda :filedialog('Efs location'))
 
+RestoreEfs = butt(txt='Restore Efs', nem='RestoreEfs')
+RestoreEfs.grid(row=6, column=0)
+RestoreEfs.config(command= lambda
+                           :filedialog('R'
+                                       'estoreEfs'))
+
+Listpackages = butt(txt='List Apps', nem='apps')
+Listpackages.grid(row=7, column=0)
 Listpackages.configure(command=lambda:
 
       (logfield.insert(END,f'\n{listApps()}')))
@@ -108,7 +116,7 @@ Listpackages.configure(command=lambda:
 # Listpackages.config(command=listApps)
 
 
-def model_selection():
+class model_selection():
     def selection(model):
         return model
 
@@ -126,6 +134,7 @@ def model_selection():
     modeloption['state'] = 'readonly'
     modeloption['values'] = mdellist
 
+
     # modeloption = ttk.OptionMenu(root, fast, *mdellist, command=selection)
 
     modeloption.place(x=400, y=10)
@@ -138,6 +147,29 @@ def model_selection():
     else:
      return 0'''
 
+def fastbootpane():
+  try:
+      frem.grid_forget()
+      frem2.grid_forget()
+      frem3.grid_forget()
+      model_selection.modeloption.place_forget()
+  except:
+      pass
+
+#samsung pane frame
+def samsungpane():
+    Listpackages.grid_forget()
+    frem.grid(column=0,row=0)
+    frem2.grid(column=2,row=0)
+    frem3.grid_forget()
+    model_selection.modeloption.place_forget()
+
+menubar = tk.Menu(root,activeborderwidth='20')
+samenu = menubar.add_command(label='Samsung Tools',command=samsungpane)
+adbmenu = menubar.add_command(label='Adb Tools')
+fbootmenu = menubar.add_command(label='Fastboot tools',command=fastbootpane)
+root.config(menu=menubar)
+
 
 flashfield = tk.Frame(root, height=130, width=640)
 fileselector = tk.Frame(root, height=130, width=100)
@@ -147,4 +179,5 @@ flashfield.grid(column=2, row=1)
 
 flashfield.config(bg='white')
 model_selection()
+
 root.mainloop()
