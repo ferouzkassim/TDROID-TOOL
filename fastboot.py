@@ -1,6 +1,7 @@
-import fastbootpy
-from fastbootpy import *
+import fastbootpy as fb
 
-for device in fastbootpy.FastbootManager.devices():
-    print(device)
-
+def fbdevices():
+    fb.FastbootManager.devices()
+    for dev in fb.FastbootManager.devices():
+        pass
+    return dev
