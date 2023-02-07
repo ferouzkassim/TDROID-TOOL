@@ -50,6 +50,9 @@ frem3.grid(column=3,row=0)
 
 logfield = tk.Text(root, background='black', foreground='white')
 logfield.grid(column=2, row=0, pady=40)
+scroll = tk.Scrollbar(root,orient='vertical')
+scroll.config()
+scroll.place()
 logfield.insert(END, 'logging')
 
 
@@ -68,11 +71,11 @@ model= tk.Listbox(root,height=5,listvariable=tk.StringVar(value=mdellist))
 model.grid(row=0,column=10,sticky=NW,pady=25,padx=10)
 '''
 #function to create dialog boxest
-def filedialog(name):
-    namedir = filer.asksaveasfile(filetypes=[('bin file','*.bin')]
+def filedialog():
+    backup = filer.asksaveasfile(filetypes=[('bin file','*.bin')]
                                ,initialdir=f"{os.getcwd()}/backup")
-    restore = filer.askopenfilename(filetypes=['*.bin','*.img'])
-    return namedir
+    restore = filer.askopenfilename(filetypes=['*.bin','*.img'],)
+    return backup,restore,
 
 # fastboot pane frame
 
@@ -108,7 +111,6 @@ mount.config(padx=10)
 
 BackUpEfs = butt(txt='Backup Efs', nem='BackupEfs')
 BackUpEfs.grid(row=5, column=0)
-BackUpEfs.config(command=lambda :filedialog('Efs location'))
 
 RestoreEfs = butt(txt='Restore Efs', nem='RestoreEfs')
 RestoreEfs.grid(row=6, column=0)
@@ -117,7 +119,9 @@ RestoreEfs.config(command= lambda
 
 Listpackages = butt(txt='List Apps', nem='apps')
 Listpackages.grid(row=7, column=0)
-
+Listpackages.config(command=lambda:[logfield.delete(1.0,END),
+                                    logfield.insert(END, f'{applister()}'),
+                                    ])
 # Listpackages.config(command=listApps)
 
 
@@ -172,7 +176,6 @@ def fastbootpane():
       detectfb.grid(column=0,row=0)
   except:
       pass
-
 #samsung pane frame
 def samsungpane():
     Listpackages.grid_forget()

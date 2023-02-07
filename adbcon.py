@@ -16,8 +16,6 @@ class startDaemon:
 
 
 client = AdbClient(host, port)
-client.devices()
-startDaemon.start
 
 
 # starting
