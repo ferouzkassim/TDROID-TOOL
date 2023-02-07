@@ -158,22 +158,21 @@ class model_selection():
 
 def fastbootpane():
   try:
-      '''frem.grid_forget()
-      frem2.grid_forget()
-      frem3.grid_forget()'''
+
       model_selection.modeloption.place_forget()
       itemremover = [Detect,BackUp
           ,BackUpEfs,RestoreEfs,Restore,fix,mount]
       for item in itemremover:
           item.grid_forget()
-      '''fbframe1 = tk.Frame(root,bg='white')
-      fbframe1.grid(column=0,row=0)
-      frame1 = tkinter.Frame(root)
-      frame1.grid(column=0, row=0)
-      detectfb.pack()'''
+
+
       detectfb = butt('Detect Fastboot','detectfb')
       detectfb.config(command=fastbootpy.fbdevices())
-      detectfb.grid(column=0,row=0)
+      if detectfb.winfo_exists():
+          pass
+      else:
+        pass
+        #detectfb.grid(column=0,row=0)
   except:
       pass
 #samsung pane frame

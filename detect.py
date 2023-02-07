@@ -23,7 +23,26 @@ def applister():
 #rto ad a new line on each app and index
     return '\n'.join(applist)
 
+def adbshell():
+    startDaemon
+    '''connection object. The function reads data from the connection in 1024-byte chunks and decodes it using the utf-8 encoding. The decoded data is then printed to the console.
 
+The function uses a while loop to continuously read data from the connection until there is no more data available (indicated by the not data condition). If no more data is available, the loop 
+breaks and the function closes the connection using the close() method.'''
 
+    def dump_logcat(connection):
+        while True:
+            data = connection.read(1024)
+            if not data:
+                break
+            return (data.decode('utf-8'))
+
+        connection.close()
+    for dev in client.devices():
+        sn = dev.get_serial_no()
+
+        dev.shell('su',handler=dump_logcat)
+
+adbshell()
 
 
