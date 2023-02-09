@@ -102,10 +102,10 @@ Detect.configure(command=
 Restore = butt(txt='Restore Nv', nem='Restore')
 Restore.grid(row=2, column=0)
 Restore.config(command=lambda :filedialog('Restorenv'))
-fix = butt(txt='fix baseband', nem='fix')
+fix = butt(txt='Fix Baseband', nem='fix')
 fix.configure(font='arial 10', width=14)
 fix.grid(row=3, column=0)
-mount = butt(txt='mount baseband', nem='mount')
+mount = butt(txt='Mount Baseband', nem='mount')
 mount.grid(row=4, column=0)
 mount.configure(width=14)
 mount.config(font='ubuntu 9')
@@ -213,7 +213,7 @@ fileselector.grid(column=0, row=1)
 fileselector.config(background='white')
 #bootloader button selections seciton
 pitloader = samsung.butonField
-pitloader.buttn(pitloader,"pit",fileselector)
+pitloader.buttn(pitloader,"PIT",fileselector)
 bloader = samsung.butonField
 bloader.buttn(bloader,"BL",fileselector)
 aploadder = samsung.butonField
