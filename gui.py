@@ -1,9 +1,9 @@
 import tkinter.ttk
 import os
-from usbcom import detectusb,usbdevices
+from usbcom import usbdevices
 import detect
 import fastboot
-from usbcom import detectusb
+
 import tkinter as tk
 from tkinter import *
 from tkinter.ttk import *
@@ -89,7 +89,7 @@ usbdet = tk.Button(frem3,text='Detect(usb)')
 usbdet.grid(column=3,row=0)
 #neded to delete text and write usb fileds filters by  pid and vid plu probbly the busnumber
 usbdet.configure(command=lambda:(logfield.delete(1.0,END),
-                                 (logfield.insert(END,f'{detectusb()}'))))
+                                 (logfield.insert(END,f'{usbdevices()}'))))
 #this lambda function frist deletes the context of the
 # text field and then writes from the function to make logs look much readeable
 Detect.configure(command=
