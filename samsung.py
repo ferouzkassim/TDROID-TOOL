@@ -16,11 +16,10 @@ class butonField:
         nem = tk.Button(root, text=name, )
         nem.configure(fg='white', background='black', borderwidth=1, width=14)
         nem.grid(pady=4, padx=4, sticky=W)
-        nem.config(command=lambda: filer.askopenfilenames(defaultextension=(('bin file','*.bin'),
+        nem.config(command=lambda: filer.askopenfile(defaultextension=(('bin file','*.bin'),
                                                                      ('tar file','*.tar'),
                                                                      ('img file','*.img'),('pit file','*.pit')),
                                                                        ))
-
     def fileloader(self):
         pass
 

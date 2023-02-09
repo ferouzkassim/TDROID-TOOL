@@ -47,6 +47,7 @@ frem.columnconfigure(0,)
 frem3.grid(column=3,row=0)
 
 
+
 logfield = tk.Text(root, background='black', foreground='white')
 logfield.grid(column=2, row=0, pady=40)
 scroll = tk.Scrollbar(root,orient='vertical')
@@ -73,8 +74,9 @@ model.grid(row=0,column=10,sticky=NW,pady=25,padx=10)
 def filedialog():
     backup = filer.asksaveasfile(filetypes=[('bin file','*.bin')]
                                ,initialdir=f"{os.getcwd()}/backup")
+    print(backup)
     restore = filer.askopenfilename(filetypes=['*.bin','*.img'],)
-    return backup,restore,
+    return backup,
 
 # fastboot pane frame
 
@@ -82,7 +84,7 @@ def filedialog():
 # detect.configure(bg='black',foreground='white',borderwidth=2,font='ubuntu')
 BackUp = butt(txt='BackUp Nv', nem='BackUp')
 BackUp.grid(row=1, column=0)
-BackUp.configure(command=lambda :filedialog('backupdir'))
+BackUp.configure(command=lambda :filedialog())
 
 Detect = butt(txt='Detect(ADB)', nem='Detect', )
 Detect.grid(row=0, column=0, )
@@ -90,7 +92,7 @@ usbdet = tk.Button(frem3,text='Detect(usb)')
 usbdet.grid(column=3,row=0)
 #neded to delete text and write usb fileds filters by  pid and vid plu probbly the busnumber
 usbdet.configure(command=lambda:(logfield.delete(1.0,END),
-                                 (logfield.insert(END,f'{detectusb()}'))))
+                                 (logfield.insert(END,f'backupdir''{detectusb()}'))))
 #this lambda function frist deletes the context of the
 # text field and then writes from the function to make logs look much readeable
 Detect.configure(command=
@@ -214,17 +216,28 @@ fileselector.config(background='white')
 #bootloader button selections seciton
 pitloader = samsung.butonField
 pitloader.buttn(pitloader,"PIT",fileselector)
+
 bloader = samsung.butonField
 bloader.buttn(bloader,"BL",fileselector)
+
 aploadder = samsung.butonField
 aploadder.buttn(aploadder,"AP",fileselector)
+
 cploader = samsung.butonField
 cploader.buttn(cploader,"CP",fileselector)
+
 cscloader = samsung.butonField
 cscloader.buttn(cscloader,"CSC",fileselector)
+
 userdataloader = samsung.butonField
 userdataloader.buttn(userdataloader,"USERDATA",fileselector)
 flashfield.grid(column=2, row=1)
+def firmwareloaded():
+    for i in range(5):
+        entry = tk.Entry(flashfield, width=110)
+        entry.grid(row=i, column=0, pady=10)
+        entry.config(relief='ridge',bd=2)
+firmwareloaded()
 
 flashfield.config(bg='white')
 model_selection()
