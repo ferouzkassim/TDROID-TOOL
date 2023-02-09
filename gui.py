@@ -1,11 +1,9 @@
 import tkinter.ttk
 import os
-
-import fastbootpy
-
+from usbcom import detectusb,usbdevices
 import detect
 import fastboot
-from usbcom import *
+from usbcom import detectusb
 import tkinter as tk
 from tkinter import *
 from tkinter.ttk import *
@@ -90,11 +88,14 @@ Detect.grid(row=0, column=0, )
 usbdet = tk.Button(frem3,text='Detect(usb)')
 usbdet.grid(column=3,row=0)
 #neded to delete text and write usb fileds filters by  pid and vid plu probbly the busnumber
-usbdet.configure(command=lambda:(logfield.insert(END,list(usbdevices))))
+usbdet.configure(command=lambda:(logfield.delete(1.0,END),
+                                 (logfield.insert(END,f'{detectusb()}'))))
 #this lambda function frist deletes the context of the
 # text field and then writes from the function to make logs look much readeable
 Detect.configure(command=
-                 ((lambda:logfield.delete(1.0,END)or(logfield.insert(END,f' \ndevice with \n{adbConnect()}\n found')))))
+                 ((lambda:logfield.delete(1.0,END)or
+                  (logfield.insert(END,f' \ndevice with \n{adbConnect()}\n found')
+                   ,logfield.insert(END,f'')))))
 
 
 Restore = butt(txt='Restore Nv', nem='Restore')
@@ -118,6 +119,7 @@ RestoreEfs.config(command= lambda
                            :filedialog('RestoreEfs'))
 
 Listpackages = butt(txt='List Apps', nem='apps')
+#Listpackages.master()
 Listpackages.grid(row=7, column=0)
 Listpackages.config(command=lambda:[logfield.delete(1.0,END),
                                     logfield.insert(END, f'{applister()}'),
@@ -174,11 +176,13 @@ def fastbootpane():
         pass
         #detectfb.grid(column=0,row=0)
   except:
+      detectfb.winfo_exists()
       pass
 #samsung pane frame
 def samsungpane():
     Listpackages.grid_forget()
     try:
+
         detectfb.grid_forget()
     except:
         RestoreEfs.grid(row=6, column=0,pady=10, padx=10, sticky=W)
