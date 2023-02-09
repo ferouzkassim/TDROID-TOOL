@@ -1,11 +1,10 @@
 import tkinter.ttk
 import os
-
-import fastbootpy
-
+from usbcom import detectusb,usbdevices
 import detect
 import fastboot
-from usbcom import *
+import samsung
+from usbcom import detectusb
 import tkinter as tk
 from tkinter import *
 from tkinter.ttk import *
@@ -21,7 +20,7 @@ icon = PhotoImage(file='icon.png')
 root.iconphoto(True, icon)
 root.resizable(False, False)
 root_wid = 900
-root_hi = 600
+root_hi = 700
 #menu bar like
 #menubar actions
 
@@ -90,11 +89,14 @@ Detect.grid(row=0, column=0, )
 usbdet = tk.Button(frem3,text='Detect(usb)')
 usbdet.grid(column=3,row=0)
 #neded to delete text and write usb fileds filters by  pid and vid plu probbly the busnumber
-usbdet.configure(command=lambda:(logfield.insert(END,list(usbdevices))))
+usbdet.configure(command=lambda:(logfield.delete(1.0,END),
+                                 (logfield.insert(END,f'{detectusb()}'))))
 #this lambda function frist deletes the context of the
 # text field and then writes from the function to make logs look much readeable
 Detect.configure(command=
-                 ((lambda:logfield.delete(1.0,END)or(logfield.insert(END,f' \ndevice with \n{adbConnect()}\n found')))))
+                 ((lambda:logfield.delete(1.0,END)or
+                  (logfield.insert(END,f' \ndevice with \n{adbConnect()}\n found')
+                   ,logfield.insert(END,f'')))))
 
 
 Restore = butt(txt='Restore Nv', nem='Restore')
@@ -118,6 +120,7 @@ RestoreEfs.config(command= lambda
                            :filedialog('RestoreEfs'))
 
 Listpackages = butt(txt='List Apps', nem='apps')
+#Listpackages.master()
 Listpackages.grid(row=7, column=0)
 Listpackages.config(command=lambda:[logfield.delete(1.0,END),
                                     logfield.insert(END, f'{applister()}'),
@@ -174,11 +177,13 @@ def fastbootpane():
         pass
         #detectfb.grid(column=0,row=0)
   except:
+      detectfb.winfo_exists()
       pass
 #samsung pane frame
 def samsungpane():
     Listpackages.grid_forget()
     try:
+
         detectfb.grid_forget()
     except:
         RestoreEfs.grid(row=6, column=0,pady=10, padx=10, sticky=W)
@@ -197,11 +202,28 @@ adbmenu = menubar.add_command(label='Adb Tools')
 fbootmenu = menubar.add_command(label='Fastboot tools',command=fastbootpane)
 root.config(menu=menubar)
 
+'''firmwarefield = tk.Frame(root,width=600,height=300)
+firmwarefield.config(bg='white')
+firmwarefield.grid(row=1,column=0)'''
+#flashfiled for samsung
 
-flashfield = tk.Frame(root, height=130, width=640)
-fileselector = tk.Frame(root, height=130, width=100)
+flashfield = tk.Frame(root, height=200, width=640)
+fileselector = tk.Frame(root, height=150, width=100)
 fileselector.grid(column=0, row=1)
 fileselector.config(background='white')
+#bootloader button selections seciton
+pitloader = samsung.butonField
+pitloader.buttn(pitloader,"pit",fileselector)
+bloader = samsung.butonField
+bloader.buttn(bloader,"BL",fileselector)
+aploadder = samsung.butonField
+aploadder.buttn(aploadder,"AP",fileselector)
+cploader = samsung.butonField
+cploader.buttn(cploader,"CP",fileselector)
+cscloader = samsung.butonField
+cscloader.buttn(cscloader,"CSC",fileselector)
+userdataloader = samsung.butonField
+userdataloader.buttn(userdataloader,"USERDATA",fileselector)
 flashfield.grid(column=2, row=1)
 
 flashfield.config(bg='white')

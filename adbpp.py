@@ -10,4 +10,4 @@ client = AdbClient(host="127.0.0.1", port=5037)
 def startserver():
     starting = subprocess.run(['daemon/adb.exe','start-server'])
     logs = starting.stdout
-    print(logs)
+    return logs
