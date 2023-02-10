@@ -29,24 +29,21 @@ def adbshellroot():
 
 The function uses a while loop to continuously read data from the connection until there is no more data available (indicated by the not data condition). If no more data is available, the loop 
 breaks and the function closes the connection using the close() method.'''
-    def readfromdev(connec):
+
+def readfromdev(connec):
+        data = []
         while True:
-            data = connec.read(1024)
-            if not data:
+            chunk = connec.read(1024)
+            if not chunk:
                 break
-            return data.decode('utf-8')
+            data.append(chunk.decode('utf-8'))
+        return "".join(data)
 
-            readfromdev.close()
-        for dev in client.devices():
-         sn = dev.get_serial_no()
-         print(connector.read(all()))
-         dev.shell('su',handler=None)
+        readfromdev.close()
+def shellconnector():
+    for dev in client.devices():
+        sn =dev.get_serial_no()
+        dev.serial
+        print(dev.serial)
 
-adbshellroot()
-
-'''for dev in client.devices():
-    sn = dev.get_serial_no()
-    #  print(connector.read(all()))
-dev.shell('su', handler=readfromdev)'''
-
-
+shellconnector
