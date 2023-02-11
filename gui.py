@@ -124,9 +124,10 @@ RestoreEfs.config(command= lambda
 Listpackages = butt(txt='List Apps', nem='apps')
 #Listpackages.master()
 Listpackages.grid(row=7, column=0)
+apps = detect
+
 Listpackages.config(command=lambda:[logfield.delete(1.0,END),
-                                    logfield.insert(END, f'{applister()}'),
-                                    ])
+                                    logfield.insert(END, f'{apps.applister(apps)}')])
 # Listpackages.config(command=listApps)
 
 

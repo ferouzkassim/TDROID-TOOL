@@ -18,3 +18,4 @@ def usbdevices():
 detectusb = usbdevices
 #devList = usb.core.find(True)
 #print(usb.core.show_devices(True))
+
