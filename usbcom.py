@@ -13,9 +13,11 @@ def usbdevices():
     for indic,usbdev in enumerate(devList):
      devusb[indic]=(f'Vendor  {hex(usbdev.idVendor)}',
                     f'Product  {hex(usbdev.idProduct)}')
+     usb.core.show_devices()
     return f'\n{devusb}'
 
-detectusb = usbdevices
+detectusb = usbdevices()
 #devList = usb.core.find(True)
 #print(usb.core.show_devices(True))
 
+usb.core.show_devices(True)
