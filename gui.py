@@ -18,7 +18,7 @@ root.configure(bg='#D8D5C8')
 
 icon = PhotoImage(file='icon.png')
 root.iconphoto(True, icon)
-root.resizable(False, False)
+root.resizable(False,True)
 root_wid = 900
 root_hi = 700
 #menu bar like
@@ -109,7 +109,7 @@ fix.configure(font='arial 10', width=14)
 fix.grid(row=3, column=0)
 mount = butt(txt='Mount Baseband', nem='mount')
 mount.grid(row=4, column=0)
-mount.configure(width=14)
+mount.configure(width=14,command=lambda :[logfield.insert(END,f'\n{detector.shellconnector()}')])
 mount.config(font='ubuntu 9')
 mount.config(padx=10)
 

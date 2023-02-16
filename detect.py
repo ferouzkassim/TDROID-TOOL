@@ -13,8 +13,7 @@ def adbConnect():
 #apend it to a blank list the return the listy with the index and app appnended to it
 class detect:
     def __init__(self):
-        for dev in client.devices():
-          return dev[0]
+       pass
 
     def applister(self):
         startDaemon.start
@@ -26,8 +25,9 @@ class detect:
 #rto ad a new line on each app and index
         return '\n'.join(applist)
 
-
     def shellconnector(self):
+        device = []
+
         def readfromdev(connection):
             data = []
             try:
@@ -36,27 +36,42 @@ class detect:
                     if not chunk:
                         break
                     data.append(chunk.decode('utf-8'))
-                return ''.join(data)
-
+                response = ''.join(data)
+                print(response)
+                rootcheck = []
+                if response.endswith('#'):
+                    rootcheck.append('device is rooted with su permission')
+                else:
+                    rootcheck.append('either allow root, or unrooted')
+                print(rootcheck)
+                return rootcheck,response
             except Exception as error:
                 pass
             finally:
-                    connection.close()
+                connection.close()
+
+        for dev in client.devices():
+            device.append(dev)
+            device[0].shell('su', readfromdev, timeout=1)
+
+
+        return device[0].serial,
+
+
 
 
 class partmount(detect):
     def __init__(self):
-        super(self).__init__()
+        super().__init__()
         super().shellconnector()
 
-    pass
+    def efsmount(self):
+        super().shellconnector()
 
 
 
+detector = detect()
 
-
-suchecker = detect
-suchecker.shellconnector(suchecker)
 
 
 
