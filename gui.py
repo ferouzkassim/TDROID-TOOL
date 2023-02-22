@@ -1,10 +1,10 @@
 import tkinter.ttk
 import os
-from usbcom import detectusb,usbdevices
+from usbcom import usbdevices
 import detect
 import fastboot
 import samsung
-from usbcom import detectusb
+
 import tkinter as tk
 from tkinter import *
 from tkinter.ttk import *
@@ -48,12 +48,16 @@ frem3.grid(column=3,row=0)
 
 
 
-logfield = tk.Text(root, background='black', foreground='white')
+logfield = tk.Text(root, background='black',
+                   foreground='white')
 logfield.grid(column=2, row=0, pady=40)
-scroll = tk.Scrollbar(root,orient='vertical')
-scroll.config()
-scroll.place()
-logfield.insert(END, 'logging')
+
+scroll = tk.Scrollbar(logfield, orient=tk.VERTICAL, command=logfield.yview)
+scroll.place(relx=1.0, rely=0, relheight=1.0, anchor=tk.NE)
+
+logfield.config(yscrollcommand=scroll.set,cursor='arrow')
+logfield.insert(tk.END, 'logging')
+
 
 
 def butt(txt, nem):
@@ -92,7 +96,7 @@ usbdet = tk.Button(frem3,text='Detect(usb)')
 usbdet.grid(column=3,row=0)
 #neded to delete text and write usb fileds filters by  pid and vid plu probbly the busnumber
 usbdet.configure(command=lambda:(logfield.delete(1.0,END),
-                                 (logfield.insert(END,f'backupdir''{detectusb()}'))))
+                                 (logfield.insert(END,f'{detectusb}'))))
 #this lambda function frist deletes the context of the
 # text field and then writes from the function to make logs look much readeable
 Detect.configure(command=
@@ -109,7 +113,7 @@ fix.configure(font='arial 10', width=14)
 fix.grid(row=3, column=0)
 mount = butt(txt='Mount Baseband', nem='mount')
 mount.grid(row=4, column=0)
-mount.configure(width=14,command=lambda :[logfield.insert(END,f'\n{detector.shellconnector()}')])
+mount.configure(width=14,command=lambda :[logfield.insert(END,f'\n{detector.shellconnector}')])
 mount.config(font='ubuntu 9')
 mount.config(padx=10)
 
@@ -163,25 +167,22 @@ class model_selection():
      return 0'''
 
 def fastbootpane():
-  try:
+    try:
+        model_selection.modeloption.place_forget()
+        itemremover = [Detect, BackUp, BackUpEfs, RestoreEfs, Restore, fix, mount]
+        for item in itemremover:
+            item.grid_forget()
 
-      model_selection.modeloption.place_forget()
-      itemremover = [Detect,BackUp
-          ,BackUpEfs,RestoreEfs,Restore,fix,mount]
-      for item in itemremover:
-          item.grid_forget()
+        if not hasattr(fastbootpane, "detectfb"):
+            fastbootpane.detectfb = butt('Detect Fastboot', 'detectfb')
+            fastbootpane.detectfb.config(command=fastbootpy.fbdevices)
+            fastbootpane.detectfb.grid(column=0, row=0)
 
-
-      detectfb = butt('Detect Fastboot','detectfb')
-      detectfb.config(command=fastbootpy.fbdevices())
-      if detectfb.winfo_exists():
-          pass
-      else:
+    except:
+        if hasattr(fastbootpane, "detectfb"):
+            fastbootpane.detectfb.grid(column=0, row=0)
         pass
-        #detectfb.grid(column=0,row=0)
-  except:
-      detectfb.winfo_exists()
-      pass
+
 #samsung pane frame
 def samsungpane():
     Listpackages.grid_forget()
@@ -216,29 +217,29 @@ fileselector.grid(column=0, row=1)
 fileselector.config(background='white')
 #bootloader button selections seciton
 pitloader = samsung.butonField
-pitloader.buttn(pitloader,"PIT",fileselector)
+pitloader.buttn(pitloader,"PIT",fileselector,flashfield,0)
 
 bloader = samsung.butonField
-bloader.buttn(bloader,"BL",fileselector)
+bloader.buttn(bloader,"BL",fileselector,flashfield,1)
 
 aploadder = samsung.butonField
-aploadder.buttn(aploadder,"AP",fileselector)
+aploadder.buttn(aploadder,"AP",fileselector,flashfield,2)
 
 cploader = samsung.butonField
-cploader.buttn(cploader,"CP",fileselector)
+cploader.buttn(cploader,"CP",fileselector,flashfield,3)
 
 cscloader = samsung.butonField
-cscloader.buttn(cscloader,"CSC",fileselector)
+cscloader.buttn(cscloader,"CSC",fileselector,flashfield,4)
 
 userdataloader = samsung.butonField
-userdataloader.buttn(userdataloader,"USERDATA",fileselector)
+userdataloader.buttn(userdataloader,"USERDATA",fileselector,flashfield,5)
 flashfield.grid(column=2, row=1)
 def firmwareloaded():
     for i in range(5):
         entry = tk.Entry(flashfield, width=110)
         entry.grid(row=i, column=0, pady=10)
         entry.config(relief='ridge',bd=2)
-firmwareloaded()
+
 
 flashfield.config(bg='white')
 model_selection()

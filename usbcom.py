@@ -7,17 +7,9 @@ from usb import *
     print (dev.serial_number)'''
 def usbdevices():
     devList = usb.core.find(True)
-    devusb = {}
-    busses = usb.TYPE_VENDOR.bit_length()
-    tx = usb1.USBTransfer
-    for indic,usbdev in enumerate(devList):
-     devusb[indic]=(f'Vendor  {hex(usbdev.idVendor)}',
-                    f'Product  {hex(usbdev.idProduct)}')
-     usb.core.show_devices()
-    return f'\n{devusb}'
+    samdev = usb.core.find(idVenor='0x4E8',idProvider='0x685D')
+    for dev in devList:
+        print(dev.parent)
+        print(type(dev.parent))
+    print(samdev)
 
-detectusb = usbdevices()
-#devList = usb.core.find(True)
-#print(usb.core.show_devices(True))
-
-usb.core.show_devices(True)
