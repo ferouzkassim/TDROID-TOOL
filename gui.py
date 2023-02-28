@@ -9,6 +9,7 @@ import tkinter as tk
 from tkinter import *
 from tkinter.ttk import *
 from detect import *
+from detect import detect as dt
 from tkinter import filedialog as filer
 from fastbootpy import *
 root = tk.Tk()
@@ -48,8 +49,8 @@ frem3.grid(column=3,row=0)
 
 
 
-logfield = tk.Text(root, background='black',
-                   foreground='white')
+logfield = tk.Text(root,background='black',
+                   foreground='white',font='Georgia')
 logfield.grid(column=2, row=0, pady=40)
 
 scroll = tk.Scrollbar(logfield, orient=tk.VERTICAL, command=logfield.yview)
@@ -57,7 +58,9 @@ scroll.place(relx=1.0, rely=0, relheight=1.0, anchor=tk.NE)
 
 logfield.config(yscrollcommand=scroll.set,cursor='arrow')
 logfield.insert(tk.END, 'logging')
-
+#progress bar
+'''progress = tk.ttk.Progressbar(logfield,mode='indeterminate')
+progress.place(x=0,y=363,width=620,)'''
 
 
 def butt(txt, nem):
@@ -101,7 +104,7 @@ usbdet.configure(command=lambda:(logfield.delete(1.0,END),
 # text field and then writes from the function to make logs look much readeable
 Detect.configure(command=
                  ((lambda:logfield.delete(1.0,END)or
-                  (logfield.insert(END,f' \ndevice with \n{adbConnect()}\n found')
+                  (logfield.insert(END,f' \ndevice found with \n{adbConnect()}\n ')
                    ,logfield.insert(END,f'')))))
 
 
@@ -130,8 +133,11 @@ Listpackages = butt(txt='List Apps', nem='apps')
 Listpackages.grid(row=7, column=0)
 apps = detect
 
-Listpackages.config(command=lambda:[logfield.delete(1.0,END),
-                                    logfield.insert(END, f'{apps.applister(apps)}')])
+Listpackages.config(command=lambda:[logfield.
+                    delete(1.0,END),
+
+                     logfield.insert(END, f'{apps.applister(apps)}')
+                     ,detector.searcher(logfield)])
 # Listpackages.config(command=listApps)
 
 
