@@ -11,7 +11,7 @@ port = 5037
 
 class startDaemon:
     # try:
-    start = subprocess.run(['daemon/adb.exe', 'start-server'])
+    start = subprocess.run(['daemon/adb.exe', 'start-server'],stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
 

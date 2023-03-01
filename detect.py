@@ -1,3 +1,4 @@
+import sys
 import tkinter
 from adbcon import startDaemon,host,port,client
 #importing the class to do detecting and exposing the srial number
@@ -8,8 +9,14 @@ def adbConnect():
     filteredprops={}
     #the filtered keys to look for in prop
     filter_keys = [
+
+        'ro.product.model',
+        'ro.product.name',
+        'ro.build.id',
+        'ro.build.product'
         'ro.build.version.release',
         'ro.build.version.security_patch',
+        'ro.build.PDA',
         'ro.carrier',
         'ro.config.knox',
         'ro.csc.country_code',
@@ -26,10 +33,7 @@ def adbConnect():
         'gsm.version.baseband',
         'gsm.operator.alpha',
         'gsm.operator.iso-country',
-        'gsm.operator.isroaming',
-        'ro.build.PDA',
-        'ro.build.id',
-        'ro.build.product'
+
     ]
     for dev in client.devices():
         propstr = dev.shell('getprop')
@@ -47,7 +51,7 @@ def adbConnect():
                         filteredprops[key] = value
                     output = f"{dev.serial}\n"
                     for prop, answer in filteredprops.items():
-                        output += f"{prop} = {answer}\n\t"
+                        output += f"{prop} = {answer}\n\n"
 
 
 
@@ -102,14 +106,30 @@ class partmount(detect):
 
     def efsmount(self):
         device = super().shellconnector()
-        print(device[0])
+
+
+class BackUP(detect):
+    def __init__(self):
+        super(BackUP, self).__init__()
+    def EfsBackup(self):
+       startDaemon.start
+       output = ''
+       def interpt(self):
+           shellRespoonse = startDaemon.start.stdout.decode()
+           print(shellRespoonse)
+
+       for dev in client.devices():
+            dev.shell('su',handler=interpt)
+
+       return output
+        
+
 
 
 detector = detect()
-
+backuping  = BackUP
+backuping.EfsBackup(BackUP)
 mounter = partmount()
-adbConnect()
-
-
+mounter.efsmount()
 
 

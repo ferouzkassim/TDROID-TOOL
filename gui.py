@@ -50,7 +50,7 @@ frem3.grid(column=3,row=0)
 
 
 logfield = tk.Text(root,background='black',
-                   foreground='white',font='Georgia')
+                   foreground='white',font='Calibri')
 logfield.grid(column=2, row=0, pady=40)
 
 scroll = tk.Scrollbar(logfield, orient=tk.VERTICAL, command=logfield.yview)
@@ -59,8 +59,8 @@ scroll.place(relx=1.0, rely=0, relheight=1.0, anchor=tk.NE)
 logfield.config(yscrollcommand=scroll.set,cursor='arrow')
 logfield.insert(tk.END, 'logging')
 #progress bar
-'''progress = tk.ttk.Progressbar(logfield,mode='indeterminate')
-progress.place(x=0,y=363,width=620,)'''
+#progress = tk.ttk.Progressbar(logfield,mode='indeterminate')
+#progress.place(x=0,y=363,width=620,)
 
 
 def butt(txt, nem):
@@ -79,11 +79,15 @@ model.grid(row=0,column=10,sticky=NW,pady=25,padx=10)
 '''
 #function to create dialog boxest
 def filedialog():
-    backup = filer.asksaveasfile(filetypes=[('bin file','*.bin')]
-                               ,initialdir=f"{os.getcwd()}/backup")
-    print(backup)
-    restore = filer.askopenfilename(filetypes=['*.bin','*.img'],)
-    return backup,
+    backup = filer.asksaveasfile(defaultextension='.td',
+                                 filetypes=[(('bin file','*.bin'),
+                                              ('td file','*.td'),
+                                             )],
+    initialdir=f"{os.getcwd()}/backup")
+    with open(backup.name, 'wb') as f:
+        f.write(b'bin filing!')
+        print(backup.name)
+    return backup.name
 
 # fastboot pane frame
 
@@ -122,11 +126,13 @@ mount.config(padx=10)
 
 BackUpEfs = butt(txt='Backup Efs', nem='BackupEfs')
 BackUpEfs.grid(row=5, column=0)
+BackUpEfs.config(command=lambda
+            :[filedialog(),backuping.EfsBackup(self=BackUp)])
 
 RestoreEfs = butt(txt='Restore Efs', nem='RestoreEfs')
 RestoreEfs.grid(row=6, column=0)
 RestoreEfs.config(command= lambda
-                           :filedialog('RestoreEfs'))
+                           :filedialog())
 
 Listpackages = butt(txt='List Apps', nem='apps')
 #Listpackages.master()
