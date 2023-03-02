@@ -1,9 +1,13 @@
+import subprocess
 import sys
 import tkinter
-from adbcon import startDaemon,host,port,client
+from adbcon import startDaemon, host, port, client, device0
+
+
+
 #importing the class to do detecting and exposing the srial number
 def adbConnect():
-    startDaemon.start
+    device0
     prop = []
     resultprop = {}
     filteredprops={}
@@ -66,7 +70,7 @@ class detect:
         pass
 
     def applister(self):
-        startDaemon.start
+        device0
         applist = []
         if client.devices():
 
@@ -88,13 +92,13 @@ class detect:
 
         search.place(relx=1.0,rely=0,anchor=tkinter.NE,width=300)
     def shellconnector(self,):
-        device = []
 
 
 
 
 
-        return device
+
+        return device0
 
 
 
@@ -109,27 +113,75 @@ class partmount(detect):
 
 
 class BackUP(detect):
-    def __init__(self):
+    def __init__(self,pcloaction):
+        pcloaction = self.pcloacation
         super(BackUP, self).__init__()
-    def EfsBackup(self):
-       startDaemon.start
-       output = ''
-       def interpt(self):
-           shellRespoonse = startDaemon.start.stdout.decode()
-           print(shellRespoonse)
+    def EfsBackup(self,pclocation):
+        device = startDaemon()
+        locations = 'dev/block/platform'
+        #This line of code is using a generator
+        # expression to search through the list of devices
+        # connected to the ADB server and find the one with
+        # the specified serial number.
+        dev = next((d for d in client.devices() if d.serial == device), None)
+        print(pclocation)
+        if dev is not None:
+            shellsu = dev.shell('su')
+            shellsu.send(f'cd {locations}')
 
-       for dev in client.devices():
-            dev.shell('su',handler=interpt)
+        else:
+            print("Device not found")
+        client.close()
 
-       return output
         
 
 
 
 detector = detect()
 backuping  = BackUP
-backuping.EfsBackup(BackUP)
+backuping.EfsBackup(BackUP,'c/')
 mounter = partmount()
 mounter.efsmount()
 
+
+'''import ppadb.client
+import time
+
+adb = ppadb.client.Client()
+devices = adb.devices()
+if len(devices) == 0:
+    print('No device found')
+    quit()
+
+device = devices[0]
+
+# Start the ADB daemon on the device
+device.shell('su -c "cd /data/local/tmp && ./adb_daemon" &')
+
+# Wait for the daemon to start
+time.sleep(1)
+
+# Connect to the daemon using a new ADB connection
+daemon_device = adb.device(serial=device.serial)
+
+# Get a root shell
+shell = daemon_device.shell('su')
+print(shell)
+
+# Send some commands to the shell
+shell.send('ls\n')
+response = shell.receive()
+print(response)
+
+shell.send('id\n')
+response = shell.receive()
+print(response)
+
+shell.send('exit\n')
+response = shell.receive()
+print(response)
+
+# Close the shell
+shell.close()
+'''
 

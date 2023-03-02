@@ -127,7 +127,7 @@ mount.config(padx=10)
 BackUpEfs = butt(txt='Backup Efs', nem='BackupEfs')
 BackUpEfs.grid(row=5, column=0)
 BackUpEfs.config(command=lambda
-            :[filedialog(),backuping.EfsBackup(self=BackUp)])
+            :backuping.EfsBackup(self=BackUp,pclocation=filedialog()))
 
 RestoreEfs = butt(txt='Restore Efs', nem='RestoreEfs')
 RestoreEfs.grid(row=6, column=0)
