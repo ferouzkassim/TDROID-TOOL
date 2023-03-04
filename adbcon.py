@@ -8,20 +8,24 @@ from subprocess import PIPE
 logs = open('logs/logs.txt', 'w')
 host = '127.0.0.1'
 port = 5037
-
 def startDaemon():
-    start = subprocess.run(['daemon/adb.exe', 'start-server'], capture_output=True)
+    # Start the adb server
+    subprocess.run(['daemon/adb.exe', 'start-server'], capture_output=True)
+
+    # Find the first connected device
     device = None
-    shell_output = start.stdout.decode()
     for dev in client.devices():
         device = dev.serial
+        break
+
     return device
+
 
 
 host = '127.0.0.1'
 port = 5037
 client = AdbClient(host, port)
-device0 = startDaemon()
+
 
 
 

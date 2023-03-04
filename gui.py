@@ -84,10 +84,10 @@ def filedialog():
                                               ('td file','*.td'),
                                              )],
     initialdir=f"{os.getcwd()}/backup")
-    with open(backup.name, 'wb') as f:
+    '''with open(backup.name, 'wb') as f:
         f.write(b'bin filing!')
-        print(backup.name)
-    return backup.name
+        print(backup.name)'''
+    return backup
 
 # fastboot pane frame
 
@@ -126,8 +126,8 @@ mount.config(padx=10)
 
 BackUpEfs = butt(txt='Backup Efs', nem='BackupEfs')
 BackUpEfs.grid(row=5, column=0)
-BackUpEfs.config(command=lambda
-            :backuping.EfsBackup(self=BackUp,pclocation=filedialog()))
+BackUpEfs.config(command=lambda:backuping.EfsBackup(backuping.EfsBackup(detect,filedialog()),
+                                             pclocation=filedialog(),PartBackup ='efs'))
 
 RestoreEfs = butt(txt='Restore Efs', nem='RestoreEfs')
 RestoreEfs.grid(row=6, column=0)
