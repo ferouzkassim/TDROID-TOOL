@@ -1,13 +1,13 @@
 import subprocess
 import sys
 import tkinter
-from adbcon import startDaemon, host, port, client, device0
-
+from adbcon import startDaemon, host, port, client
+import time
 
 
 #importing the class to do detecting and exposing the srial number
 def adbConnect():
-    device0
+
     prop = []
     resultprop = {}
     filteredprops={}
@@ -70,7 +70,7 @@ class detect:
         pass
 
     def applister(self):
-        device0
+
         applist = []
         if client.devices():
 
@@ -98,7 +98,7 @@ class detect:
 
 
 
-        return device0
+        return
 
 
 
@@ -113,35 +113,51 @@ class partmount(detect):
 
 
 class BackUP(detect):
-    def __init__(self,pcloaction):
-        pcloaction = self.pcloacation
-        super(BackUP, self).__init__()
-    def EfsBackup(self,pclocation):
+    def __init__(self, pclocation,PartName):
+        super().__init__()
+        startDaemon()
+        self.pclocation = pclocation
+        self.Partname = PartName
+# a function that is gonna find the rootfs of the device and return t
+    #the location so taht any part can be backed up regardless of the chip or device
+    def PartBackup(self, pclocation,part_name):
         device = startDaemon()
         locations = 'dev/block/platform'
-        #This line of code is using a generator
-        # expression to search through the list of devices
-        # connected to the ADB server and find the one with
-        # the specified serial number.
-        dev = next((d for d in client.devices() if d.serial == device), None)
-        print(pclocation)
-        if dev is not None:
-            shellsu = dev.shell('su')
-            shellsu.send(f'cd {locations}')
+        for dev in client.devices():
+            if dev.serial == device:
+                #su - c breaks out of the su waiting time and lets you execute once
+                devloc = dev.shell(f'su -c cd {locations}/')
+                #response = dev.shell(f'su -c "dd if=/{locations}'
+                #f'/bootdevice/by-name/efs of=/sdcard/efs.tdf"')'''
+                print(devloc)
+                print(locations)
+                ls_output = dev.shell(f'su -c ls {locations}/')
+                partition_path = f'/{locations}/{ls_output.strip().split()[-1]}'
+                backup_command = f'su -c "dd if={partition_path}/by-name/{part_name} of=/storage/emulated/0/{part_name}.tdf"'
+                bckup = dev.shell(backup_command)
+                # Do backup here
+                print(partition_path)
+                print(bckup)
+                return bckup
+                #print(dev.shell(f'su -c cd /{locations}'))
+                #bckup = dev.shell((f'su -c "dd if=/{locations}/{ls_output}by-name/efs" of=/storage/emulated/0/{part_name}.tdf'))
+                # Do backup here
+                #print(ls_output)
+                #print(bckup)
+                break
+                return response
+            else:
+                response = 'device not found'
+                print('Device not found')
+                break
+                return response
 
-        else:
-            print("Device not found")
-        client.close()
-
-        
 
 
 
 detector = detect()
 backuping  = BackUP
-backuping.EfsBackup(BackUP,'c/')
-mounter = partmount()
-mounter.efsmount()
+backuping.PartBackup(BackUP,'/c','efs')
 
 
 '''import ppadb.client
