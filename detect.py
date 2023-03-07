@@ -1,3 +1,4 @@
+import os
 import subprocess
 import sys
 import tkinter
@@ -7,7 +8,6 @@ import time
 
 #importing the class to do detecting and exposing the srial number
 def adbConnect():
-
     prop = []
     resultprop = {}
     filteredprops={}
@@ -40,8 +40,11 @@ def adbConnect():
 
     ]
     for dev in client.devices():
-        propstr = dev.shell('getprop')
-        prop.append(propstr.split('\n'))
+        if dev == None:
+            return 'No Device Found'
+        else:
+          propstr = dev.shell('getprop')
+          prop.append(propstr.split('\n'))
         for sublist in prop:
             for stringprop in sublist:
                 clean_string = stringprop.strip()\
@@ -55,6 +58,7 @@ def adbConnect():
                         filteredprops[key] = value
                     output = f"{dev.serial}\n"
                     for prop, answer in filteredprops.items():
+
                         output += f"{prop} = {answer}\n\n"
 
 
@@ -113,9 +117,10 @@ class partmount(detect):
 
 
 class BackUP(detect):
-    def __init__(self, pclocation,PartName):
+    def __init__(self, pclocation,PartName,devlocation):
         super().__init__()
         startDaemon()
+        self.devloaction = devlocation
         self.pclocation = pclocation
         self.Partname = PartName
 # a function that is gonna find the rootfs of the device and return t
@@ -129,16 +134,15 @@ class BackUP(detect):
                 devloc = dev.shell(f'su -c cd {locations}/')
                 #response = dev.shell(f'su -c "dd if=/{locations}'
                 #f'/bootdevice/by-name/efs of=/sdcard/efs.tdf"')'''
-                print(devloc)
-                print(locations)
+                dev.shell(f'su -c mkdir /storage/emulated/0/td')
                 ls_output = dev.shell(f'su -c ls {locations}/')
                 partition_path = f'/{locations}/{ls_output.strip().split()[-1]}'
-                backup_command = f'su -c "dd if={partition_path}/by-name/{part_name} of=/storage/emulated/0/{part_name}.tdf"'
+                backup_command = f'su -c "dd if={partition_path}/by-name/{part_name} of=/storage/emulated/0/td/{part_name}.tdf"'
                 bckup = dev.shell(backup_command)
                 # Do backup here
-                print(partition_path)
-                print(bckup)
-                return bckup
+                #sybcing to pc location
+                partition_path = f'/storage/emulated/0/td/{part_name}.tdf'
+                dev.pull(src=partition_path, dest=pclocation)
                 #print(dev.shell(f'su -c cd /{locations}'))
                 #bckup = dev.shell((f'su -c "dd if=/{locations}/{ls_output}by-name/efs" of=/storage/emulated/0/{part_name}.tdf'))
                 # Do backup here
@@ -152,14 +156,45 @@ class BackUP(detect):
                 break
                 return response
 
+    def part_restore(self,pclocation,partname):
+        device = startDaemon()
+        for dev in client.devices():
+            if dev.serial == device:
+                dev.shell('cd /storage/emulated/0/td && mkdir -p ' + partname)
+                locations = 'dev/block/platform'
+                ls_output = dev.shell(f'su -c ls {locations}/')
+                partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/{partname}'
+
+                dev.push(src=pclocation,dest=f'/storage/emulated/0/td/{partname}/{partname}.tdf')
+
+                #part_location = dev.shell(f'su -c cd /storage/emulated/0/td/{partname}.bin')
+                #print(part_location)
+                #dev.shell(f'su -c dd=if=/storage/emulated/0/td/{} of=/{partition_path }')
+    def part_mount(self,partname):
+        device = startDaemon()
+        for dev in client.devices():
+            if dev.serial == device:
+                locations = 'dev/block/platform'
+                ls_output = dev.shell(f'su -c ls {locations}/')
+                partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/{partname}'
+
+                dev.shell('su -c umount mnt/vendor/*')
+                print('devices unmounted')
+                #dev.shell(f'su -c umount mnt/vendor/{partname}')
+                dev.shell(f'su echo y | mkfs.ext4 {partition_path}')
+                #the abobe line auto inputs the y as prompted in cmdline with echo y
+                print('device formated')
+                dev.shell('reboot')
 
 
 
 detector = detect()
 backuping  = BackUP
-backuping.PartBackup(BackUP,'/c','efs')
-
-
+#backuping.PartBackup(BackUP,'/c','efs')
+restoring = BackUP
+#res-moutoring.part_restore(BackUP,'c/','efs')
+Partm = BackUP
+#SPartm.part_mount(Partm,'sec_efs')
 '''import ppadb.client
 import time
 

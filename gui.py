@@ -53,16 +53,12 @@ logfield = tk.Text(root,background='black',
                    foreground='white',font='Calibri')
 logfield.grid(column=2, row=0, pady=40)
 
+
 scroll = tk.Scrollbar(logfield, orient=tk.VERTICAL, command=logfield.yview)
 scroll.place(relx=1.0, rely=0, relheight=1.0, anchor=tk.NE)
 
 logfield.config(yscrollcommand=scroll.set,cursor='arrow')
 logfield.insert(tk.END, 'logging')
-#progress bar
-#progress = tk.ttk.Progressbar(logfield,mode='indeterminate')
-#progress.place(x=0,y=363,width=620,)
-
-
 def butt(txt, nem):
     nem = tk.Button(frem, text=txt, )
     nem.configure(fg='white', background='black', borderwidth=1, width=14)
@@ -79,23 +75,28 @@ model.grid(row=0,column=10,sticky=NW,pady=25,padx=10)
 '''
 #function to create dialog boxest
 def filedialog():
-    backup = filer.asksaveasfile(defaultextension='.td',
+    backup = filer.asksaveasfilename(defaultextension='.td',
                                  filetypes=[(('bin file','*.bin'),
-                                              ('td file','*.td'),
-                                             )],
-    initialdir=f"{os.getcwd()}/backup")
-    '''with open(backup.name, 'wb') as f:
-        f.write(b'bin filing!')
-        print(backup.name)'''
+                                              ('td file','*.tdf')
+                                             )])
+    print(backup)
     return backup
-
+def fileres():
+    part_restore_file = filer.askopenfilename(defaultextension='.td',
+                                 filetypes=[(('bin file','*.bin'),
+                                              ('td file','*.tdf')
+                                             )])
+    if part_restore_file:
+        return part_restore_file
+    else:
+        return None
 # fastboot pane frame
 
 # detect.place(x=10,y=50)
 # detect.configure(bg='black',foreground='white',borderwidth=2,font='ubuntu')
 BackUp = butt(txt='BackUp Nv', nem='BackUp')
 BackUp.grid(row=1, column=0)
-BackUp.configure(command=lambda :filedialog())
+BackUp.configure(command=lambda :[backuping.PartBackup(BackUP,filedialog(),'nvdata')])
 
 Detect = butt(txt='Detect(ADB)', nem='Detect', )
 Detect.grid(row=0, column=0, )
@@ -126,13 +127,13 @@ mount.config(padx=10)
 
 BackUpEfs = butt(txt='Backup Efs', nem='BackupEfs')
 BackUpEfs.grid(row=5, column=0)
-BackUpEfs.config(command=lambda:backuping.PartBackup(
-    backuping.PartBackup(detect,filedialog(),'efs'),filedialog(),'efs'))
+BackUpEfs.config(command=lambda:[backuping.PartBackup
+                (detect,filedialog(),'efs')])
 
 RestoreEfs = butt(txt='Restore Efs', nem='RestoreEfs')
 RestoreEfs.grid(row=6, column=0)
 RestoreEfs.config(command= lambda
-                           :filedialog())
+                           :[restoring.part_restore(BackUP,fileres(),'efs')])
 
 Listpackages = butt(txt='List Apps', nem='apps')
 #Listpackages.master()
@@ -161,14 +162,15 @@ class model_selection():
     #   return fast.get()
     # else:
     #    logfield.insert(tkinter.END,f'scanning for {fast.get()}')
-    modeloption = tkinter.ttk.Combobox(root, textvariable=sel, justify="center")
+    '''modeloption = tkinter.ttk.Combobox(root, textvariable=sel, justify="center")
     modeloption['state'] = 'readonly'
-    modeloption['values'] = mdellist
+    modeloption['values'] = mdellist///
+    modeloption.place(x=400, y=10)'''
 
 
     # modeloption = ttk.OptionMenu(root, fast, *mdellist, command=selection)
 
-    modeloption.place(x=400, y=10)
+
     # modeloption.configure(compound="bottom",anchor="center",direction="below",)
 
     '''if fast.get() != str('model'):
@@ -203,18 +205,18 @@ def samsungpane():
         detectfb.grid_forget()
     except:
         RestoreEfs.grid(row=6, column=0,pady=10, padx=10, sticky=W)
-        model_selection.modeloption.place_forget()
+
         BackUpEfs.grid(row=5, column=0,pady=10, padx=10, sticky=W)
         mount.grid(row=4, column=0,pady=10, padx=10, sticky=W)
         fix.grid(row=3, column=0,pady=10, padx=10, sticky=W)
         BackUp.grid(row=1, column=0,pady=10, padx=10, sticky=W)
         Detect.grid(row=0, column=0, pady=10, padx=10, sticky=W)
         Restore.grid(row=2, column=0,pady=10, padx=10, sticky=W)
-        model_selection.modeloption.place(x=400, y=10)
+
 
 menubar = tk.Menu(root,activeborderwidth='20')
-samenu = menubar.add_command(label='Samsung Tools',command=samsungpane)
 adbmenu = menubar.add_command(label='Adb Tools')
+samenu = menubar.add_command(label='samsung Tools')
 fbootmenu = menubar.add_command(label='Fastboot tools',command=fastbootpane)
 root.config(menu=menubar)
 
@@ -223,37 +225,7 @@ firmwarefield.config(bg='white')
 firmwarefield.grid(row=1,column=0)'''
 #flashfiled for samsung
 
-flashfield = tk.Frame(root, height=200, width=640)
-fileselector = tk.Frame(root, height=150, width=100)
-fileselector.grid(column=0, row=1)
-fileselector.config(background='white')
-#bootloader button selections seciton
-pitloader = samsung.butonField
-pitloader.buttn(pitloader,"PIT",fileselector,flashfield,0)
-
-bloader = samsung.butonField
-bloader.buttn(bloader,"BL",fileselector,flashfield,1)
-
-aploadder = samsung.butonField
-aploadder.buttn(aploadder,"AP",fileselector,flashfield,2)
-
-cploader = samsung.butonField
-cploader.buttn(cploader,"CP",fileselector,flashfield,3)
-
-cscloader = samsung.butonField
-cscloader.buttn(cscloader,"CSC",fileselector,flashfield,4)
-
-userdataloader = samsung.butonField
-userdataloader.buttn(userdataloader,"USERDATA",fileselector,flashfield,5)
-flashfield.grid(column=2, row=1)
-def firmwareloaded():
-    for i in range(5):
-        entry = tk.Entry(flashfield, width=110)
-        entry.grid(row=i, column=0, pady=10)
-        entry.config(relief='ridge',bd=2)
-
-
-flashfield.config(bg='white')
-model_selection()
-
+#. This will allow you to allocate more space to other widgets in the grid.
+root.grid_rowconfigure(0, weight=1)
+root.grid_columnconfigure(2, weight=5)
 root.mainloop()
