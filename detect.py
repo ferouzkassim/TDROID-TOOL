@@ -4,7 +4,8 @@ import sys
 import tkinter
 from adbcon import startDaemon, host, port, client
 import time
-
+import py7zr
+#import py7zr a zipper that makes password encrypted backups
 
 #importing the class to do detecting and exposing the srial number
 def adbConnect():
@@ -195,44 +196,4 @@ restoring = BackUP
 #res-moutoring.part_restore(BackUP,'c/','efs')
 Partm = BackUP
 #SPartm.part_mount(Partm,'sec_efs')
-'''import ppadb.client
-import time
-
-adb = ppadb.client.Client()
-devices = adb.devices()
-if len(devices) == 0:
-    print('No device found')
-    quit()
-
-device = devices[0]
-
-# Start the ADB daemon on the device
-device.shell('su -c "cd /data/local/tmp && ./adb_daemon" &')
-
-# Wait for the daemon to start
-time.sleep(1)
-
-# Connect to the daemon using a new ADB connection
-daemon_device = adb.device(serial=device.serial)
-
-# Get a root shell
-shell = daemon_device.shell('su')
-print(shell)
-
-# Send some commands to the shell
-shell.send('ls\n')
-response = shell.receive()
-print(response)
-
-shell.send('id\n')
-response = shell.receive()
-print(response)
-
-shell.send('exit\n')
-response = shell.receive()
-print(response)
-
-# Close the shell
-shell.close()
-'''
 
