@@ -75,14 +75,14 @@ model.grid(row=0,column=10,sticky=NW,pady=25,padx=10)
 '''
 #function to create dialog boxest
 def filedialog():
-    backup = filer.asksaveasfilename(defaultextension='.td',
+    backup = filer.asksaveasfilename(defaultextension='.td',initialdir=('/backup'),
                                  filetypes=[(('bin file','*.bin'),
                                               ('td file','*.tdf')
                                              )])
-    print(backup)
+
     return backup
 def fileres():
-    part_restore_file = filer.askopenfilename(defaultextension='.td',
+    part_restore_file = filer.askopenfilename(defaultextension='.td',initialdir=('/backup'),
                                  filetypes=[(('bin file','*.bin'),
                                               ('td file','*.tdf')
                                              )])
@@ -96,7 +96,9 @@ def fileres():
 # detect.configure(bg='black',foreground='white',borderwidth=2,font='ubuntu')
 BackUp = butt(txt='BackUp Nv', nem='BackUp')
 BackUp.grid(row=1, column=0)
-BackUp.configure(command=lambda :[backuping.PartBackup(BackUP,filedialog(),'nvdata')])
+BackUp.configure(command=lambda :[logfield.delete(1.0,END),logfield.insert(1.0,
+                                                                           backuping.PartBackup(BackUP,filedialog(),
+                                                                                                ['nvdata','nvram','protect1','protect2']))])
 
 Detect = butt(txt='Detect(ADB)', nem='Detect', )
 Detect.grid(row=0, column=0, )
@@ -118,6 +120,8 @@ Restore.grid(row=2, column=0)
 Restore.config(command=lambda :filedialog('Restorenv'))
 fix = butt(txt='Fix Baseband', nem='fix')
 fix.configure(font='arial 10', width=14)
+fix.config(command=lambda :[logfield.delete(1.0,END),
+                            logfield.insert(1.0,Partmnt.part_mount(BackUP,'efs'))])
 fix.grid(row=3, column=0)
 mount = butt(txt='Mount Baseband', nem='mount')
 mount.grid(row=4, column=0)
@@ -127,8 +131,9 @@ mount.config(padx=10)
 
 BackUpEfs = butt(txt='Backup Efs', nem='BackupEfs')
 BackUpEfs.grid(row=5, column=0)
-BackUpEfs.config(command=lambda:[backuping.PartBackup
-                (detect,filedialog(),'efs')])
+BackUpEfs.config(command=lambda:[logfield.delete(1.0,END),logfield.insert(END,backuping.PartBackup(
+    BackUP,filedialog(),'efs'
+))])
 
 RestoreEfs = butt(txt='Restore Efs', nem='RestoreEfs')
 RestoreEfs.grid(row=6, column=0)
