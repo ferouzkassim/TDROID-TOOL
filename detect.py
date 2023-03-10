@@ -2,6 +2,9 @@ import os
 import subprocess
 import sys
 import tkinter
+
+from py7zr import py7zr as pyz
+
 from adbcon import startDaemon, host, port, client
 import time
 import tarfile
@@ -151,10 +154,27 @@ class BackUP(detect):
 
                         backup_command = f'su -c "dd if={partition_path}/by-name/{part} of=/storage/emulated/0/td/{part}.tdf"'
                         bckup = dev.shell(backup_command)
-                        backup_files.append(f'/storage/emulated/0/td/{part}/{part}.tdf')
+                        backup_files.append(f'/storage/emulated/0/td/{part}.tdf')
                         #goan zip the tar file
-                    for file in backup_files:
-                        dev.pull(src=f'storage/emulated/0/td/{file}.tdf',dest=f'{pclocation}+{file}')
+                        #with pyz.SevenZipFile('nvbackup.7z', 'w', password='tdroid_workerstool') as archive:
+                         #   archive.writeall('/path/to/base_dir', 'base')
+
+
+                    dev.shell('cd /storage/emulated/0/td')
+                    for part in backup_files:
+                        # Get the directory and filename components of pclocation
+                        pcdir, pcfile = os.path.split(pclocation)
+                        # Insert the partition name into the filename component
+                        pcfile = f"{part.split('/')[-1][:-4]}_{pcfile}"
+                        # Rejoin the directory and modified filename components
+                        new_pclocation = os.path.join(pcdir, pcfile)
+                        # Pull the file from the device to the modified pclocation
+                        print(part)
+                        print(pcfile)
+                        print(pcdir)
+                        print(new_pclocation)
+                        response +=f' \n{pcfile} \t'
+
 
                 else:
                     dev.shell(f'su -c mkdir /storage/emulated/0/td')
@@ -162,8 +182,9 @@ class BackUP(detect):
                     partition_path = f'/storage/emulated/0/td/{part_name}.tdf'
                     dev.pull(src=partition_path, dest=f'{pclocation}')
                     bckup = dev.shell(backup_command)
-
-                # Do backup here
+                    response =+ f'\n {part_name} back up saved as' \
+ \
+                        # Do backup here
                 #sybcing to pc location
 
                 '''with tarfile.open(part_name_backup, 'w:gz') as tar:
@@ -178,9 +199,9 @@ class BackUP(detect):
                 #print(ls_output)
                 #print(bckup)
 
-                response +=f'\n using {board_make} criteria'\
-                           f'\n {part_name } back up saved as' \
-                           f' \n {pclocation}'
+                response +=f'\n used {board_make} scenario'\
+                            f' \n {pclocation}'
+
                 break
             else:
                 response  = 'device not found'
@@ -217,16 +238,30 @@ class BackUP(detect):
                 board_make = dev.shell('getprop Build.BRAND').strip()
                 locations = 'dev/block/platform'
                 ls_output = dev.shell(f'su -c ls {locations}/')
-                partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/{partname}'
-                dev.shell('su -c umount mnt/vendor/*')
+                dev.shell('su -c fsck /dev/block/platform/bootdevice/by-name/nvdata')
                 if board_make == 'MTK':
+                    partname=['nvdata','nvram','protect1','protect2']
+                    for part in partname:
+                        partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/{part}'
+                        umount = dev.shell(f'su -c umount /mnt/vendor/{part}')
+                        print(umount)
+                        formumount = dev.shell(f'su -c echo y | mkfs.ext4 {partition_path}')
+                        response +=f'{partition_path} {umount} ,{formumount}'
 
                     print('devices unmounted')
+                    return response
                     #dev.shell(f'su -c umount mnt/vendor/{partname}')
-                    dev.shell(f'su echo y | mkfs.ext4 {partition_path}')
 
+                    '''dev.shell(f'su echo y | rm rR {partition_path}/nvram')
+                    dev.shell(f'su echo y | rm rR {partition_path}/protect1')
+                    dev.shell(f'su echo y | rm rR {partition_path}/protect2')'''
+                    response += umount
+                    dev.shell('reboot')
+                    return umount
                 else:
                     print(f'dealing with {board_make}')
+                    partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/{partname}'
+                    dev.shell(f'su echo y | mkfs.ext4 {partition_path}')
                     dev.shell('reboot')
                 #the abobe line auto inputs the y as prompted in cmdline with echo y
                     print('device formated')
