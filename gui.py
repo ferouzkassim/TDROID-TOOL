@@ -74,11 +74,12 @@ model= tk.Listbox(root,height=5,listvariable=tk.StringVar(value=mdellist))
 model.grid(row=0,column=10,sticky=NW,pady=25,padx=10)
 '''
 #function to create dialog boxest
-def filedialog():
+def filedialog(name):
     backup = filer.asksaveasfilename(defaultextension='.td',initialdir=('/backup'),
                                  filetypes=[(('bin file','*.bin'),
                                               ('td file','*.tdf')
                                              )])
+
 
     return backup
 def fileres():
@@ -86,6 +87,7 @@ def fileres():
                                  filetypes=[(('bin file','*.bin'),
                                               ('td file','*.tdf')
                                              )])
+
     if part_restore_file:
         return part_restore_file
     else:
@@ -97,7 +99,7 @@ def fileres():
 BackUp = butt(txt='BackUp Nv', nem='BackUp')
 BackUp.grid(row=1, column=0)
 BackUp.configure(command=lambda :[logfield.delete(1.0,END),logfield.insert(1.0,
-                                                                           backuping.PartBackup(BackUP,filedialog(),
+                                                                           backuping.PartBackup(BackUP,filedialog('NV'),
                                                                                                 ['nvdata','nvram','protect1','protect2']))])
 
 Detect = butt(txt='Detect(ADB)', nem='Detect', )
@@ -132,7 +134,7 @@ mount.config(padx=10)
 BackUpEfs = butt(txt='Backup Efs', nem='BackupEfs')
 BackUpEfs.grid(row=5, column=0)
 BackUpEfs.config(command=lambda:[logfield.delete(1.0,END),logfield.insert(END,backuping.PartBackup(
-    BackUP,filedialog(),'efs'
+    BackUP,filedialog('efs'),'efs'
 ))])
 
 RestoreEfs = butt(txt='Restore Efs', nem='RestoreEfs')
