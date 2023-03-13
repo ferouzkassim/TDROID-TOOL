@@ -1,12 +1,13 @@
 import os
 import subprocess
 import sys
+import shutil as shtl
 import tkinter
 import asyncio
 import threading
 import py7zr
 from py7zr import py7zr as pyz
-
+import pathlib as pth
 from adbcon import startDaemon, host, port, client
 import time
 import tarfile
@@ -139,7 +140,7 @@ class BackUP(detect):
         response = ''
         device = startDaemon()
         locations = 'dev/block/platform'
-
+        files_to_zip =[]
         for dev in client.devices():
             board_make = dev.shell('getprop Build.BRAND').strip()
             if dev.serial == device:
@@ -147,10 +148,9 @@ class BackUP(detect):
                 devloc = dev.shell(f'su -c cd {locations}/')
                 response += f'\ndevice found is {board_make}\n'
                 part_name_backup = f'nv_backup.tar.gz'
-                filtered_files = []
                 # response = dev.shell(f'su -c "dd if=/{locations}'
                 # f'/bootdevice/by-name/efs of=/sdcard/efs.tdf"')'''
-
+                pcdir, pcfile = os.path.split(pclocation)
                 ls_output = dev.shell(f'su -c ls {locations}/')
                 partition_path = f'/{locations}/{ls_output.strip().split()[-1]}'
                 if board_make == 'MTK':
@@ -164,9 +164,9 @@ class BackUP(detect):
                         # goan zip the tar file
                         # with pyz.SevenZipFile('nvbackup.7z', 'w', password='tdroid_workerstool') as archive:
                         #   archive.writeall('/path/to/base_dir', 'base')
-                    pcdir ,pcfile =os.path.split(pclocation)
-                    print(pcdir)
-                    directory = os.listdir(pcdir)
+
+
+
                     dev.shell('cd /storage/emulated/0/td')
                     for part in backup_files:
                         # print(part)
@@ -186,13 +186,10 @@ class BackUP(detect):
                     #with py7zr.SevenZipFile(f'{pclocation}.7z', mode='w') as archname:
 
 
+
+
+
                         response +=f' \n{pcfile} \t'
-
-                    filtered_files += directory
-                    print(filtered_files)
-
-
-
                 else:
                     dev.shell(f'su -c mkdir /storage/emulated/0/td')
                     backup_command = f'su -c "dd if={partition_path}/by-name/{part_name} of=/storage/emulated/0/td/{part_name}.tdf"'
@@ -200,7 +197,7 @@ class BackUP(detect):
                     dev.pull(src=partition_path, dest=f'{pclocation}')
                     bckup = dev.shell(backup_command)
                     response =+ f'\n {part_name} back up saved as' \
- \
+
                         # Do backup here
                 #sybcing to pc location
 
@@ -219,6 +216,18 @@ class BackUP(detect):
                 response +=f'\n used {board_make} scenario'\
                             f' \n {pclocation}' \
                            f'\n compressing as {pclocation}_{dev.serial}'
+                print(pcdir)
+                for file in os.listdir(pcdir):
+                    if file.endswith(dev.serial):
+                        os.chdir(pcdir)
+                        if not os.path.exists(f"{dev.serial}"):
+                            os.mkdir(f"{dev.serial}")
+                            files_to_zip.append(file)
+                            shtl.move(files_to_zip,f'{dev.serial}')
+
+                '''with py7zr.SevenZipFile(f'{dev.serial}.7z','w')as archve:
+                    archve.writeall(files_to_zip)'''
+
 
                 break
             else:
@@ -264,13 +273,14 @@ class BackUP(detect):
                         dev.shell('cd /mnt/vendor')
                         print(dev.shell(f'su -c ls mnt/vendor'))
                         partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/{part}'
-                        umount = dev.shell(f'su -c umount /mnt/vendor/{part}; echo y | mkfs.ext4 {partition_path}')
+                        umount = dev.shell(f'su -c umount -f /mnt/vendor/{part} && echo y | -rR /mnt/vendor{part}')
                         print(umount)
                         print(partition_path)
-                        formumount = dev.shell(f'su -c echo y | mkfs.ext4 {partition_path}')
-                        dev.shell(
-                            f'su -c "cd /mnt/vendor && umount /mnt/vendor/{part} ; mkfs.ext4 /dev/block/platform/bootdevice/by-name/{part}"')
-
+                        formumount = dev.shell(f'su -c cd echo y | mkfs.ext4 {partition_path}')
+                        '''dev.shell(
+                            f'su -c "cd /mnt/vendor && umount /mnt/vendor/{part} && mkfs.ext4 /dev/block/platform/bootdevice/by-name/{part}"')
+                            '''
+                        print(formumount)
                         response += f'{partition_path} {umount} ,{formumount}'
 
                     print('devices unmounted')
@@ -299,11 +309,11 @@ class BackUP(detect):
 
 detector = detect()
 backuping  = BackUP
-#backuping.PartBackup(BackUP,'/c','efs')
+#backuping.PartBackup(BackUP,'C:',['nvdata','nvram''protect1','protect2'])
 restoring = BackUP
 #res-moutoring.part_restore(BackUP,'c/','efs')
 Partmnt = BackUP
-#SPartm.part_mount(Partm,'sec_efs')
+#Partmnt.part_mount(Partmnt,'nvdata')
 '''import ppadb.client
 import time
 
