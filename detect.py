@@ -141,6 +141,7 @@ class BackUP(detect):
         device = startDaemon()
         locations = 'dev/block/platform'
         files_to_zip =[]
+
         for dev in client.devices():
             board_make = dev.shell('getprop Build.BRAND').strip()
             if dev.serial == device:
@@ -164,13 +165,9 @@ class BackUP(detect):
                         # goan zip the tar file
                         # with pyz.SevenZipFile('nvbackup.7z', 'w', password='tdroid_workerstool') as archive:
                         #   archive.writeall('/path/to/base_dir', 'base')
-
-
-
                     dev.shell('cd /storage/emulated/0/td')
                     for part in backup_files:
                         # print(part)
-
                         # Get the directory and filename components of pclocation
                         pcdir, pcfile = os.path.split(pclocation)
                         # Insert the partition name into the filename component
@@ -179,16 +176,8 @@ class BackUP(detect):
                         new_pclocation = os.path.join(pcdir, pcfile)
                         # Pull the file from the device to the modified pclocation
                         dev.pull(src=part, dest=new_pclocation)
-
                         #print(directory)
-
-
                     #with py7zr.SevenZipFile(f'{pclocation}.7z', mode='w') as archname:
-
-
-
-
-
                         response +=f' \n{pcfile} \t'
                 else:
                     dev.shell(f'su -c mkdir /storage/emulated/0/td')
@@ -197,7 +186,6 @@ class BackUP(detect):
                     dev.pull(src=partition_path, dest=f'{pclocation}')
                     bckup = dev.shell(backup_command)
                     response =+ f'\n {part_name} back up saved as' \
-
                         # Do backup here
                 #sybcing to pc location
 
@@ -212,23 +200,29 @@ class BackUP(detect):
                 # Do backup here
                 #print(ls_output)
                 #print(bckup)
-
                 response +=f'\n used {board_make} scenario'\
                             f' \n {pclocation}' \
                            f'\n compressing as {pclocation}_{dev.serial}'
                 print(pcdir)
                 for file in os.listdir(pcdir):
-                    if file.endswith(dev.serial):
-                        os.chdir(pcdir)
-                        if not os.path.exists(f"{dev.serial}"):
-                            os.mkdir(f"{dev.serial}")
-                            files_to_zip.append(file)
-                            shtl.move(files_to_zip,f'{dev.serial}')
+                    files_to_zip.append(file)
+                    #print(files_to_zip)
+                file_ch = [f for f in files_to_zip if f.endswith(f"{dev.serial}" )]
+                print(file_ch)
+                os.chdir(pcdir)
+                if not os.path.exists(f'{dev.serial}'):
+                    os.mkdir(f'{dev.serial}')
 
-                '''with py7zr.SevenZipFile(f'{dev.serial}.7z','w')as archve:
-                    archve.writeall(files_to_zip)'''
-
-
+                    for f in file_ch:
+                        print(f)
+                        shtl.move(src=(os.path.join(pcdir,f))
+                                  ,dst=f'{dev.serial}')
+                        print('moving')
+                shtl.make_archive(f'{pclocation}_{dev.serial}',
+                                          'tar', root_dir=f'{pcdir}\\{dev.serial}',
+                                  )
+                os.remove(pclocation)
+                shtl.rmtree(f'{dev.serial}',True)
                 break
             else:
                 response  = 'device not found'
@@ -275,16 +269,16 @@ class BackUP(detect):
                         partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/{part}'
                         umount = dev.shell(f'su -c umount -f /mnt/vendor/{part} && echo y | -rR /mnt/vendor{part}')
                         print(umount)
-                        print(partition_path)
-                        formumount = dev.shell(f'su -c cd echo y | mkfs.ext4 {partition_path}')
+                        formumount = dev.shell(f'su -c cd echo y | mkfs.ext4 {partition_path}&& tune2fs -c0 -i0 {partition_path}')
                         '''dev.shell(
                             f'su -c "cd /mnt/vendor && umount /mnt/vendor/{part} && mkfs.ext4 /dev/block/platform/bootdevice/by-name/{part}"')
                             '''
                         print(formumount)
                         response += f'{partition_path} {umount} ,{formumount}'
-
+                        "data/local/tmp"
                     print('devices unmounted')
                     return response
+                    dev.shell('reboot nvrestore')
 
                 else:
                     print(f'dealing with {board_make}')
@@ -314,44 +308,5 @@ restoring = BackUP
 #res-moutoring.part_restore(BackUP,'c/','efs')
 Partmnt = BackUP
 #Partmnt.part_mount(Partmnt,'nvdata')
-'''import ppadb.client
-import time
 
-adb = ppadb.client.Client()
-devices = adb.devices()
-if len(devices) == 0:
-    print('No device found')
-    quit()
-
-device = devices[0]
-
-# Start the ADB daemon on the device
-device.shell('su -c "cd /data/local/tmp && ./adb_daemon" &')
-
-# Wait for the daemon to start
-time.sleep(1)
-
-# Connect to the daemon using a new ADB connection
-daemon_device = adb.device(serial=device.serial)
-
-# Get a root shell
-shell = daemon_device.shell('su')
-print(shell)
-
-# Send some commands to the shell
-shell.send('ls\n')
-response = shell.receive()
-print(response)
-
-shell.send('id\n')
-response = shell.receive()
-print(response)
-
-shell.send('exit\n')
-response = shell.receive()
-print(response)
-
-# Close the shell
-shell.close()
-'''
 
