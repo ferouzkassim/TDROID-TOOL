@@ -8,7 +8,7 @@ import threading
 import py7zr
 from py7zr import py7zr as pyz
 import pathlib as pth
-from adbcon import startDaemon, host, port, client
+from adbcon import startDaemon, host, port, client, stopDaemon
 import time
 import tarfile
 #py7zr a module to use for compressing snd decompressing with password
@@ -148,12 +148,12 @@ class BackUP(detect):
                 # su - c breaks out of the su waiting time and lets you execute once
                 devloc = dev.shell(f'su -c cd {locations}/')
                 response += f'\ndevice found is {board_make}\n'
-                part_name_backup = f'nv_backup.tar.gz'
                 # response = dev.shell(f'su -c "dd if=/{locations}'
                 # f'/bootdevice/by-name/efs of=/sdcard/efs.tdf"')'''
                 pcdir, pcfile = os.path.split(pclocation)
                 ls_output = dev.shell(f'su -c ls {locations}/')
                 partition_path = f'/{locations}/{ls_output.strip().split()[-1]}'
+
                 if board_make == 'MTK':
                     backup_files = []
                     dev.shell(f'su -c mkdir /storage/emulated/0/td/')
@@ -181,11 +181,28 @@ class BackUP(detect):
                         response +=f' \n{pcfile} \t'
                 else:
                     dev.shell(f'su -c mkdir /storage/emulated/0/td')
-                    backup_command = f'su -c "dd if={partition_path}/by-name/{part_name} of=/storage/emulated/0/td/{part_name}.tdf"'
-                    partition_path = f'/storage/emulated/0/td/{part_name}.tdf'
-                    dev.pull(src=partition_path, dest=f'{pclocation}')
-                    bckup = dev.shell(backup_command)
-                    response =+ f'\n {part_name} back up saved as' \
+                    new_pclocation = os.path.join(pcdir, dev.serial)
+                    otherfiles = []
+                    for par in part_name:
+                        backup_command = f'su -c dd if=/{partition_path}/by-name/{par} of=/storage/emulated/0/td/{par}.tdf'
+                        new_pclocation = os.path.join(pcdir, pcfile)
+                        dev.shell(backup_command)
+                        locate = f'/storage/emulated/0/td/{par}.tdf'
+                        otherfiles.append(locate)
+                        print(otherfiles)
+                    for loc in otherfiles:
+                        pcfile = f"{loc.split('/')[-1][:-4]}_{dev.serial}"
+                        new_pclocation = os.path.join(pcdir,pcfile)
+                        print(new_pclocation)
+                        print(pcfile)
+                        dev.pull(loc,new_pclocation)
+
+
+                    print(locate)
+                    #dev.pull(src=f'/storage/emulated/0/td/{part}.tdf', dest=new_pclocation)
+                    os.chdir(pcdir)
+
+                    response += f'\n {part_name} back up saved as' \
                         # Do backup here
                 #sybcing to pc location
 
@@ -194,7 +211,7 @@ class BackUP(detect):
                         tar.add(backup_file, os.path.basename(backup_file))'''
 
 
-                dev.pull(src=part_name_backup, dest=f'{pclocation}')
+                #dev.pull(src=part_name_backup, dest=f'{pclocation}')
                 #print(dev.shell(f'su -c cd /{locations}'))
                 #bckup = dev.shell((f'su -c "dd if=/{locations}/{ls_output}by-name/efs" of=/storage/emulated/0/{part_name}.tdf'))
                 # Do backup here
@@ -218,10 +235,11 @@ class BackUP(detect):
                         shtl.move(src=(os.path.join(pcdir,f))
                                   ,dst=f'{dev.serial}')
                         print('moving')
+
                 shtl.make_archive(f'{pclocation}_{dev.serial}',
                                           'tar', root_dir=f'{pcdir}\\{dev.serial}',
                                   )
-                os.remove(pclocation)
+
                 shtl.rmtree(f'{dev.serial}',True)
                 break
             else:
@@ -232,23 +250,49 @@ class BackUP(detect):
 
     def part_restore(self,pclocation,partname):
         device = startDaemon()
+        files_to_send=[]
         for dev in client.devices():
             if dev.serial == device:
                 response = ''
                 board_make = dev.shell('getprop Build.BRAND').strip()
-                dev.shell('cd /storage/emulated/0/td && mkdir -p ' + partname)
-                locations = 'dev/block/platform'
-                ls_output = dev.shell(f'su -c ls {locations}/')
-                partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/{partname}'
+                if board_make == 'MTK':
+                    #os.chdir(pclocation)
+                    print('cahnged lction to')
+                    pcdir, pcfile = os.path.split(pclocation)
+                    os.chdir(pcdir)
+                    if not os.path.exists(f'{dev.serial}'):
+                        os.mkdir(f'{dev.serial}')
+                        os.chdir(f'{dev.serial}')
+                        shtl.unpack_archive(pclocation, '.')
+                    filed = os.listdir(f'{pcdir}\\{dev.serial}')
+                    print(filed)
+                    for fr in filed:
+                        print(fr)
+                        #filres =[fr.rsplit('_', 1)[0] for fr in filed]
+                        #print(filres)
+                        #shtl.rmtree(f'{dev.serial}', True)
 
-                dev.push(src=pclocation,dest=f'/storage/emulated/0/td/{partname}/{partname}.tdf')
-                dev.shell(f'su -c umount /mnt/vendor/*')
-                dev.shell(f'su -c dd if=/storage/emulated/0/td/{partname}/{partname}.tdf of=/{partition_path}')
-                #part_location = dev.shell(f'su -c cd /storage/emulated/0/td/{partname}.bin')
-                #print(part_location)
-                #dev.shell(f'su -c dd=if=/storage/emulated/0/td/{} of=/{partition_path }')
-                dev.shell('reboot')
 
+
+
+
+
+
+
+                else:
+                    dev.shell('cd /storage/emulated/0/td && mkdir -p ' + partname)
+                    locations = 'dev/block/platform'
+                    ls_output = dev.shell(f'su -c ls {locations}/')
+                    partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/{partname}'
+
+                    dev.push(src=pclocation,dest=f'/storage/emulated/0/td/{partname}/{partname}.tdf')
+                    dev.shell(f'su -c umount /mnt/vendor/*')
+                    dev.shell(f'su -c dd if=/storage/emulated/0/td/{partname}/{partname}.tdf of=/{partition_path}')
+                    #part_location = dev.shell(f'su -c cd /storage/emulated/0/td/{partname}.bin')
+                    #print(part_location)
+                    #dev.shell(f'su -c dd=if=/storage/emulated/0/td/{} of=/{partition_path }')
+                    dev.shell('reboot')
+                    stopDaemon()
             return response
 
     def part_mount(self, partname):
@@ -267,7 +311,7 @@ class BackUP(detect):
                         dev.shell('cd /mnt/vendor')
                         print(dev.shell(f'su -c ls mnt/vendor'))
                         partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/{part}'
-                        umount = dev.shell(f'su -c umount -f /mnt/vendor/{part} && echo y | -rR /mnt/vendor{part}')
+                        umount = dev.shell(f'su -c "umount /mnt/vendor/{part}" && echo y | -rR /mnt/vendor{part}')
                         print(umount)
                         formumount = dev.shell(f'su -c cd echo y | mkfs.ext4 {partition_path}&& tune2fs -c0 -i0 {partition_path}')
                         '''dev.shell(
@@ -283,8 +327,13 @@ class BackUP(detect):
                 else:
                     print(f'dealing with {board_make}')
                     partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/{partname}'
-                    dev.shell(f'su echo y | mkfs.ext4 {partition_path}')
+                    dev.shell(f'su -c "umount /mnt/vendor/{partname}"')
+                    print(dev.shell(f'su -c "umount/mnt/vendor/{partname}"'))
+                    dev.shell(f'su -c echo y | "mkfs.ext4 {partition_path}"')
+                    dev.shell(f'su -c "tune2fs -c0 -i0 {partition_path}"')
+                    print(dev.shell(f'su -c "echo y | mkfs.ext4 {partition_path}"'))
                     dev.shell('reboot')
+
                     # the above line auto inputs the y as prompted in cmdline with echo y
                     print('device formatted')
 
@@ -304,8 +353,8 @@ class BackUP(detect):
 detector = detect()
 backuping  = BackUP
 #backuping.PartBackup(BackUP,'C:',['nvdata','nvram''protect1','protect2'])
-restoring = BackUP
-#res-moutoring.part_restore(BackUP,'c/','efs')
+
+
 Partmnt = BackUP
 #Partmnt.part_mount(Partmnt,'nvdata')
 

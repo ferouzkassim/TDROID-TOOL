@@ -82,18 +82,15 @@ def filedialog(name):
 
 
     return backup
-def fileres():
-    part_restore_file = filer.askopenfilename(defaultextension='.td',initialdir=('/backup'),
-                                 filetypes=[(('bin file','*.bin'),
-                                              ('td file','*.tdf')
-                                             )])
+def fileres(name):
+    part_restore_file = filer.askopenfilename(defaultextension='.tar',initialdir=('/backup'),
+                                 filetypes=[('bin file', '*.bin'),
+        ('td file', '*.tdf'),
+        ('tar files', '*.tar'),
+                                            ('img files','*.img')                                    ])
 
-    if part_restore_file:
-        return part_restore_file
-    else:
-        return None
+    return part_restore_file
 # fastboot pane frame
-
 # detect.place(x=10,y=50)
 # detect.configure(bg='black',foreground='white',borderwidth=2,font='ubuntu')
 BackUp = butt(txt='BackUp Nv', nem='BackUp')
@@ -119,7 +116,8 @@ Detect.configure(command=
 
 Restore = butt(txt='Restore Nv', nem='Restore')
 Restore.grid(row=2, column=0)
-Restore.config(command=lambda :filedialog('Restorenv'))
+Restore.configure(command=lambda :[logfield.delete(1.0,END),
+                        logfield.insert(END,backuping.part_restore(BackUP,fileres('efs'),'efs'))])
 fix = butt(txt='Fix Baseband', nem='fix')
 fix.configure(font='arial 10', width=14)
 fix.config(command=lambda :[logfield.delete(1.0,END),
@@ -134,13 +132,13 @@ mount.config(padx=10)
 BackUpEfs = butt(txt='Backup Efs', nem='BackupEfs')
 BackUpEfs.grid(row=5, column=0)
 BackUpEfs.config(command=lambda:[logfield.delete(1.0,END),logfield.insert(END,backuping.PartBackup(
-    BackUP,filedialog('efs'),'efs'
+    BackUP,filedialog('efs'),["efs","sec_efs","cpefs"]
 ))])
 
 RestoreEfs = butt(txt='Restore Efs', nem='RestoreEfs')
 RestoreEfs.grid(row=6, column=0)
 RestoreEfs.config(command= lambda
-                           :[restoring.part_restore(BackUP,fileres(),'efs')])
+                           :[restoring.part_restore(BackUP,fileres('efs'),'efs')])
 
 Listpackages = butt(txt='List Apps', nem='apps')
 #Listpackages.master()

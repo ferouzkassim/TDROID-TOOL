@@ -20,7 +20,8 @@ def startDaemon():
 
     return device
 
-
+def stopDaemon():
+    subprocess.run(['daemon/adb.exe','kill -server'])
 
 host = '127.0.0.1'
 port = 5037
