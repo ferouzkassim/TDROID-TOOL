@@ -313,7 +313,7 @@ class BackUP(detect):
                         partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/{part}'
                         umount = dev.shell(f'su -c "umount /mnt/vendor/{part}" && echo y | -rR /mnt/vendor{part}')
                         print(umount)
-                        formumount = dev.shell(f'su -c cd echo y | mkfs.ext4 {partition_path}&& tune2fs -c0 -i0 {partition_path}')
+                        formumount = dev.shell(f'su -c cd echo y | "mkfs.ext4 {partition_path}"&& "tune2fs -c0 -i0 {partition_path}"')
                         '''dev.shell(
                             f'su -c "cd /mnt/vendor && umount /mnt/vendor/{part} && mkfs.ext4 /dev/block/platform/bootdevice/by-name/{part}"')
                             '''
