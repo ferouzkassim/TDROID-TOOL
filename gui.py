@@ -1,10 +1,14 @@
+import logging
 import tkinter.ttk
 import os
+
+import loggs
 from usbcom import usbdevices
 import detect
 import fastboot
 import samsung
-
+import threading
+import loggs
 import tkinter as tk
 from tkinter import *
 from tkinter.ttk import *
@@ -47,11 +51,13 @@ frem3 = tk.Frame(root,height=600,width=100)
 frem.columnconfigure(0,)
 frem3.grid(column=3,row=0)
 
+global logfield
 
 
 logfield = tk.Text(root,background='black',
-                   foreground='white',font='Calibri')
-logfield.grid(column=2, row=0, pady=40)
+                   foreground='white',font='ubuntu')
+
+logfield.grid(column=2, row=0, pady=20)
 
 
 scroll = tk.Scrollbar(logfield, orient=tk.VERTICAL, command=logfield.yview)
@@ -73,7 +79,6 @@ def butt(txt, nem):
 model= tk.Listbox(root,height=5,listvariable=tk.StringVar(value=mdellist))
 model.grid(row=0,column=10,sticky=NW,pady=25,padx=10)
 '''
-#function to create dialog boxest
 def filedialog(name):
     backup = filer.asksaveasfilename(defaultextension='.td',initialdir=('/backup'),
                                  filetypes=[(('bin file','*.bin'),
@@ -87,20 +92,22 @@ def fileres(name):
                                  filetypes=[('bin file', '*.bin'),
         ('td file', '*.tdf'),
         ('tar files', '*.tar'),
-                                            ('img files','*.img')                                    ])
+                                            ('img files','*.img')])
+#function to create dialog boxest
 
-    return part_restore_file
 # fastboot pane frame
 # detect.place(x=10,y=50)
 # detect.configure(bg='black',foreground='white',borderwidth=2,font='ubuntu')
 BackUp = butt(txt='BackUp Nv', nem='BackUp')
 BackUp.grid(row=1, column=0)
-BackUp.configure(command=lambda :[logfield.delete(1.0,END),logfield.insert(1.0,
-                                                                           backuping.PartBackup(BackUP,filedialog('NV'),
-                                                                                                ['nvdata','nvram','protect1','protect2']))])
+BackUp.configure(command=lambda:[asyncio.run(loggs.backupinfo(logfield))])
+
+##login to the lgfiled from line 105 to 119
 
 Detect = butt(txt='Detect(ADB)', nem='Detect', )
 Detect.grid(row=0, column=0, )
+Detect.configure(command=lambda: asyncio.run(loggs.adinfo(logfield)))
+
 usbdet = tk.Button(frem3,text='Detect(usb)')
 usbdet.grid(column=3,row=0)
 #neded to delete text and write usb fileds filters by  pid and vid plu probbly the busnumber
@@ -108,10 +115,6 @@ usbdet.configure(command=lambda:(logfield.delete(1.0,END),
                                  (logfield.insert(END,f'{detectusb}'))))
 #this lambda function frist deletes the context of the
 # text field and then writes from the function to make logs look much readeable
-Detect.configure(command=
-                 ((lambda:logfield.delete(1.0,END)or
-                  (logfield.insert(END,f' \ndevice found with \n{adbConnect()}\n ')
-                   ,logfield.insert(END,f'')))))
 
 
 Restore = butt(txt='Restore Nv', nem='Restore')
@@ -151,8 +154,8 @@ Listpackages.config(command=lambda:[logfield.
                      logfield.insert(END, f'{apps.applister(apps)}')
                      ,detector.searcher(logfield)])
 # Listpackages.config(command=listApps)
-
-
+sn_repair  = butt('Repair SN',nem='apps')
+sn_repair.grid(row=7,column=0)
 class model_selection():
     def selection(model):
         return model
@@ -233,4 +236,7 @@ firmwarefield.grid(row=1,column=0)'''
 #. This will allow you to allocate more space to other widgets in the grid.
 root.grid_rowconfigure(0, weight=1)
 root.grid_columnconfigure(2, weight=5)
+#logging part
+
+
 root.mainloop()
