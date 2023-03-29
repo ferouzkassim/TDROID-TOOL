@@ -114,6 +114,20 @@ class detect:
         return
 
 
+def rootfs():
+    device =startDaemon()
+    locations = 'dev/block/platform'
+    for dev in client.devices():
+        if dev.serial == device:
+            # su - c breaks out of the su waiting time and lets you execute once
+            devloc = dev.shell(f'su -c cd {locations}/')
+
+            # response = dev.shell(f'su -c "dd if=/{locations}'
+
+            ls_output = dev.shell(f'su -c ls {locations}/')
+            partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/'
+            print(partition_path)
+            return  partition_path
 
 
 class partmount(detect):
@@ -136,42 +150,33 @@ class BackUP(detect):
         backup_files = []
 # a function that is gonna find the rootfs of the device and return t
     #the location so taht any part can be backed up regardless of the chip or device
-    import os
-    import py7zr
 
-    async def PartBackup(self, pclocation, part_name,):
+    def PartBackup(self, pclocation, part_name,):
             response = ''
             device = startDaemon()
-            backup_files =''
+            backup_files = []
             locations = 'dev/block/platform'
             for dev in client.devices():
                 board_make = dev.shell('getprop Build.BRAND').strip()
                 if dev.serial == device:
                     # su - c breaks out of the su waiting time and lets you execute once
-                    devloc = dev.shell(f'su -c cd {locations}/')
                     response += f'\ndevice found is {board_make}\n'
                     # response = dev.shell(f'su -c "dd if=/{locations}'
                     # f'/bootdevice/by-name/efs of=/sdcard/efs.tdf"')'''
                     pcdir, pcfile = os.path.split(pclocation)
-                    ls_output = dev.shell(f'su -c ls {locations}/')
-                    partition_path = f'/{locations}/{ls_output.strip().split()[-1]}'
                     if board_make == 'MTK':
                         dev.shell(f'su -c mkdir /storage/emulated/0/td/')
                         for part in part_name:
-                            backup_command = f'su -c "dd if={partition_path}/by-name/{part} of=/storage/emulated/0/td/{part}.tdf"'
+                            backup_command = f'su -c "dd if={rootfs()}/{part} of=/storage/emulated/0/td/{part}.tdf"'
                             bckup = dev.shell(backup_command)
                             backup_files.append(f'/storage/emulated/0/td/{part}.tdf')
-                            print(part)
-                            # goan zip the tar file
-                            # with pyz.SevenZipFile('nvbackup.7z', 'w', password='tdroid_workerstool') as archive:
-                            #   archive.writeall('/path/to/base_dir', 'base')
                         dev.shell('cd /storage/emulated/0/td')
                     else:
                         dev.shell(f'su -c mkdir /storage/emulated/0/td')
                         new_pclocation = os.path.join(pcdir, dev.serial)
                         otherfiles = []
                         for par in part_name:
-                            backup_command = f'su -c dd if=/{partition_path}/by-name/{par} of=/storage/emulated/0/td/{par}.tdf'
+                            backup_command = f'su -c dd if=/{rootfs()}/{par} of=/storage/emulated/0/td/{par}.tdf'
                             new_pclocation = os.path.join(pcdir, pcfile)
                             dev.shell(backup_command)
                             locate = f'/storage/emulated/0/td/{par}.tdf'
@@ -200,8 +205,8 @@ class BackUP(detect):
                                f'\n compressing as {pclocation}_{dev.serial}'
                     response
                     print(pcdir)
-                return response
-    async def puller(self,backup_files,pclocation):
+                return response,backup_files
+    def puller(self,backup_files,pclocation):
         response = ''
         for part in backup_files:
             for dev in client.devices():
@@ -218,7 +223,9 @@ class BackUP(detect):
             response +=f' \n{pcfile} \t'
             return response
 
-    async def zipper(self,files_to_zip,pclocation):
+    def zipper(self,pclocation):
+        files_to_zip=[]
+
         responce =''
         pcdir , pcfilr = os.path.split(pclocation)
         print(pcdir,pcfilr)
@@ -247,37 +254,44 @@ class BackUP(detect):
                 return response
 
     def part_restore(self,pclocation,partname):
-        device = startDaemon()
+        #device = startDaemon()
         files_to_send=[]
         pcdir, pcfile = os.path.split(pclocation)
         os.chdir(pcdir)
+        workingdir=''
         for dev in client.devices():
-            if dev.serial == device:
+            if dev.serial is not None:
                 response = ''
                 board_make = dev.shell('getprop Build.BRAND').strip()
                 if board_make == 'MTK':
                     os.chdir(pcdir)
-                    print('cahnged lction to')
+                    response +=f'working \n'\
+                               'directory \n'\
+                               'changed to \n '\
+                               f'{pcdir}\n'
 
-                    print(pcfile,pcfile,pclocation,pcdir)
+                    #print(pcfile,pcfile,pclocation,pcdir)
                     os.chdir(pcdir)
                     if not os.path.exists(f'{dev.serial}'):
                         os.mkdir(f'{dev.serial}')
                         os.chdir(f'{dev.serial}')
                         shtl.unpack_archive(pclocation, '.')
+                        workingdir = f'{pcdir}\\{dev.serial}'
+                        response +='unparking restoring zip' \
+                                   'to \n' \
+                                   f'{dev.serial}'
                     filed = os.listdir(f'{pcdir}\\{dev.serial}')
-                    print(filed)
+                    response +='\nchecking for file convention'
                     for fr in filed:
-                        print(fr)
-                        #filres =[fr.rsplit('_', 1)[0] for fr in filed]
-                        #print(filres)
-                        #shtl.rmtree(f'{dev.serial}', True
+                        response+=f'\nfolder contains {fr}\n'
+                        #fr.split(os.getcwd())
+                        files_to_send.append(fr)
+
                 else:
                     dev.shell('cd /storage/emulated/0/td && mkdir -p ' + partname)
                     locations = 'dev/block/platform'
                     ls_output = dev.shell(f'su -c ls {locations}/')
                     partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/{partname}'
-
                     dev.push(src=pclocation,dest=f'/storage/emulated/0/td/{partname}/{partname}.tdf')
                     dev.shell(f'su -c "umount /mnt/vendor/*"')
                     dev.shell(f'su -c dd if=/storage/emulated/0/td/{partname}/{partname}.tdf of=/{partition_path}')
@@ -286,7 +300,29 @@ class BackUP(detect):
                     #dev.shell(f'su -c dd=if=/storage/emulated/0/td/{} of=/{partition_path }')
                     dev.shell('reboot')
                     stopDaemon()
-            return response
+                return response,files_to_send,workingdir
+
+    def pusher(self,filed_to_send,workingdir):
+        response = ''
+        startDaemon()
+
+        cwd = os.getcwd()
+        #print(cwd)
+        for dev in client.devices():
+            relpath =os.path.join(workingdir, f'{dev.serial}')
+            os.chdir(relpath)
+
+            if dev.serial is not None:
+
+                dev.shell('su -c mkdir /storage/emulated/0/td')
+
+
+            for file in filed_to_send:
+
+                dev.push(file,f'/storage/emulated/0/td/{file}')
+
+                response += f'\npacket sent to device'
+        return response
     def part_mount(self, partname):
         device = startDaemon()
 
@@ -297,37 +333,22 @@ class BackUP(detect):
                 locations = 'dev/block/platform'
                 ls_output = dev.shell(f'su -c ls {locations}/')
                 if board_make == 'MTK':
-                    partname = ['nvdata', 'nvram', 'protect1', 'protect2']
+                    partname = ['nvdata', 'nvram', 'protect1', 'protect2','ncvcfg']
                     pmt = {}
                     for part in partname:
                         dev.shell('cd /mnt/vendor')
-                        # finding blokcs by their names below in pmt
-                        pmt_output = dev.shell(f'su -c ls -l /dev/block/bootdevice/by-name')
-                        pmt_lines = pmt_output.split("\n")[1:]  # ignore the first line which is "total <size>"
-                        for line in pmt_lines:
-                            if not line.strip():
-                                continue
-                            parts = line.split(" -> ")
-                            pmt[parts[0].split()[-1]] = parts[1]
-                            for prt in partname:
-                                if pmt.get(prt) is None:
-                                    #getting the block from each partbane
-                                    print(prt, pmt[prt])
-                                    formumount = dev.shell(
-                                        f'su -c cd echo y | "mkfs.ext4 -f {pmt[prt]}"')
-                                        #&& "tune2fs -c0 -i0 {partition_path}/{prt}"')
-                                    print(formumount)
-                        #print(type(pmt))
-
+                        dev.shell('su -f umount *')
+                        dev.shell('su -c umount *')
+                        print('unmounted')
                         partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/{part}'
-                        dev.shell(f'su -c "umount /mnt/vendor/{part}"')
-
-
-
+                        print(partition_path)
+                        dev.shell(f'su -c ""')
+                        dev.reboot()
+                        dev.shell(f'su -c mke2fs {partition_path}')
                        #S print(formumount)
-                        response += f'{partition_path}'
+                        response += f'\n{partition_path}'
                         "data/local/tmp"
-                    print('devices unmounted')
+
                     return response
                     dev.shell('reboot nvrestore')
 
@@ -371,6 +392,8 @@ Partmnt = BackUP
 #Partmnt.part_mount(Partmnt,'nvdata')
 restoring  = backuping
 Partbck = BackUP
+'''response, files_to_send, workingdir = backuping.part_restore(
+    BackUP, ,)'''
 class repair(detect):
     def __init__(self,PartName):
         self.PartName = PartName

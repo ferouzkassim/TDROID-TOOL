@@ -93,14 +93,26 @@ def fileres(name):
         ('td file', '*.tdf'),
         ('tar files', '*.tar'),
                                             ('img files','*.img')])
+    return part_restore_file
 #function to create dialog boxest
 
 # fastboot pane frame
 # detect.place(x=10,y=50)
 # detect.configure(bg='black',foreground='white',borderwidth=2,font='ubuntu')
+def bakup_nv():
+    logfield.delete(1.0, END)
+    result = [backuping.PartBackup(BackUP, filedialog('efs'), 'efs'),
+              backuping.puller(BackUP,backuping.PartBackup(BackUP, filedialog('efs'), 'efs')[1],filedialog('efs')),
+              backuping.zipper(BackUP,filedialog('efs'))]
+
+    if result is not None:
+        logfield.insert(END, result[0])
+        logfield.insert(END, backuping.puller(BackUP, result[1], result[2]))
+
+
 BackUp = butt(txt='BackUp Nv', nem='BackUp')
 BackUp.grid(row=1, column=0)
-BackUp.configure(command=lambda:[asyncio.run(loggs.backupinfo(logfield))])
+BackUp.configure(command=lambda:bakup_nv())
 
 ##login to the lgfiled from line 105 to 119
 
@@ -119,8 +131,16 @@ usbdet.configure(command=lambda:(logfield.delete(1.0,END),
 
 Restore = butt(txt='Restore Nv', nem='Restore')
 Restore.grid(row=2, column=0)
+def restore_backup():
+    logfield.delete(1.0, END)
+    result = backuping.part_restore(BackUP, fileres('efs'), 'efs')
+
+    if result is not None:
+        logfield.insert(END, result[0])
+        logfield.insert(END,backuping.pusher(BackUP, result[1], result[2]))
+
 Restore.configure(command=lambda :[logfield.delete(1.0,END),
-                        logfield.insert(END,backuping.part_restore(BackUP,fileres('efs'),'efs'))])
+                        restore_backup()])
 fix = butt(txt='Fix Baseband', nem='fix')
 fix.configure(font='arial 10', width=14)
 fix.config(command=lambda :[logfield.delete(1.0,END),
