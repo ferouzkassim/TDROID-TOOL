@@ -11,7 +11,8 @@ import pathlib as pth
 from adbcon import startDaemon, host, port, client, stopDaemon
 #py7zr a module to use for compressing snd decompressing with password
 #importing the class to do detecting and exposing the srial number
-async def adbConnect():
+def adbConnect():
+    print('starting dameon')
     startDaemon()
     prop = []
     resultprop = {}
@@ -46,14 +47,13 @@ async def adbConnect():
 
     ]
     devices = client.devices()
+    output = ''
     for dev in devices:
         # This will allow the GUI to update while the function is running
-        await asyncio.sleep(0)
-
         if dev.serial is None:
             # This will allow the GUI to update while the function is running
-            await asyncio.sleep(0)
-            yield 'No Device Found'
+            asyncio.sleep(0)
+            output += 'No Device Found\n'
         else:
             propstr = dev.shell('getprop')
             prop.append(propstr.split('\n'))
@@ -65,14 +65,13 @@ async def adbConnect():
                         resultprop[key] = value
                         if key in filter_keys:
                             filteredprops[key] = value
-                output = f"{dev.serial}\n"
+                output += f"{dev.serial}\n"
                 for prop, answer in filteredprops.items():
-
                     output += f"{prop} = {answer}\n\n"
+        print(output)
 
-                # This will allow the GUI to update while the function is running
+    return output
 
-                yield output
 
 #first things frst start the server then get devices
 #then enumrate to get index and enumerate to get the respondent app
@@ -103,17 +102,6 @@ class detect:
         search = tkinter.Entry(holder)
 
         search.place(relx=1.0,rely=0,anchor=tkinter.NE,width=300)
-    def shellconnector(self,):
-
-
-
-
-
-
-
-        return
-
-
 def rootfs():
     device =startDaemon()
     locations = 'dev/block/platform'
@@ -128,17 +116,6 @@ def rootfs():
             partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/'
             print(partition_path)
             return  partition_path
-
-
-class partmount(detect):
-    def __init__(self):
-        super().__init__()
-        super().shellconnector()
-
-    def efsmount(self):
-        device = super().shellconnector()
-
-
 class BackUP(detect):
     def __init__(self, pclocation,Part_name,devlocation):
         super().__init__()
@@ -206,52 +183,54 @@ class BackUP(detect):
                     response
                     print(pcdir)
                 return response,backup_files
-    def puller(self,backup_files,pclocation):
+
+    def puller(self, backup_files, pclocation):
         response = ''
         for part in backup_files:
             for dev in client.devices():
                 # print(part)
-                 # Get the directory and filename components of pclocation
+                # Get the directory and filename components of pclocation
                 pcdir, pcfile = os.path.split(pclocation)
-                            # Insert the partition name into the filename component
+                # Insert the partition name into the filename component
                 pcfile = f"{part.split('/')[-1][:-4]}_{dev.serial}"
-                            # Rejoin the directory and modified filename components
+                # Rejoin the directory and modified filename components
                 new_pclocation = os.path.join(pcdir, pcfile)
-                            # Pull the file from the device to the modified pclocation
+                # Pull the file from the device to the modified pclocation
                 dev.pull(src=part, dest=new_pclocation)
-                            #print(directory)            #with py7zr.SevenZipFile(f'{pclocation}.7z', mode='w') as archname:
-            response +=f' \n{pcfile} \t'
+                # print(directory)            #with py7zr.SevenZipFile(f'{pclocation}.7z', mode='w') as archname:
+            response += f' \n{pcfile} \t'
             return response
 
-    def zipper(self,pclocation):
-        files_to_zip=[]
+    def zipper(self, pclocation):
+        files_to_zip = []
 
-        responce =''
-        pcdir , pcfilr = os.path.split(pclocation)
-        print(pcdir,pcfilr)
+        responce = ''
+        pcdir, pcfilr = os.path.split(pclocation)
+        print(pcdir, pcfilr)
         for dev in client.devices():
             for file in os.listdir(pcdir):
                 files_to_zip.append(file)
-                            #print(files_to_zip)
-                file_ch = [f for f in files_to_zip if f.endswith(f"{dev.serial}" )]
+                # print(files_to_zip)
+                file_ch = [f for f in files_to_zip if f.endswith(f"{dev.serial}")]
                 print(file_ch)
                 os.chdir(pcdir)
                 if not os.path.exists(f'{dev.serial}'):
-                 os.mkdir(f'{dev.serial}')
+                    os.mkdir(f'{dev.serial}')
                 for f in file_ch:
-                        print(f)
-                        shtl.move(src=(os.path.join(pcdir,f))
-                                        ,dst=f'{dev.serial}')
-                        print('moving')
-                        shtl.make_archive(f'{pclocation}_{dev.serial}','tar', root_dir=f'{pcdir}\\{dev.serial}')
-                        shtl.rmtree(f'{dev.serial}',True)
-                        responce +=f'\n compressing as {pclocation}_{dev.serial}' \
-                                   f'\n files saved to archive and ready for further use '
+                    print(f)
+                    shtl.move(src=(os.path.join(pcdir, f))
+                              , dst=f'{dev.serial}')
+                    print('moving')
+                    shtl.make_archive(f'{pclocation}_{dev.serial}', 'tar', root_dir=f'{pcdir}\\{dev.serial}')
+                    shtl.rmtree(f'{dev.serial}', True)
+                    responce += f'\n compressing as {pclocation}_{dev.serial}' \
+                                f'\n files saved to archive and ready for further use '
 
-                        break
+                    break
                 else:
-                        response  = 'device not found'
+                    response = 'device not found'
                 return response
+
 
     def part_restore(self,pclocation,partname):
         #device = startDaemon()
@@ -330,31 +309,26 @@ class BackUP(detect):
         for dev in client.devices():
             if dev.serial == device:
                 board_make = dev.shell('getprop Build.BRAND').strip()
-                locations = 'dev/block/platform'
-                ls_output = dev.shell(f'su -c ls {locations}/')
-                if board_make == 'MTK':
+                if rootfs() == '/dev/block/platform/bootdevice/by-name/':
                     partname = ['nvdata', 'nvram', 'protect1', 'protect2','ncvcfg']
                     pmt = {}
                     for part in partname:
                         dev.shell('cd /mnt/vendor')
-                        dev.shell('su -f umount *')
-                        dev.shell('su -c umount *')
+                        dev.shell(f'su -f umount {part}')
+                        dev.shell(f'su -c umount {part}')
                         print('unmounted')
-                        partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/{part}'
+                        partition_path = f'{rootfs()}{part}'
                         print(partition_path)
-                        dev.shell(f'su -c ""')
-                        dev.reboot()
-                        dev.shell(f'su -c mke2fs {partition_path}')
+                        dev.shell(f'su -c y | "mke2fs {partition_path}"')
+                        print(dev.shell(f'su -c y | "mke2fs {partition_path}"'))
+                        dev.shell(f'su -c "tune2fs -c0 -i0 {partition_path}"')
                        #S print(formumount)
-                        response += f'\n{partition_path}'
-                        "data/local/tmp"
-
-                    return response
+                        response += dev.shell(f"su -c echo y | 'mke2fs {partition_path}'")
                     dev.shell('reboot nvrestore')
 
                 else:
                     print(f'dealing with {board_make}')
-                    partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/{partname}'
+                    partition_path = f'/{rootfs()}/{partname}'
                     dev.shell(f'su -c "umount /mnt/vendor/{partname}"')
                     print(dev.shell(f'su -c "umount/mnt/vendor/{partname}"'))
                     dev.shell(f'su -c echo y | "mkfs.ext4 {partition_path}"')
@@ -367,14 +341,14 @@ class BackUP(detect):
 
             else:
                 response += 'No adb device Found'
-                return response
-            response += f'\n device found {dev.serial}' \
+
+        response += f'\n device found {dev.serial}' \
                         f'\n {board_make}' \
                         f'\n using {board_make} Criteria' \
                         f'\n device is being prepared' \
                         f'\n device should reboot if not manually reboot'
 
-            return response
+        return response
 detector = detect
 backuping  = BackUP
 def start_logging():
