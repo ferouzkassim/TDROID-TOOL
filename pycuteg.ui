@@ -118,13 +118,13 @@
    <string notr="true"/>
   </property>
   <property name="statusTip">
-   <string notr="true"/>
+   <string/>
   </property>
   <property name="whatsThis">
-   <string notr="true"/>
+   <string/>
   </property>
   <property name="accessibleName">
-   <string notr="true"/>
+   <string/>
   </property>
   <property name="accessibleDescription">
    <string notr="true"/>
@@ -2570,6 +2570,22 @@ color: rgb(85, 170, 127);</string>
       <attribute name="title">
        <string>Fastboot Tool</string>
       </attribute>
+      <widget class="QComboBox" name="typeselection">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>331</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="currentText">
+        <string/>
+       </property>
+       <property name="currentIndex">
+        <number>-1</number>
+       </property>
+      </widget>
      </widget>
      <widget class="QWidget" name="mtktab">
       <attribute name="title">
@@ -2591,8 +2607,8 @@ color: rgb(85, 170, 127);</string>
    <item>
     <widget class="QTextEdit" name="logfield">
      <property name="styleSheet">
-      <string notr="true">backgroundcolor=rgb(255, 255, 255)
-color: rgb(0, 0, 0);</string>
+      <string notr="true">color: rgb(255, 255, 255);
+background-color: rgb(0, 0, 0);</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>

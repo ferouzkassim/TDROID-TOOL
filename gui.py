@@ -10,8 +10,6 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-import detect
-
 
 class Ui_main(object):
     def setupUi(self, main):
@@ -45,7 +43,7 @@ class Ui_main(object):
         brush = QtGui.QBrush(QtGui.QColor(219, 219, 219))
         brush.setStyle(QtCore.Qt.SolidPattern)
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.Window, brush)
-#        main.setPalette(palette)
+        main.setPalette(palette)
         main.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -891,8 +889,8 @@ class Ui_main(object):
         self.tablet.addTab(self.spdtab, "")
         self.v.addWidget(self.tablet)
         self.logfield = QtWidgets.QTextEdit(main)
-        self.logfield.setStyleSheet("backgroundcolor=rgb(255, 255, 255)\n"
-"color: rgb(0, 0, 0);")
+        self.logfield.setStyleSheet("color: rgb(255, 255, 255);\n"
+"background-color: rgb(0, 0, 0);")
         self.logfield.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.logfield.setFrameShadow(QtWidgets.QFrame.Raised)
         self.logfield.setLineWidth(7)
@@ -953,7 +951,7 @@ class Ui_main(object):
         self.tablet.setTabText(self.tablet.indexOf(self.spdtab), _translate("main", "Spd/Unisoc"))
 
 
-'''if __name__ == "__main__":
+if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     main = QtWidgets.QDialog()
@@ -961,4 +959,3 @@ class Ui_main(object):
     ui.setupUi(main)
     main.show()
     sys.exit(app.exec_())
-'''

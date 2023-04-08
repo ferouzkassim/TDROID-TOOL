@@ -18,6 +18,32 @@ def adbConnect():
     resultprop = {}
     filteredprops={}
     #the filtered keys to look for in prop
+    prop_names = {
+        'ro.product.model': 'Model',
+        'ro.product.name': 'Product Name',
+        'ro.build.id': 'Build ID',
+        'ro.product.product.model':'Product Code',
+        'ro.build.product':'Product',
+        'ro.build.version.release':'Android-Release',
+        'ro.build.version.security_patch':'Security Patch',
+        'ro.build.PDA':'Pda',
+        'ro.carrier':'Carrier',
+        'ro.config.knox':'Knox Version',
+        'ro.csc.country_code':'CSC',
+        'ro.frp.pst':'Frp Block',
+        'ro.hardware.chipname':'Hardware Chip',
+        'ro.serialno':'Serial Number',
+        'sys.usb.config':'Usb Config',
+        'Build.BRAND':'Brand',
+        'gsm.version.baseband':'Baseband',
+        'knox.kg.state':'Kg State',
+        'ril.modem.board':'Modem',
+        'gsm.network.type':'Network Type',
+        'gsm.operator.iso-country':'Gsm Operator',
+        'gsm.version.baseband':'Gsm Baseband',
+        'gsm.operator.alpha':'Gsm operator',
+        'gsm.operator.iso-country':'Country',}
+
     filter_keys = [
 
         'ro.product.model',
@@ -67,9 +93,9 @@ def adbConnect():
                             filteredprops[key] = value
                 output += f"{dev.serial}\n"
                 for prop, answer in filteredprops.items():
-                    output += f"{prop} = {answer}\n\n"
-        print(output)
-
+                    short_prop = prop_names.get(prop, prop)
+                    output += f"{short_prop} = {answer}\n\n"
+    stopDaemon()
     return output
 
 
@@ -128,61 +154,70 @@ class BackUP(detect):
 # a function that is gonna find the rootfs of the device and return t
     #the location so taht any part can be backed up regardless of the chip or device
 
-    def PartBackup(self, pclocation, part_name,):
+    def ExynosPartBackup(self, pclocation, part_name,):
             response = ''
             device = startDaemon()
             backup_files = []
             locations = 'dev/block/platform'
+            if client.devices()==None:
+                response+='No adb rooted device found'
+
             for dev in client.devices():
-                board_make = dev.shell('getprop Build.BRAND').strip()
+                board_make = dev.shell('getprop ril.modem.board').strip()
                 if dev.serial == device:
                     # su - c breaks out of the su waiting time and lets you execute once
                     response += f'\ndevice found is {board_make}\n'
                     # response = dev.shell(f'su -c "dd if=/{locations}'
                     # f'/bootdevice/by-name/efs of=/sdcard/efs.tdf"')'''
                     pcdir, pcfile = os.path.split(pclocation)
-                    if board_make == 'MTK':
-                        dev.shell(f'su -c mkdir /storage/emulated/0/td/')
-                        for part in part_name:
-                            backup_command = f'su -c "dd if={rootfs()}/{part} of=/storage/emulated/0/td/{part}.tdf"'
-                            bckup = dev.shell(backup_command)
-                            backup_files.append(f'/storage/emulated/0/td/{part}.tdf')
-                        dev.shell('cd /storage/emulated/0/td')
-                    else:
-                        dev.shell(f'su -c mkdir /storage/emulated/0/td')
-                        new_pclocation = os.path.join(pcdir, dev.serial)
-                        otherfiles = []
-                        for par in part_name:
-                            backup_command = f'su -c dd if=/{rootfs()}/{par} of=/storage/emulated/0/td/{par}.tdf'
-                            new_pclocation = os.path.join(pcdir, pcfile)
-                            dev.shell(backup_command)
-                            locate = f'/storage/emulated/0/td/{par}.tdf'
-                            otherfiles.append(locate)
-                            print(otherfiles)
-                        for loc in otherfiles:
-                            pcfile = f"{loc.split('/')[-1][:-4]}_{dev.serial}"
-                            new_pclocation = os.path.join(pcdir,pcfile)
-                            print(new_pclocation)
-                            print(pcfile)
-                            dev.pull(loc,new_pclocation)
-                        print(locate)
-                        #dev.pull(src=f'/storage/emulated/0/td/{part}.tdf', dest=new_pclocation)
-                        os.chdir(pcdir)
-                        response += f'\n {part_name} back up saved as' \
-                            # Do backup here
-                    #sybcing to pc location
-                    #dev.pull(src=part_name_backup, dest=f'{pclocation}')
-                    #print(dev.shell(f'su -c cd /{locations}'))
-                    #bckup = dev.shell((f'su -c "dd if=/{locations}/{ls_output}by-name/efs" of=/storage/emulated/0/{part_name}.tdf'))
+                    dev.shell(f'su -c mkdir /storage/emulated/0/td')
+                    new_pclocation = os.path.join(pcdir, dev.serial)
+                    otherfiles = []
+                    for par in part_name:
+                        backup_command = f'su -c dd if=/{rootfs()}/{par} of=/storage/emulated/0/td/{par}.tdf'
+                        new_pclocation = os.path.join(pcdir, pcfile)
+                        dev.shell(backup_command)
+                        locate = f'/storage/emulated/0/td/{par}.tdf'
+                        otherfiles.append(locate)
+                        #print(otherfiles)
+                    for loc in otherfiles:
+                        pcfile = f"{loc.split('/')[-1][:-4]}_{dev.serial}"
+                        new_pclocation = os.path.join(pcdir, pcfile)
+                        #print(new_pclocation)
+                        #print(pcfile)
+                        dev.pull(loc, new_pclocation)
+                    #print(locate)
+                    # dev.pull(src=f'/storage/emulated/0/td/{part}.tdf', dest=new_pclocation)
+                    os.chdir(pcdir)
+                    response += f'\n {part_name} back up saved as' \
+                        # Do backup here
+                    # sybcing to pc location
+                    # dev.pull(src=part_name_backup, dest=f'{pclocation}')
+                    # print(dev.shell(f'su -c cd /{locations}'))
+                    # bckup = dev.shell((f'su -c "dd if=/{locations}/{ls_output}by-name/efs" of=/storage/emulated/0/{part_name}.tdf'))
                     # Do backup here
-                    #print(ls_output)
-                    #print(bckup)
-                    response +=f'\n using {board_make} spring board'\
-                                f' \n working from {pclocation}' \
-                               f'\n compressing as {pclocation}_{dev.serial}'
-                    response
-                    print(pcdir)
-                return response,backup_files
+                    # print(ls_output)
+                    # print(bckup)
+                response += f'\n using {board_make} spring board' \
+                            f' \n working from {pclocation}' \
+                            f'\n compressing as {pclocation}_{dev.serial}'
+                response
+                #print(pcdir)
+            return response, backup_files,pclocation
+
+
+    def mtkPartBackup(self,pclocation,partfiles):
+        backup_files = []
+        for dev in client.devices():
+            dev.shell(f'su -c mkdir /storage/emulated/0/td/')
+            for part in partfiles:
+                backup_command = f'su -c "dd if={rootfs()}/{part} of=/storage/emulated/0/td/{part}.tdf"'
+                bckup = dev.shell(backup_command)
+                backup_files.append(f'/storage/emulated/0/td/{part}.tdf')
+                dev.shell('cd /storage/emulated/0/td')
+
+
+
 
     def puller(self, backup_files, pclocation):
         response = ''
@@ -198,39 +233,37 @@ class BackUP(detect):
                 # Pull the file from the device to the modified pclocation
                 dev.pull(src=part, dest=new_pclocation)
                 # print(directory)            #with py7zr.SevenZipFile(f'{pclocation}.7z', mode='w') as archname:
-            response += f' \n{pcfile} \t'
+                response += f' \n{pcfile} \t'
             return response
 
     def zipper(self, pclocation):
         files_to_zip = []
-
-        responce = ''
+        response = ''
         pcdir, pcfilr = os.path.split(pclocation)
-        print(pcdir, pcfilr)
+        # print(pcdir, pcfilr)
         for dev in client.devices():
             for file in os.listdir(pcdir):
                 files_to_zip.append(file)
-                # print(files_to_zip)
                 file_ch = [f for f in files_to_zip if f.endswith(f"{dev.serial}")]
-                print(file_ch)
+                # print(file_ch)
                 os.chdir(pcdir)
                 if not os.path.exists(f'{dev.serial}'):
                     os.mkdir(f'{dev.serial}')
                 for f in file_ch:
                     print(f)
-                    shtl.move(src=(os.path.join(pcdir, f))
-                              , dst=f'{dev.serial}')
-                    print('moving')
-                    shtl.make_archive(f'{pclocation}_{dev.serial}', 'tar', root_dir=f'{pcdir}\\{dev.serial}')
-                    shtl.rmtree(f'{dev.serial}', True)
-                    responce += f'\n compressing as {pclocation}_{dev.serial}' \
-                                f'\n files saved to archive and ready for further use '
-
-                    break
-                else:
-                    response = 'device not found'
-                return response
-
+                    dest_dir = os.path.join(f'{dev.serial}', os.path.basename(f))
+                    if os.path.exists(dest_dir):
+                        print(f"File {f} already exists on device {dev.serial}")
+                    else:
+                        shtl.move(src=(os.path.join(pcdir, f)), dst=f'{dev.serial}')
+                        print(f"File {f} moved to device {dev.serial}")
+            shtl.make_archive(f'{pclocation}_{dev.serial}', 'tar', root_dir=f'{pcdir}\\{dev.serial}')
+            shtl.rmtree(f'{dev.serial}', True)
+            response += f'\n compressing as {pclocation}_{dev.serial}' \
+                        f'\n files saved to archive and ready for further use '
+        else:
+            response = 'device not found'
+        return response
 
     def part_restore(self,pclocation,partname):
         #device = startDaemon()
