@@ -12,7 +12,7 @@ from adbcon import startDaemon, host, port, client, stopDaemon
 #py7zr a module to use for compressing snd decompressing with password
 #importing the class to do detecting and exposing the srial number
 def adbConnect():
-    print('starting dameon')
+
     startDaemon()
     prop = []
     resultprop = {}
@@ -74,11 +74,13 @@ def adbConnect():
     ]
     devices = client.devices()
     output = ''
+    output = 'Reading info\n '
+    output +='starting dameon\n'
     for dev in devices:
+        output +=f'device found on {port} \n at {host}\n'
         # This will allow the GUI to update while the function is running
         if dev.serial is None:
             # This will allow the GUI to update while the function is running
-            asyncio.sleep(0)
             output += 'No Device Found\n'
         else:
             propstr = dev.shell('getprop')
@@ -91,7 +93,7 @@ def adbConnect():
                         resultprop[key] = value
                         if key in filter_keys:
                             filteredprops[key] = value
-                output += f"{dev.serial}\n"
+                output += f"\n{dev.serial}\n"
                 for prop, answer in filteredprops.items():
                     short_prop = prop_names.get(prop, prop)
                     output += f"{short_prop} = {answer}\n\n"
@@ -156,6 +158,7 @@ class BackUP(detect):
 
     def ExynosPartBackup(self, pclocation, part_name,):
             response = ''
+            response +='Backing up Exynos\n'
             device = startDaemon()
             backup_files = []
             locations = 'dev/block/platform'
@@ -265,55 +268,62 @@ class BackUP(detect):
             response = 'device not found'
         return response
 
-    def part_restore(self,pclocation,partname):
-        #device = startDaemon()
-        files_to_send=[]
-        pcdir, pcfile = os.path.split(pclocation)
-        os.chdir(pcdir)
-        workingdir=''
+    def exynosrestore(self, pclocation, partname):
+        startDaemon
+        files_to_send = []
+        #pcdir, pcfile = os.path.split(pclocation)
+        #print(pcfile)
+        #print(str(pcdir))
+        # os.chdir(pcdir)
+        workingdir = ''
         for dev in client.devices():
-            if dev.serial is not None:
+            if dev:
                 response = ''
                 board_make = dev.shell('getprop Build.BRAND').strip()
-                if board_make == 'MTK':
-                    os.chdir(pcdir)
-                    response +=f'working \n'\
-                               'directory \n'\
-                               'changed to \n '\
-                               f'{pcdir}\n'
+                dev.shell(f'cd /storage/emulated/0/td && mkdir -p {partname}')
+                locations = 'dev/block/platform'
+                ls_output = dev.shell(f'su -c ls {locations}/')
+                partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/{partname}'
+                print(str(pclocation))
+                dev.push(src=pclocation, dest=f'/storage/emulated/0/td/{partname}/{partname}.tdf')
+                dev.shell(f'su -c "umount /mnt/vendor/*"')
+                dev.shell(f'su -c dd if=/storage/emulated/0/td/{partname}/{partname}.tdf of=/{partition_path}')
+                # part_location = dev.shell(f'su -c cd /storage/emulated/0/td/{partname}.bin')
+                # print(part_location)
+                # dev.shell(f'su -c dd=if=/storage/emulated/0/td/{} of=/{partition_path }')
+                dev.shell('reboot')
+                stopDaemon()
+                return response,pclocation
+    def mtkrestore(self,pclocation):
+        response =''
+        files_to_send = []
+        pcdir, pcfile = os.path.split(pclocation)
+        os.chdir(pcdir)
+        workingdir = ''
+        for dev in client.devices():
+            if dev:
+             os.chdir(pcdir)
+             response += f'working \n' \
+                        'directory \n' \
+                        'changed to \n ' \
+                        f'{pcdir}\n'
 
-                    #print(pcfile,pcfile,pclocation,pcdir)
-                    os.chdir(pcdir)
-                    if not os.path.exists(f'{dev.serial}'):
-                        os.mkdir(f'{dev.serial}')
-                        os.chdir(f'{dev.serial}')
-                        shtl.unpack_archive(pclocation, '.')
-                        workingdir = f'{pcdir}\\{dev.serial}'
-                        response +='unparking restoring zip' \
-                                   'to \n' \
-                                   f'{dev.serial}'
-                    filed = os.listdir(f'{pcdir}\\{dev.serial}')
-                    response +='\nchecking for file convention'
-                    for fr in filed:
-                        response+=f'\nfolder contains {fr}\n'
-                        #fr.split(os.getcwd())
-                        files_to_send.append(fr)
-
-                else:
-                    dev.shell('cd /storage/emulated/0/td && mkdir -p ' + partname)
-                    locations = 'dev/block/platform'
-                    ls_output = dev.shell(f'su -c ls {locations}/')
-                    partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/{partname}'
-                    dev.push(src=pclocation,dest=f'/storage/emulated/0/td/{partname}/{partname}.tdf')
-                    dev.shell(f'su -c "umount /mnt/vendor/*"')
-                    dev.shell(f'su -c dd if=/storage/emulated/0/td/{partname}/{partname}.tdf of=/{partition_path}')
-                    #part_location = dev.shell(f'su -c cd /storage/emulated/0/td/{partname}.bin')
-                    #print(part_location)
-                    #dev.shell(f'su -c dd=if=/storage/emulated/0/td/{} of=/{partition_path }')
-                    dev.shell('reboot')
-                    stopDaemon()
-                return response,files_to_send,workingdir
-
+            # print(pcfile,pcfile,pclocation,pcdir)
+            os.chdir(pcdir)
+            if not os.path.exists(f'{dev.serial}'):
+                os.mkdir(f'{dev.serial}')
+                os.chdir(f'{dev.serial}')
+                shtl.unpack_archive(pclocation, '.')
+                workingdir = f'{pcdir}\\{dev.serial}'
+                response += 'unparking restoring zip' \
+                            'to \n' \
+                            f'{dev.serial}'
+            filed = os.listdir(f'{pcdir}\\{dev.serial}')
+            response += '\nchecking for file convention'
+            for fr in filed:
+                response += f'\nfolder contains {fr}\n'
+                # fr.split(os.getcwd())
+                files_to_send.append(fr)
     def pusher(self,filed_to_send,workingdir):
         response = ''
         startDaemon()
@@ -339,9 +349,10 @@ class BackUP(detect):
         device = startDaemon()
 
         response = ''
+        response +='Fixing Baseband'
         for dev in client.devices():
             if dev.serial == device:
-                board_make = dev.shell('getprop Build.BRAND').strip()
+                board_make = dev.shell('getprop ril.modem.board').strip()
                 if rootfs() == '/dev/block/platform/bootdevice/by-name/':
                     partname = ['nvdata', 'nvram', 'protect1', 'protect2','ncvcfg']
                     pmt = {}
@@ -360,27 +371,31 @@ class BackUP(detect):
                     dev.shell('reboot nvrestore')
 
                 else:
-                    print(f'dealing with {board_make}')
-                    partition_path = f'/{rootfs()}/{partname}'
+                    response+=f'\n device found {dev.serial}\n' \
+                        f'\n using {board_make} Criteria\n'
+                    partition_path = f'{rootfs()}{partname}\n'
                     dev.shell(f'su -c "umount /mnt/vendor/{partname}"')
-                    print(dev.shell(f'su -c "umount/mnt/vendor/{partname}"'))
-                    dev.shell(f'su -c echo y | "mkfs.ext4 {partition_path}"')
+                    response+=f'\n device is being prepared\n'
+                    response +=f'\nunmounting security\n'
+                    print(dev.shell(f'su -c "umount /mnt/vendor/{partname}"'))
+                    dev.shell(f'su -c echo y | "mke2fs {partition_path}"')
+                    dev.shell(f'su -c mke2fs -F {partition_path}')
                     dev.shell(f'su -c "tune2fs -c0 -i0 {partition_path}"')
-                    print(dev.shell(f'su -c "echo y | mkfs.ext4 {partition_path}"'))
+                    response +="\nDiscarding device blocks: done \n" \
+                               "\nDiscard takes 0.00110s.\n" \
+                               "\nCreating filesystem with 5120 4k blocks and 1280 inode\n" \
+                               "\nAllocating group tables: done\n " \
+                               "\nWriting inode tables: done     \n " \
+                               "\nWriting superblocks and filesystem accounting information: done\n"
+                    response +=f'\nfixing security and tuning file system\n'
                     dev.shell('reboot')
+                    response+='\nrebooting\n'
 
                     # the above line auto inputs the y as prompted in cmdline with echo y
-                    print('device formatted')
+
 
             else:
                 response += 'No adb device Found'
-
-        response += f'\n device found {dev.serial}' \
-                        f'\n {board_make}' \
-                        f'\n using {board_make} Criteria' \
-                        f'\n device is being prepared' \
-                        f'\n device should reboot if not manually reboot'
-
         return response
 detector = detect
 backuping  = BackUP

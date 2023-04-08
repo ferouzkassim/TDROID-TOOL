@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>main</class>
  <widget class="QDialog" name="main">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -117,14 +120,17 @@
   <property name="toolTip">
    <string notr="true"/>
   </property>
+  <property name="toolTipDuration">
+   <number>0</number>
+  </property>
   <property name="statusTip">
-   <string/>
+   <string notr="true"/>
   </property>
   <property name="whatsThis">
-   <string/>
+   <string notr="true"/>
   </property>
   <property name="accessibleName">
-   <string/>
+   <string notr="true"/>
   </property>
   <property name="accessibleDescription">
    <string notr="true"/>
@@ -150,6 +156,9 @@
    </property>
    <item>
     <widget class="QTabWidget" name="tablet">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="styleSheet">
       <string notr="true">font: 12pt &quot;Segoe MDL2 Assets&quot;;
 background-color: rgb(255, 255, 255);
@@ -394,12 +403,15 @@ color: rgb(85, 170, 127);</string>
        </property>
       </widget>
       <widget class="QDockWidget" name="mtkdock">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <property name="geometry">
         <rect>
          <x>380</x>
          <y>310</y>
-         <width>444</width>
-         <height>314</height>
+         <width>448</width>
+         <height>331</height>
         </rect>
        </property>
        <property name="palette">
@@ -933,6 +945,16 @@ background-color: rgb(236, 205, 81);</string>
            </property>
            <property name="flat">
             <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QPushButton" name="writenv_2">
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(219, 219, 219);</string>
+           </property>
+           <property name="text">
+            <string>Write NVdata</string>
            </property>
           </widget>
          </item>
@@ -1474,8 +1496,8 @@ background-color: rgb(111, 169, 255);</string>
         <rect>
          <x>0</x>
          <y>310</y>
-         <width>386</width>
-         <height>311</height>
+         <width>381</width>
+         <height>374</height>
         </rect>
        </property>
        <property name="palette">
@@ -1690,72 +1712,119 @@ color: rgb(170, 0, 0);</string>
         <string notr="true">Exynos Tools</string>
        </property>
        <widget class="QWidget" name="exnoswidget">
-        <layout class="QFormLayout" name="formLayout_2">
-         <item row="0" column="0">
-          <widget class="QPushButton" name="fixbaseband">
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(219, 219, 219);</string>
-           </property>
-           <property name="text">
-            <string>Fix Baseband</string>
-           </property>
-           <property name="autoDefault">
-            <bool>true</bool>
-           </property>
-           <property name="flat">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QPushButton" name="repairsnexn">
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(219, 219, 219);</string>
-           </property>
-           <property name="text">
-            <string>Repair Sn</string>
-           </property>
-           <property name="autoDefault">
-            <bool>true</bool>
-           </property>
-           <property name="flat">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QPushButton" name="writeefs">
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(219, 219, 219);</string>
-           </property>
-           <property name="text">
-            <string>Write Efs</string>
-           </property>
-           <property name="autoDefault">
-            <bool>true</bool>
-           </property>
-           <property name="flat">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QPushButton" name="readefs">
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(219, 219, 219);</string>
-           </property>
-           <property name="text">
-            <string>Read Efs</string>
-           </property>
-           <property name="autoDefault">
-            <bool>true</bool>
-           </property>
-           <property name="flat">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QPushButton" name="fixbaseband">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>230</y>
+           <width>201</width>
+           <height>48</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(219, 219, 219);</string>
+         </property>
+         <property name="text">
+          <string>Fix Baseband</string>
+         </property>
+         <property name="autoDefault">
+          <bool>true</bool>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="readefs">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>160</y>
+           <width>201</width>
+           <height>48</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(219, 219, 219);</string>
+         </property>
+         <property name="text">
+          <string>Read Security</string>
+         </property>
+         <property name="autoDefault">
+          <bool>true</bool>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="partialefs">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>90</y>
+           <width>199</width>
+           <height>48</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(219, 219, 219);</string>
+         </property>
+         <property name="text">
+          <string>Write Security</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="repairsnexn">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>20</y>
+           <width>201</width>
+           <height>48</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(219, 219, 219);</string>
+         </property>
+         <property name="text">
+          <string>Repair Sn</string>
+         </property>
+         <property name="autoDefault">
+          <bool>true</bool>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="writeefs">
+         <property name="geometry">
+          <rect>
+           <x>220</x>
+           <y>20</y>
+           <width>150</width>
+           <height>48</height>
+          </rect>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(219, 219, 219);</string>
+         </property>
+         <property name="text">
+          <string>Write Efs</string>
+         </property>
+         <property name="autoDefault">
+          <bool>true</bool>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+        </widget>
        </widget>
       </widget>
       <widget class="QGroupBox" name="groupBox">
