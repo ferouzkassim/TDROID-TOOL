@@ -209,47 +209,61 @@ class BackUP(detect):
             return response, backup_files,pclocation
 
 
-    def mtkPartBackup(self,pclocation,partfiles):
+    def mtkPartBackup(self,partfiles):
+        startDaemon()
+        response=''
         backup_files = []
+
         for dev in client.devices():
+            response +='checking for device'
             dev.shell(f'su -c mkdir /storage/emulated/0/td/')
             for part in partfiles:
                 backup_command = f'su -c "dd if={rootfs()}/{part} of=/storage/emulated/0/td/{part}.tdf"'
                 bckup = dev.shell(backup_command)
+                response += 'exploiting..... '
                 backup_files.append(f'/storage/emulated/0/td/{part}.tdf')
-                dev.shell('cd /storage/emulated/0/td')
-
-
-
+                dev.shell('cd /storage/emulated/0/td/')
+        print(backup_files)
+        return backup_files,response
 
     def puller(self, backup_files, pclocation):
         response = ''
-        for part in backup_files:
-            for dev in client.devices():
-                # print(part)
-                # Get the directory and filename components of pclocation
+        for dev in client.devices():
+            for part in backup_files:
+                # Change to the backup directory on the device
+                dev.shell('cd /storage/emulated/0/td/')
+
+                # Extract the directory and filename components of pclocation
                 pcdir, pcfile = os.path.split(pclocation)
-                # Insert the partition name into the filename component
-                pcfile = f"{part.split('/')[-1][:-4]}_{dev.serial}"
-                # Rejoin the directory and modified filename components
-                new_pclocation = os.path.join(pcdir, pcfile)
+
+                # Construct the new filename with the device serial number
+                new_filename = f"{part.split('/')[-1][:-4]}_{dev.serial}"
+
+                # Construct the full path of the destination file on the PC
+                new_pclocation = os.path.join(pcdir, dev.serial, new_filename)
+
+                # Check if the directory exists and create it if it doesn't
+                os.makedirs(os.path.dirname(new_pclocation), exist_ok=True)
+
                 # Pull the file from the device to the modified pclocation
                 dev.pull(src=part, dest=new_pclocation)
-                # print(directory)            #with py7zr.SevenZipFile(f'{pclocation}.7z', mode='w') as archname:
-                response += f' \n{pcfile} \t'
-            return response
 
-    def zipper(self, pclocation):
+                # Add the filename to the response string
+                response += f'\n{new_filename}\t'
+
+        return response, pcdir
+
+    def zipper(self, location):
         files_to_zip = []
         response = ''
-        pcdir, pcfilr = os.path.split(pclocation)
+        pcdir, pcfilr = os.path.split(location)
         # print(pcdir, pcfilr)
         for dev in client.devices():
             for file in os.listdir(pcdir):
                 files_to_zip.append(file)
                 file_ch = [f for f in files_to_zip if f.endswith(f"{dev.serial}")]
                 # print(file_ch)
-                os.chdir(pcdir)
+                os.chdir(location)
                 if not os.path.exists(f'{dev.serial}'):
                     os.mkdir(f'{dev.serial}')
                 for f in file_ch:
@@ -260,12 +274,10 @@ class BackUP(detect):
                     else:
                         shtl.move(src=(os.path.join(pcdir, f)), dst=f'{dev.serial}')
                         print(f"File {f} moved to device {dev.serial}")
-            shtl.make_archive(f'{pclocation}_{dev.serial}', 'tar', root_dir=f'{pcdir}\\{dev.serial}')
+            shtl.make_archive(f'{location}_{dev.serial}', 'tar', root_dir=f'{pcdir}\\{dev.serial}')
             shtl.rmtree(f'{dev.serial}', True)
-            response += f'\n compressing as {pclocation}_{dev.serial}' \
+            response += f'\n compressing as {location}_{dev.serial}' \
                         f'\n files saved to archive and ready for further use '
-        else:
-            response = 'device not found'
         return response
 
     def exynosrestore(self, pclocation, partname):
