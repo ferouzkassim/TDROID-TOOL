@@ -124,5 +124,5 @@ def enableADB():
 
     print("USB Debugging should be enabled")
     print("If USB Debugging prompt does not appear, try unplug/replug the USB cable")
-enableADB()
+#enableADB()
 list_serial_ports()
