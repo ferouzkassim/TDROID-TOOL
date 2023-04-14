@@ -89,10 +89,13 @@ def adbConnect():
                 for stringprop in sublist:
                     clean_string = stringprop.strip().replace("[", "").replace("]", "")
                     if clean_string and ':' in clean_string:
-                        key, value = clean_string.split(': ')
-                        resultprop[key] = value
-                        if key in filter_keys:
-                            filteredprops[key] = value
+                        key_value_pair = clean_string.split(': ', 1)
+                        #to split the first occurence hence the :1 just incaase it doesnt split it can skip
+                        if len(key_value_pair) == 2:
+                            key, value = key_value_pair
+                            resultprop[key] = value
+                            if key in filter_keys:
+                                filteredprops[key] = value
                 output += f"\n{dev.serial}\n"
                 for prop, answer in filteredprops.items():
                     short_prop = prop_names.get(prop, prop)
@@ -142,8 +145,9 @@ def rootfs():
 
             ls_output = dev.shell(f'su -c ls {locations}/')
             partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/'
+            qlmpartition = f'/{locations}/{ls_output.strip().split()[-1]}'
             print(partition_path)
-            return  partition_path
+            return  partition_path,qlmpartition
 class BackUP(detect):
     def __init__(self, pclocation,Part_name,devlocation):
         super().__init__()
@@ -177,7 +181,7 @@ class BackUP(detect):
                     new_pclocation = os.path.join(pcdir, dev.serial)
                     otherfiles = []
                     for par in part_name:
-                        backup_command = f'su -c dd if=/{rootfs()}/{par} of=/storage/emulated/0/td/{par}.tdf'
+                        backup_command = f'su -c dd if=/{rootfs()[0]}/{par} of=/storage/emulated/0/td/{par}.tdf'
                         new_pclocation = os.path.join(pcdir, pcfile)
                         dev.shell(backup_command)
                         locate = f'/storage/emulated/0/td/{par}.tdf'
@@ -218,7 +222,7 @@ class BackUP(detect):
             response +='checking for device'
             dev.shell(f'su -c mkdir /storage/emulated/0/td/')
             for part in partfiles:
-                backup_command = f'su -c "dd if={rootfs()}/{part} of=/storage/emulated/0/td/{part}.tdf"'
+                backup_command = f'su -c "dd if={rootfs()[0]}/{part} of=/storage/emulated/0/td/{part}.tdf"'
                 bckup = dev.shell(backup_command)
                 response += 'exploiting..... '
                 backup_files.append(f'/storage/emulated/0/td/{part}.tdf')
@@ -306,6 +310,58 @@ class BackUP(detect):
                 dev.shell('reboot')
                 stopDaemon()
                 return response,pclocation
+    def qlmbackup(self,pclocation,part_name):
+        response = ''
+        response += 'Backing up Exynos\n'
+        device = startDaemon()
+        backup_files = []
+        locations = 'dev/block/platform'
+        if client.devices() == None:
+            response += 'No adb rooted device found'
+
+        for dev in client.devices():
+            board_make = dev.shell('getprop ril.modem.board').strip()
+            if dev.serial == device:
+                # su - c breaks out of the su waiting time and lets you execute once
+                response += f'\ndevice found is {board_make}\n'
+                # response = dev.shell(f'su -c "dd if=/{locations}'
+                # f'/bootdevice/by-name/efs of=/sdcard/efs.tdf"')'''
+                pcdir, pcfile = os.path.split(pclocation)
+                dev.shell(f'su -c mkdir /storage/emulated/0/td')
+                new_pclocation = os.path.join(pcdir, dev.serial)
+                otherfiles = []
+                for par in part_name:
+                    print(f'{rootfs()[1]}/{par}')
+                    backup_command = f'su -c dd if=/{rootfs()[1]}/{par} of=/storage/emulated/0/td/{par}.tdf'
+                    new_pclocation = os.path.join(pcdir, pcfile)
+                    dev.shell(backup_command)
+                    locate = f'/storage/emulated/0/td/{par}.tdf'
+                    otherfiles.append(locate)
+                    # print(otherfiles)
+                for loc in otherfiles:
+                    pcfile = f"{loc.split('/')[-1][:-4]}_{dev.serial}"
+                    new_pclocation = os.path.join(pcdir, pcfile)
+                    # print(new_pclocation)
+                    # print(pcfile)
+                    dev.pull(loc, new_pclocation)
+                # print(locate)
+                # dev.pull(src=f'/storage/emulated/0/td/{part}.tdf', dest=new_pclocation)
+                os.chdir(pcdir)
+                response += f'\n {part_name} back up saved as' \
+                    # Do backup here
+                # sybcing to pc location
+                # dev.pull(src=part_name_backup, dest=f'{pclocation}')
+                # print(dev.shell(f'su -c cd /{locations}'))
+                # bckup = dev.shell((f'su -c "dd if=/{locations}/{ls_output}by-name/efs" of=/storage/emulated/0/{part_name}.tdf'))
+                # Do backup here
+                # print(ls_output)
+                # print(bckup)
+            response += f'\n using {board_make} spring board' \
+                        f' \n working from {pclocation}' \
+                        f'\n compressing as {pclocation}_{dev.serial}'
+            response
+            # print(pcdir)
+        return response, backup_files, pclocation
     def mtkrestore(self,pclocation):
         response =''
         files_to_send = []

@@ -11,7 +11,7 @@ import time
 #define SAMSUNG_VENDOR_ID  	0x04e8
 #define SAMSUNG_PRODUCT_ID 	0x6860
 # Find the Samsung device in download mode
-dev = usb.core.find(idVendor=0x04e8, idProduct=0x685d)
+dev = usb.core.find(idVendor=0x04e8, idProduct=0x6860)
 SERIAL_PORT = "/dev/ttyACM0"
 GALAXY_ID_VENDOR = 0x04e8
 GALAXY_ID_PRODUCT = 0x6860
@@ -50,7 +50,12 @@ dev.set_configuration(cfg)
 
 SERIAL_BAUDRATE = 115200
 SERIAL_TIMEOUT = 12
+def pyusbports():
+    if dev is None:
+        raise ValueError('Device not found')
 
+
+    print(dev)
 def list_serial_ports() -> list_ports_common.ListPortInfo:
     ports = prtlst.comports()
     if len(ports) == 0:
@@ -58,11 +63,12 @@ def list_serial_ports() -> list_ports_common.ListPortInfo:
         exit(1)
     print("####### Available serial ports #######")
     for port, desc, hwid in sorted(ports):
-        print(port, desc, hwid)
+        #print(desc, )
+        pass
     for port in ports:
-        print(port)
+        print(port.description)
     print("####### End of available serial ports #######")
-    return ports[0]
+    return port.description
 
 def get_AT_serial(port: str) -> serial.Serial:
     return serial.Serial(port, baudrate=SERIAL_BAUDRATE, timeout=SERIAL_TIMEOUT)
@@ -126,3 +132,13 @@ def enableADB():
     print("If USB Debugging prompt does not appear, try unplug/replug the USB cable")
 #enableADB()
 list_serial_ports()
+pyusbports()
+'''in pyusb but you can decidd to use serial library or pysub
+bLength: The length of this descriptor in bytes (9 bytes).
+bDescriptorType: The type of descriptor (configuration descriptor).
+wTotalLength: The total length of this configuration descriptor and all of its associated descriptors (136 bytes).
+bNumInterfaces: The number of interfaces in this configuration (4).
+bConfigurationValue: The value used to select this configuration (1).
+iConfiguration: The index of a string descriptor that describes this configuration. In this case, the descriptor cannot be accessed due to an error ("Error Accessing String").
+bmAttributes: The attributes of this configuration. The 0x80 value indicates that the device is bus-powered (i.e. draws power from the USB bus).
+bMaxPower: The maximum amount of current that this configuration may draw, in units of 2 mA. In this case, the value is 0xfa, which corresponds to 500 mA.'''
