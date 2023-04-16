@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QApplication, QDialog, QPushButton
 import serial.tools.list_ports as prtlst
 from PyQt6.QtSerialPort import QSerialPortInfo
 
+import usbcom
 from detect import adbConnect, detector, BackUP, backuping
 from gui import Ui_main
 #import pyudev
@@ -34,6 +35,19 @@ class MainDialog(QDialog):
         self.ui.comboBox.addItem(self.update_serial_ports())
         #self.ui.qlmreadefs.clicked.connect(self.readqlmsec)
         self.ui.modelselector.activated.connect(self.modelselector)
+        self.ui.Read_info_cp.clicked.connect(self.read_cp)
+        self.ui.blcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.blline,self.fileloader()))
+        self.ui.apcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.apline,self.fileloader()))
+        self.ui.cpcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.cpline, self.fileloader()))
+        self.ui.csccheckbox.clicked.connect(lambda: self.loadedfile(self.ui.cscline, self.fileloader()))
+        self.ui.userdtacheckbox.clicked.connect(lambda: self.loadedfile(self.ui.userdataline, self.fileloader()))
+        self.ui.pitcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.pitline, self.fileloader()))
+    def fileloader(self):
+        fiel, _ = QtWidgets.QFileDialog.getOpenFileName(filter="files (*.pit *.md5 *.tar)",
+                                                        initialFilter='.tar')
+        return fiel
+    def loadedfile(self,part,fiel):
+        fileloaded=part.setText(fiel)
 
     def modelselector(self):
         model=self.ui.modelselector.currentText()
@@ -47,6 +61,8 @@ class MainDialog(QDialog):
             self.ui.Read_security.setText('Read Security')
             self.ui.write_security.setText('Write Security')
             self.ui.MountNetwork.hide()
+        if model in self.qlmlist:
+            self.ui.MountNetwork.hide()
     def read_info_adb(self):
         # Call adbConnect function
         output_list = []
@@ -56,6 +72,11 @@ class MainDialog(QDialog):
         self.ui.logfield.append(f'logging for {self.ui.modelselector.currentText()}\n')
         self.ui.logfield.append(''.join(output_list))
         self.ui.logfield.repaint()
+    def read_cp(self):
+      try:
+        usbcom.list_serial_ports()
+      finally:
+          pass
     def save_backup(self):
         file,_ = QtWidgets.QFileDialog.getSaveFileName(
             filter=("files (*.img *.bin *.tdf *.tar)"),initialFilter=('*.tdf')
