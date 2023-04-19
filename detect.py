@@ -110,6 +110,18 @@ def adbConnect():
 class detect:
     def __init__(self,dev):
         self.dev =dev
+    def adbfrpreset(self):
+        startDaemon()
+        response=''
+        for dev in client.devices():
+            print(dev.serial)
+            response += dev.serial
+            dev.shell('am start -n com.google.Android.gsf.login/')
+            dev.shell('am start -n com.google.Android.gsf.login.LoginActivity')
+            dev.shell('content insert –uri content://settings/secure –bind name:s:user_setup_complete –bind value:s:1')
+            dev.reboot()
+            response+='resting frp done in adb'
+            return response
 
     def applister(self):
 
@@ -255,7 +267,7 @@ class BackUP(detect):
                 # Add the filename to the response string
                 response += f'\n{new_filename}\t'
 
-        return response, pcdir
+        return response, f'{pcdir}/'
 
     def zipper(self, location):
         files_to_zip = []
@@ -278,7 +290,7 @@ class BackUP(detect):
                     else:
                         shtl.move(src=(os.path.join(pcdir, f)), dst=f'{dev.serial}')
                         print(f"File {f} moved to device {dev.serial}")
-            shtl.make_archive(f'{location}_{dev.serial}', 'tar', root_dir=f'{pcdir}\\{dev.serial}')
+            shtl.make_archive(f'{location}_{dev.serial}', 'tar', root_dir=f'{pcdir}/{dev.serial}')
             shtl.rmtree(f'{dev.serial}', True)
             response += f'\n compressing as {location}_{dev.serial}' \
                         f'\n files saved to archive and ready for further use '
@@ -413,41 +425,56 @@ class BackUP(detect):
 
                 response += f'\npacket sent to device'
         return response
-    def part_mount(self, partname):
+    def part_mountmtk(self, partname):
         device = startDaemon()
 
         response = ''
-        response +='Fixing Baseband'
+        response +='Fixing Mtk Baseband\n'
         for dev in client.devices():
             if dev.serial == device:
-                board_make = dev.shell('getprop ril.modem.board').strip()
-                if rootfs() == '/dev/block/platform/bootdevice/by-name/':
+                    board_make = dev.shell('getprop ril.modem.board').strip()
+
                     partname = ['nvdata', 'nvram', 'protect1', 'protect2','ncvcfg']
                     pmt = {}
                     for part in partname:
                         dev.shell('cd /mnt/vendor')
                         dev.shell(f'su -f umount {part}')
                         dev.shell(f'su -c umount {part}')
-                        print('unmounted')
-                        partition_path = f'{rootfs()}{part}'
-                        print(partition_path)
+                        print('unmounted data')
+                        response+='Unmounted\n'
+                        partition_path = f'{rootfs()}/{part}'
                         dev.shell(f'su -c y | "mke2fs {partition_path}"')
-                        print(dev.shell(f'su -c y | "mke2fs {partition_path}"'))
+                        response+='Clearing springboard\n'
+                        dev.shell(f'su -c y | "mkfs.ext4 {partition_path}"')
                         dev.shell(f'su -c "tune2fs -c0 -i0 {partition_path}"')
+                        response+='Tuning File system\n'
                        #S print(formumount)
-                        response += dev.shell(f"su -c echo y | 'mke2fs {partition_path}'")
-                    dev.shell('reboot nvrestore')
+                        dev.shell(f"su -c echo y | 'mke2fs {partition_path}'")
 
-                else:
+                    dev.shell('reboot nvrestore')
+        return response
+
+    def part_mountex(self, partname):
+         response = ''
+         response+='Fixing Exynos baseband \n'
+         device = startDaemon()
+         print('exynosing')
+         for dev in client.devices():
+             board_make = dev.shell('getprop ril.modem.board').strip()
+             if dev.serial == device:
+
                     response+=f'\n device found {dev.serial}\n' \
-                        f'\n using {board_make} Criteria\n'
+                            f'\n using {board_make} Criteria\n'
                     partition_path = f'{rootfs()}{partname}\n'
-                    dev.shell(f'su -c "umount /mnt/vendor/{partname}"')
+                    print(dev.shell(f'su -c cd mnt/vendor umount -f {partname}'))
+                    dev.shell(f'su -c -f umount {partname}')
+                    print(dev.shell(f'su -c umount -l /mnt/vendor/{partname}'))
                     response+=f'\n device is being prepared\n'
                     response +=f'\nunmounting security\n'
+                    dev.shell(f'su -c "umount /mnt/vendor/{partname}"')
                     print(dev.shell(f'su -c "umount /mnt/vendor/{partname}"'))
                     dev.shell(f'su -c echo y | "mke2fs {partition_path}"')
-                    dev.shell(f'su -c mke2fs -F {partition_path}')
+                    dev.shell(f'su -c mke2fs -f {partition_path}')
                     dev.shell(f'su -c "tune2fs -c0 -i0 {partition_path}"')
                     response +="\nDiscarding device blocks: done \n" \
                                "\nDiscard takes 0.00110s.\n" \
@@ -462,11 +489,13 @@ class BackUP(detect):
                     # the above line auto inputs the y as prompted in cmdline with echo y
 
 
-            else:
+             else:
                 response += 'No adb device Found'
-        return response
+         return response
 detector = detect
 backuping  = BackUP
+detc = detect
+
 def start_logging():
     t = threading.Thread(target=adbConnect)
     t.start()
