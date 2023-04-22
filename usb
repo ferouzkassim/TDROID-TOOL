@@ -13,6 +13,20 @@ remote_path = "/sdcard/remote_file.txt"
 progress_bar = tk.Progressbar(window, orient="horizontal", length=200, mode="determinate")
 progress_bar.pack()
 
+
+
+import pyext2
+from pyext2 import extract
+
+with open('disk.img', 'rb') as f:
+    fs = pyext2.FileSystem(f)
+    inodes = fs.read_all_inodes()
+
+    for inode in inodes:
+        if inode.name == 'example.txt':
+            with open(inode.name, 'wb') as outfile:
+                extract.extract_file(fs, inode, outfile)
+
 device.push(local_path, remote_path, progress=update_progress)
 
 
@@ -37,7 +51,7 @@ SET_SMSC = "+CSCA=\"telephone number\""
 
 # AT command to request IMSI
 GET_IMSI = "+CIMI?"
-
+dd if=/storage/emulated/0/serial of=/efs/FactoryApp/serial_no
 """AT command to set unconditional forwarding
 digit 1 : 0=unconditional, 1=busy, 4=all
 digit 2 : 2=read, 3=set, 4=erase"""
@@ -52,3 +66,58 @@ NVMT: Writes data to the device's NVM (non-volatile memory) region.
 NVMS: Reads data from the device's NVM region.
 REPT: Requests a report from the device containing information such as the device's model number, firmware version, and more.
 DVIF: Requests the device version information file, which contains information about the device's firmware version.
+BL - Sends the bootloader to the device.
+AP - Sends the main firmware (also known as the "AP" or "PDA" firmware) to the device.
+CP - Sends the modem firmware (also known as the "CP" or "Phone" firmware) to the device.
+CSC - Sends the CSC firmware (also known as the "CSC" or "Consumer Software Customization" firmware) to the device.
+USERDATA - Sends the user data (such as photos, videos, contacts, and apps) to the device.
+PARTITION - Sends a specific partition to the device.
+PIT - Sends the partition information table (PIT) to the device.
+REBOOT - Reboots the device after flashing.
+Sure! Here are some of the most commonly used commands in the Odin protocol:
+
+HELO: Initiate communication with the device.
+LOGO: Reboot the device into normal mode.
+PBL: Download the device's Primary Bootloader.
+APPSBL: Download the device's Secondary Bootloader.
+PIT: Download the device's Partition Information Table.
+BL: Download the device's Bootloader.
+AP: Download the device's Application Firmware.
+CP: Download the device's Cellular Processor Firmware.
+CSC: Download the device's Consumer Software Customization.
+USERDATA: Download the device's User Data Partition.
+EFS: Download the device's Extended File System.
+MODEM: Download the device's Modem Firmware.
+SSBOOT: Download the device's Secure Bootloader.
+FOTA: Download the device's FOTA Firmware.
+Additionally, there are some other commands you can use to perform various actions:
+
+RESET: Reset the device.
+REBOOT: Reboot the device.
+SETBOOTMODE: Set the device's boot mode.
+SETRESETMODE: Set the device's reset mode.
+SETDLOADMODE: Set the device's download mode.
+NVMS: Request the device's version information file.
+FACTORYFS: Download the device's Factory Reset file system.
+Keep in mind that not all of these commands may be applicable to every device, and the exact syntax of each command may vary depending on the device and firmware version.
+Yes, to send a file using the Odin protocol, you can use the write command followed by the name of the file you want to send. For example, if you have a firmware file called "firmware.bin", you would send it using the following command:
+import serial
+
+# Open a serial connection
+ser = serial.Serial('COM1', 115200)  # Replace 'COM1' with the appropriate COM port for your device
+
+# Send the HELO command
+ser.write(b'HELO\r\n')
+
+# Read the response from the device
+response = ser.readline().decode()
+print(response)
+
+# Close the serial connection
+ser.close()
+
+dev.write(b'WRITE firmware.bin')
+
+You can also specify the partition you want to write the file to by adding the partition name after the file name, separated by a comma. For example, if you want to write the "firmware.bin" file to the "system" partition, you would use the following command:
+
+dev.write(b'WRITE firmware.bin,system')

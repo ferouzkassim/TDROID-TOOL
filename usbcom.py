@@ -1,9 +1,9 @@
 import usb.core
-import threading
+import usb.core
+import usb.backend.libusb1
 import serial.tools.list_ports as prtlist
 import usb.util
-from PyQt5 import QtSerialPort
-from PyQt5.QtSerialPort import QSerialPort
+from PyQt6 import QtSerialPort
 from typing import List
 import serial
 import serial.tools.list_ports as prtlst
@@ -19,10 +19,11 @@ import time
 # download mode samsung usb\vid_04e8&pid_685d
 
 # Find the Samsung device in download mode
-dev = usb.core.find(idVendor=0x04e8, idProduct=0x685d)
+#dev = usb.core.find(idVendor=0x04e8, idProduct=0x685d, backend=usb.backend.libusb1.get_backend(find_library=lambda x: "libusb-1.0.dll"))
 SERIAL_PORT = "/dev/ttyACM0"
 GALAXY_ID_VENDOR = 0x04e8
 GALAXY_ID_PRODUCT = 0x6860
+#VID:PID=04E8:6860
 # Set the configuration
 '''dev.set_configuration()
 

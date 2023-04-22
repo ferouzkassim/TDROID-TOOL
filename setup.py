@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name='main.py',
+    name='guconnector.py',
     version='',
     packages=[''],
     url='',

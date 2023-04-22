@@ -1,111 +1,24 @@
+import getpass
 import os
+import shutil
+import tarfile
+import tempfile
 import time
-
 import serial
 import serial.tools.list_ports as prtlist
 import subprocess
 import shutil as shtl
-import tkinter
-import asyncio
-import threading
-from tkinter import END
+
 import py7zr
+
 from py7zr import py7zr as pyz
 import pathlib as pth
+
+import fastboot
 from adbcon import startDaemon, host, port, client, stopDaemon
 #py7zr a module to use for compressing snd decompressing with password
 #importing the class to do detecting and exposing the srial number
-def adbConnect():
 
-    startDaemon()
-    prop = []
-    resultprop = {}
-    filteredprops={}
-    #the filtered keys to look for in prop
-    prop_names = {
-        'ro.product.model': 'Model',
-        'ro.product.name': 'Product Name',
-        'ro.build.id': 'Build ID',
-        'ro.product.product.model':'Product Code',
-        'ro.build.product':'Product',
-        'ro.build.version.release':'Android-Release',
-        'ro.build.version.security_patch':'Security Patch',
-        'ro.build.PDA':'Pda',
-        'ro.carrier':'Carrier',
-        'ro.config.knox':'Knox Version',
-        'ro.csc.country_code':'CSC',
-        'ro.frp.pst':'Frp Block',
-        'ro.hardware.chipname':'Hardware Chip',
-        'ro.serialno':'Serial Number',
-        'sys.usb.config':'Usb Config',
-        'Build.BRAND':'Brand',
-        'gsm.version.baseband':'Baseband',
-        'knox.kg.state':'Kg State',
-        'ril.modem.board':'Modem',
-        'gsm.network.type':'Network Type',
-        'gsm.operator.iso-country':'Gsm Operator',
-        'gsm.version.baseband':'Gsm Baseband',
-        'gsm.operator.alpha':'Gsm operator',
-        'gsm.operator.iso-country':'Country',}
-
-    filter_keys = [
-
-        'ro.product.model',
-        'ro.product.name',
-        'ro.build.id',
-        'ro.product.product.model',
-        'ro.build.product',
-        'ro.build.version.release',
-        'ro.build.version.security_patch',
-        'ro.build.PDA',
-        'ro.carrier',
-        'ro.config.knox',
-        'ro.csc.country_code',
-        'ro.frp.pst',
-        'ro.hardware.chipname',
-        'ro.serialno',
-        'sys.usb.config',
-        'Build.BRAND',
-        'gsm.version.baseband',
-        'knox.kg.state',
-        'ril.modem.board',
-        'gsm.network.type',
-        'gsm.operator.iso-country',
-        'gsm.version.baseband',
-        'gsm.operator.alpha',
-        'gsm.operator.iso-country',
-
-    ]
-    devices = client.devices()
-    output = ''
-    output = 'Reading info\n '
-    output +='starting dameon\n'
-    for dev in devices:
-        output +=f'device found on {port} \n at {host}\n'
-        # This will allow the GUI to update while the function is running
-        if dev.serial is None:
-            # This will allow the GUI to update while the function is running
-            output += 'No Device Found\n'
-        else:
-            propstr = dev.shell('getprop')
-            prop.append(propstr.split('\n'))
-            for sublist in prop:
-                for stringprop in sublist:
-                    clean_string = stringprop.strip().replace("[", "").replace("]", "")
-                    if clean_string and ':' in clean_string:
-                        key_value_pair = clean_string.split(': ', 1)
-                        #to split the first occurence hence the :1 just incaase it doesnt split it can skip
-                        if len(key_value_pair) == 2:
-                            key, value = key_value_pair
-                            resultprop[key] = value
-                            if key in filter_keys:
-                                filteredprops[key] = value
-                output += f"\n{dev.serial}\n"
-                for prop, answer in filteredprops.items():
-                    short_prop = prop_names.get(prop, prop)
-                    output += f"{short_prop} = {answer}\n\n"
-    stopDaemon()
-    return output
 
 
 #first things frst start the server then get devices
@@ -114,7 +27,99 @@ def adbConnect():
 class detect:
     def __init__(self,dev):
         self.dev =dev
+
+    def adbConnect(self):
+        startDaemon()
+        prop = []
+        resultprop = {}
+        filteredprops = {}
+        # the filtered keys to look for in prop
+        prop_names = {
+            'ro.product.model': 'Model',
+            'ro.product.name': 'Product Name',
+            'ro.build.id': 'Build ID',
+            'ro.product.product.model': 'Product Code',
+            'ro.build.product': 'Product',
+            'ro.build.version.release': 'Android-Release',
+            'ro.build.version.security_patch': 'Security Patch',
+            'ro.build.PDA': 'Pda',
+            'ro.carrier': 'Carrier',
+            'ro.config.knox': 'Knox Version',
+            'ro.csc.country_code': 'CSC',
+            'ro.frp.pst': 'Frp Block',
+            'ro.hardware.chipname': 'Hardware Chip',
+            'ro.serialno': 'Serial Number',
+            'sys.usb.config': 'Usb Config',
+            'Build.BRAND': 'Brand',
+            'gsm.version.baseband': 'Baseband',
+            'knox.kg.state': 'Kg State',
+            'ril.modem.board': 'Modem',
+            'gsm.network.type': 'Network Type',
+            'gsm.operator.iso-country': 'Gsm Operator',
+            'gsm.version.baseband': 'Gsm Baseband',
+            'gsm.operator.alpha': 'Gsm operator',
+            'gsm.operator.iso-country': 'Country', }
+
+        filter_keys = [
+
+            'ro.product.model',
+            'ro.product.name',
+            'ro.build.id',
+            'ro.product.product.model',
+            'ro.build.product',
+            'ro.build.version.release',
+            'ro.build.version.security_patch',
+            'ro.build.PDA',
+            'ro.carrier',
+            'ro.config.knox',
+            'ro.csc.country_code',
+            'ro.frp.pst',
+            'ro.hardware.chipname',
+            'ro.serialno',
+            'sys.usb.config',
+            'Build.BRAND',
+            'gsm.version.baseband',
+            'knox.kg.state',
+            'ril.modem.board',
+            'gsm.network.type',
+            'gsm.operator.iso-country',
+            'gsm.version.baseband',
+            'gsm.operator.alpha',
+            'gsm.operator.iso-country',
+
+        ]
+        devices = client.devices()
+        output = ''
+        output = 'Reading info\n '
+        output += 'starting dameon\n'
+        for dev in devices:
+            output += f'device found on {port} \n at {host}\n'
+            # This will allow the GUI to update while the function is running
+            if dev.serial is None:
+                # This will allow the GUI to update while the function is running
+                output += 'No Device Found\n'
+            else:
+                propstr = dev.shell('getprop')
+                prop.append(propstr.split('\n'))
+                for sublist in prop:
+                    for stringprop in sublist:
+                        clean_string = stringprop.strip().replace("[", "").replace("]", "")
+                        if clean_string and ':' in clean_string:
+                            key_value_pair = clean_string.split(': ', 1)
+                            # to split the first occurence hence the :1 just incaase it doesnt split it can skip
+                            if len(key_value_pair) == 2:
+                                key, value = key_value_pair
+                                resultprop[key] = value
+                                if key in filter_keys:
+                                    filteredprops[key] = value
+                    output += f"\n{dev.serial}\n"
+                    for prop, answer in filteredprops.items():
+                        short_prop = prop_names.get(prop, prop)
+                        output += f"{short_prop} = {answer}\n\n"
+
+        return output
     def adbfrpreset(self):
+
         startDaemon()
         response=''
         for dev in client.devices():
@@ -128,7 +133,7 @@ class detect:
             return response
 
     def applister(self):
-
+        startDaemon()
         applist = []
         if client.devices():
 
@@ -144,11 +149,7 @@ class detect:
         return '\n'.join(applist)
 
 
-    def searcher(self,holder):
-        self.holder = holder
-        search = tkinter.Entry(holder)
 
-        search.place(relx=1.0,rely=0,anchor=tkinter.NE,width=300)
 def rootfs():
     device =startDaemon()
     locations = 'dev/block/platform'
@@ -162,7 +163,8 @@ def rootfs():
             ls_output = dev.shell(f'su -c ls {locations}/')
             partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/'
             qlmpartition = f'/{locations}/{ls_output.strip().split()[-1]}'
-            print(partition_path)
+
+
             return  partition_path,qlmpartition
 class BackUP(detect):
     def __init__(self, pclocation,Part_name,devlocation):
@@ -197,18 +199,19 @@ class BackUP(detect):
                     new_pclocation = os.path.join(pcdir, dev.serial)
                     otherfiles = []
                     for par in part_name:
-                        backup_command = f'su -c dd if=/{rootfs()[0]}/{par} of=/storage/emulated/0/td/{par}.tdf'
+                        backup_command = f'su -c dd if=/dev/block/by-name/{par} of=/storage/emulated/0/td/{par}.tdf'
                         new_pclocation = os.path.join(pcdir, pcfile)
                         dev.shell(backup_command)
                         locate = f'/storage/emulated/0/td/{par}.tdf'
                         otherfiles.append(locate)
                         #print(otherfiles)
                     for loc in otherfiles:
-                        pcfile = f"{loc.split('/')[-1][:-4]}_{dev.serial}"
+                        pcfile = f"{loc.split('/')[-1][:-4]}+{dev.serial}"
                         new_pclocation = os.path.join(pcdir, pcfile)
                         #print(new_pclocation)
                         #print(pcfile)
                         dev.pull(loc, new_pclocation)
+
                     #print(locate)
                     # dev.pull(src=f'/storage/emulated/0/td/{part}.tdf', dest=new_pclocation)
                     os.chdir(pcdir)
@@ -226,7 +229,7 @@ class BackUP(detect):
                             f'\n compressing as {pclocation}_{dev.serial}'
                 response
                 #print(pcdir)
-            return response, backup_files,pclocation
+            return response, backup_files,pcdir,pclocation
 
 
     def mtkPartBackup(self,partfiles):
@@ -238,12 +241,13 @@ class BackUP(detect):
             response +='checking for device'
             dev.shell(f'su -c mkdir /storage/emulated/0/td/')
             for part in partfiles:
-                backup_command = f'su -c "dd if={rootfs()[0]}/{part} of=/storage/emulated/0/td/{part}.tdf"'
-                bckup = dev.shell(backup_command)
-                response += 'exploiting..... '
-                backup_files.append(f'/storage/emulated/0/td/{part}.tdf')
-                dev.shell('cd /storage/emulated/0/td/')
-        print(backup_files)
+                    backup_command = f'su -c "dd if={rootfs()[0]}/{part} of=/storage/emulated/0/td/{part}.tdf"'
+                    bckup = dev.shell(backup_command)
+                    response += 'exploiting..... '
+                    backup_files.append(f'/storage/emulated/0/td/{part}.tdf')
+                    dev.shell('cd /storage/emulated/0/td/')
+
+
         return backup_files,response
 
     def puller(self, backup_files, pclocation):
@@ -254,78 +258,89 @@ class BackUP(detect):
                 dev.shell('cd /storage/emulated/0/td/')
 
                 # Extract the directory and filename components of pclocation
-                pcdir, pcfile = os.path.split(pclocation)
-
+                #
                 # Construct the new filename with the device serial number
-                new_filename = f"{part.split('/')[-1][:-4]}_{dev.serial}"
-
+                new_filename = f"{part.split('/')[-1]}_{dev.serial}"
+                print(new_filename)
                 # Construct the full path of the destination file on the PC
-                new_pclocation = os.path.join(pcdir, dev.serial, new_filename)
+                new_pclocation = os.path.normpath(os.path.join(pclocation, dev.serial, new_filename))
+
 
                 # Check if the directory exists and create it if it doesn't
                 os.makedirs(os.path.dirname(new_pclocation), exist_ok=True)
-
+                print(new_pclocation)
                 # Pull the file from the device to the modified pclocation
                 dev.pull(src=part, dest=new_pclocation)
-
+                print(new_filename,new_pclocation)
                 # Add the filename to the response string
                 response += f'\n{new_filename}\t'
+                print(pclocation)
+        return response, pclocation
 
-        return response, f'{pcdir}/'
-
-    def zipper(self, location):
-        files_to_zip = []
+    def zipper(self, location,pclocation):
         response = ''
-        pcdir, pcfilr = os.path.split(location)
-        # print(pcdir, pcfilr)
+        print(location)
+        os.path.curdir = location
         for dev in client.devices():
-            for file in os.listdir(pcdir):
-                files_to_zip.append(file)
-                file_ch = [f for f in files_to_zip if f.endswith(f"{dev.serial}")]
-                # print(file_ch)
-                os.chdir(location)
-                if not os.path.exists(f'{dev.serial}'):
-                    os.mkdir(f'{dev.serial}')
-                for f in file_ch:
-                    print(f)
-                    dest_dir = os.path.join(f'{dev.serial}', os.path.basename(f))
-                    if os.path.exists(dest_dir):
-                        print(f"File {f} already exists on device {dev.serial}")
-                    else:
-                        shtl.move(src=(os.path.join(pcdir, f)), dst=f'{dev.serial}')
-                        print(f"File {f} moved to device {dev.serial}")
-            shtl.make_archive(f'{location}_{dev.serial}', 'tar', root_dir=f'{pcdir}/{dev.serial}')
-            shtl.rmtree(f'{dev.serial}', True)
+            if not os.path.exists(dev.serial):
+                os.mkdir(dev.serial)
+            files_to_zip = []
+            for f in os.listdir():
+                if f.endswith(dev.serial):
+                    files_to_zip.append(f)
+
+            for fil in files_to_zip:
+                shtl.move(fil, dev.serial)
+                if fil.endswith(f"-{dev.serial}"):
+                    print(fil)
+
+            shtl.make_archive(f'{pclocation}_{dev.serial}', 'tar', root_dir=dev.serial)
+            shtl.rmtree(dev.serial, True)
             response += f'\n compressing as {location}_{dev.serial}' \
                         f'\n files saved to archive and ready for further use '
         return response
 
-    def exynosrestore(self, pclocation, partname):
-        startDaemon
+    def exynosrestore(self, pcfile,):
+        startDaemon()
         files_to_send = []
-        #pcdir, pcfile = os.path.split(pclocation)
-        #print(pcfile)
-        #print(str(pcdir))
-        # os.chdir(pcdir)
-        workingdir = ''
+        pcdir,pcf =os.path.split(pcfile)
+        os.mkdir(f'{pcdir}/temp')
+        os.chdir(f'{pcdir}/temp')
+        working_dir=os.getcwd()
+        shtl.unpack_archive(pcfile,working_dir)
+        if pcf.endswith('.tar'):
+            print('using tar format')
+            for file in os.listdir(working_dir):
+                part, sn = file.split('+')
+                newname=file.replace(f'+{sn}','')
+                os.rename(file, newname)
+        elif pcf.endswith('.zip'):
+            print('using zip format')
+            for file in os.listdir(working_dir):
+                if file.endswith('.bin'):
+                    newname = file.replace('.bin','')
+                else:
+                    newname = file.replace('.img','')
+
+                os.rename(file,newname)
+                print(files_to_send)
+        else:
+            pass
+        for file in os.listdir(working_dir):
+            files_to_send.append(file)
+            print(files_to_send)
         for dev in client.devices():
             if dev:
-                response = ''
-                board_make = dev.shell('getprop Build.BRAND').strip()
-                dev.shell(f'cd /storage/emulated/0/td && mkdir -p {partname}')
-                locations = 'dev/block/platform'
-                ls_output = dev.shell(f'su -c ls {locations}/')
-                partition_path = f'/{locations}/{ls_output.strip().split()[-1]}/by-name/{partname}'
-                print(str(pclocation))
-                dev.push(src=pclocation, dest=f'/storage/emulated/0/td/{partname}/{partname}.tdf')
-                dev.shell(f'su -c "umount /mnt/vendor/*"')
-                dev.shell(f'su -c dd if=/storage/emulated/0/td/{partname}/{partname}.tdf of=/{partition_path}')
-                # part_location = dev.shell(f'su -c cd /storage/emulated/0/td/{partname}.bin')
-                # print(part_location)
-                # dev.shell(f'su -c dd=if=/storage/emulated/0/td/{} of=/{partition_path }')
-                dev.shell('reboot')
-                stopDaemon()
-                return response,pclocation
+                for file in files_to_send:
+                    oa=os.path.join(file)
+                    print(oa)
+                    dev.push(src=oa, dest=f'/storage/emulated/0/{file}')
+                    dev.shell(f'su -c umount mnt/vendor/{file}')
+                    dev.shell(f'su -c dd if=/storage/emulated/0/{file} of=/dev/block/by-name/{file}')
+                    dev.shell(f'su rm -rR /storage/emulated/0/{file}')
+                dev.reboot()
+                return 0
+        shtl.rmtree(working_dir,True)
     def qlmbackup(self,pclocation,part_name):
         response = ''
         response += 'Backing up Exynos\n'
@@ -379,6 +394,7 @@ class BackUP(detect):
             # print(pcdir)
         return response, backup_files, pclocation
     def mtkrestore(self,pclocation):
+        startDaemon()
         response =''
         files_to_send = []
         pcdir, pcfile = os.path.split(pclocation)
@@ -408,6 +424,16 @@ class BackUP(detect):
                 response += f'\nfolder contains {fr}\n'
                 # fr.split(os.getcwd())
                 files_to_send.append(fr)
+    def qlmrestore(self,pcfile):
+        username = getpass.getuser()
+        paramdir=os.getcwd()
+        for dev in client.devices():
+            os.makedirs(f'{dev.serial}', exist_ok=True)
+            os.chdir(f'{dev.serial}')
+            with tarfile.open(pcfile, 'r') as tar:
+                bj = tar.getmembers()
+                tar.extractall('modem', bj)
+
     def pusher(self,filed_to_send,workingdir):
         response = ''
         startDaemon()
@@ -451,7 +477,9 @@ class BackUP(detect):
                         response+='Clearing springboard\n'
                         dev.shell(f'su -c y | "mkfs.ext4 {partition_path}"')
                         dev.shell(f'su -c "tune2fs -c0 -i0 {partition_path}"')
+                        print('formatting')
                         response+='Tuning File system\n'
+
                        #S print(formumount)
                         dev.shell(f"su -c echo y | 'mke2fs {partition_path}'")
 
@@ -459,56 +487,52 @@ class BackUP(detect):
         return response
 
     def part_mountex(self, partname):
+         device = startDaemon()
          response = ''
          response+='Fixing Exynos baseband \n'
-         device = startDaemon()
          print('exynosing')
          for dev in client.devices():
-             board_make = dev.shell('getprop ril.modem.board').strip()
-             if dev.serial == device:
+            board_make = dev.shell('getprop ril.modem.board').strip()
+            response+=f'\n device found {dev.serial}\n' \
+                    f'\n using {board_make} Criteria\n'
+            #partition_path = f'{rootfs()}{partname}\n'
+            print(dev.shell(f'su -c "umount /mnt/vendor/{partname}"'))
+            print('unmounted')
+            #dev.shell(f'su -c umount {partname}')
+            #print(dev.shell(f'su -c "cd mnt/vendor" && "umount {partname}" &&"ls"'))
+            #print(dev.shell(f'su -c umount -l /mnt/vendor/{partname}'))
+            response+=f'\n device is being prepared\n'
+            response +=f'\nunmounting security\n'
+            #dev.shell(f'su -c "umount /mnt/vendor/{partname}"'
+            #print(dev.shell(f"mount | grep {partname}"))
+            #print(dev.shell(f'su -c "umount /mnt/vendor/{partname}"'))
+            #print(dev.shell(f'su -c "umount /dev/block/by-name/{partname}"'))
+            #print(dev.shell(f'su -c "umount /mnt/vendor/{partname}"'))
+            '''dev.shell(f'cd mnt/vendor')
+            print(dev.shell(f'su -c umount {partname}'))
+            dev.shell(f'umount efs')
+            dev.shell('cd')'''
+            #print(dev.shell(f'cd /dev/block/by-name'))
+            print(dev.shell(f'su -c y | mkfs.ext4 dev/block/by-name/efs'))
+            print(dev.shell(f'su -c "tune2fs -c0 -i0 /dev/block/by-name/{partname}"'))
+            response +="\nDiscarding device blocks: done \n" \
+                       "\nDiscard takes 0.00110s.\n" \
+                       "\nCreating filesystem with 5120 4k blocks and 1280 inode\n" \
+                       "\nAllocating group tables: done\n " \
+                       "\nWriting inode tables: done     \n " \
+                       "\nWriting superblocks and filesystem accounting information: done\n"
+            response +=f'\nfixing security and tuning file system\n'
+            dev.reboot()
+            response+='\nrebooting\n'
 
-                    response+=f'\n device found {dev.serial}\n' \
-                            f'\n using {board_make} Criteria\n'
-                    partition_path = f'{rootfs()}{partname}\n'
-                    print(dev.shell(f'su -c cd mnt/vendor umount -f {partname}'))
-                    dev.shell(f'su -c -f umount {partname}')
-                    print(dev.shell(f'su -c umount -l /mnt/vendor/{partname}'))
-                    response+=f'\n device is being prepared\n'
-                    response +=f'\nunmounting security\n'
-                    dev.shell(f'su -c "umount /mnt/vendor/{partname}"')
-                    print(dev.shell(f'su -c "umount /mnt/vendor/{partname}"'))
-                    dev.shell(f'su -c echo y | "mke2fs {partition_path}"')
-                    dev.shell(f'su -c mke2fs -f {partition_path}')
-                    dev.shell(f'su -c "tune2fs -c0 -i0 {partition_path}"')
-                    response +="\nDiscarding device blocks: done \n" \
-                               "\nDiscard takes 0.00110s.\n" \
-                               "\nCreating filesystem with 5120 4k blocks and 1280 inode\n" \
-                               "\nAllocating group tables: done\n " \
-                               "\nWriting inode tables: done     \n " \
-                               "\nWriting superblocks and filesystem accounting information: done\n"
-                    response +=f'\nfixing security and tuning file system\n'
-                    dev.shell('reboot')
-                    response+='\nrebooting\n'
-
-                    # the above line auto inputs the y as prompted in cmdline with echo y
+            # the above line auto inputs the y as prompted in cmdline with echo y
 
 
-             else:
-                response += 'No adb device Found'
+
          return response
 detector = detect
 backuping  = BackUP
 detc = detect
-
-def start_logging():
-    t = threading.Thread(target=adbConnect)
-    t.start()
-'''def start_logging():
-    logfield.delete('1.0', END)
-    output = adbConnect()
-    logfield.insert(END, f"\nDevice found with properties:\n{output}\n")'''
-
-#backuping.PartBackup(BackUP,'C:',['nvdata','nvram''protect1','protect2'])
 
 
 Partmnt = BackUP
@@ -521,26 +545,165 @@ class repair(detect):
     def __init__(self,PartName):
         self.PartName = PartName
         super().__init__()
-    def sn_repair(self,PartName):
+
+    import getpass
+
+    def partrepair(self, part_name,newsn):
+        response=''
         startDaemon()
+        username = getpass.getuser()
+        home_dir = os.path.expanduser(f"~{username}")
+
+        temp_dir = tempfile.mkdtemp(prefix='tempsn', dir=f'{os.getcwd()}\\Videos')
+
+        try:
+            for device in client.devices():
+
+                device.shell(f'su -c "dd if=/efs/FactoryApp/{part_name} of=/storage/emulated/0/{device.serial}.txt"')
+                destn = f'{temp_dir}\\{part_name}'
+                # Pull the TDF file from the device to the temporary directory
+                pul=device.pull(f'/storage/emulated/0/{device.serial}.txt', destn)
+                time.sleep(2)
+                print(pul)
+                print('pulled')
+                # f'{home_dir}\\Desktop\\{device.serial}'
+                with open(destn, 'r+') as f:
+                    content = f.read()
+                    print(content)
+                    print(f)
+                    content.replace(f'{device.serial}', newsn)
+                    f.seek(0)
+                    #f.write(new_content)
+                    f.truncate()
+                device.push(destn, f'/storage/emulated/0/')
+                device.shell(f'su -c "dd if=/storage/emulated/0/serial_no of=/efs/FactoryApp/serial_no"')
+                time.sleep(1)
+
+                try:
+                    if os.path.isfile(destn) or os.path.islink(destn):
+                        os.remove(destn)
+                    elif os.path.isdir(destn):
+                        shutil.rmtree(destn)
+                except Exception as e:
+                    print(f"Error deleting {destn}: {e}")
+
+
+        finally:
+         return temp_dir,destn,device
+    def partrepair(self, part_name,newsn):
+        response=''
+        startDaemon()
+        username = getpass.getuser()
+        home_dir = os.path.expanduser(f"~{username}")
+
+        temp_dir = tempfile.mkdtemp(prefix='tempsn', dir=f'{os.getcwd()}\\Videos')
+
+        try:
+            for device in client.devices():
+
+                device.shell(f'su -c "dd if=/efs/FactoryApp/{part_name} of=/storage/emulated/0/{device.serial}.txt"')
+                destn = f'{temp_dir}\\{part_name}'
+                # Pull the TDF file from the device to the temporary directory
+                pul=device.pull(f'/storage/emulated/0/{device.serial}.txt', destn)
+                time.sleep(2)
+                print(pul)
+                print('pulled')
+                # f'{home_dir}\\Desktop\\{device.serial}'
+                with open(destn, 'r+') as f:
+                    content = f.read()
+                    print(content)
+                    print(f)
+                    content.replace(f'{device.serial}', newsn)
+                    f.seek(0)
+                    #f.write(new_content)
+                    f.truncate()
+                device.push(destn, f'/storage/emulated/0/')
+                device.shell(f'su -c "dd if=/storage/emulated/0/serial_no of=/efs/FactoryApp/serial_no"')
+                time.sleep(1)
+
+                try:
+                    if os.path.isfile(destn) or os.path.islink(destn):
+                        os.remove(destn)
+                    elif os.path.isdir(destn):
+                        shutil.rmtree(destn)
+                except Exception as e:
+                    print(f"Error deleting {destn}: {e}")
+
+
+        finally:
+         return temp_dir,destn,device
+    def edito(self, file_path, sn,new_sn):
         for device in client.devices():
-            print(device.serial)
-            locations = 'dev/block/platform'
-            rootfs = device.shell(f'su -c "ls {locations}"')
+         with open(file_path, 'r+',encoding='utf-8') as f:
+            content = f.read()
+            content.replace(sn, new_sn)
+            f.close()
+            print(f.read())
+        '''device.push(file_path, f'/storage/emulated/0/serial_no')
+        device.shell(f'su -c "dd if=/storage/emulated/0/serial_no of=/efs/FactoryApp/serial_no"')
+        time.sleep(1)'''
 
-            Partloc = f'{locations}/{rootfs.strip().split()[-1]}/by-name/{PartName}'
-            device.shell(f'su -c "dd if={Partloc} of=storage/emulated/0/{device.serial}.tdf"')
-            pat=os.getcwd()
-            if os.path.dirname is not {device.serial}:
-                os.mkdir(f'{pat}/{device.serial}')
-                dire = os.path.curdir
-                print(dire)
-            print(pat)
-            #device.pull(f'storage/emulated/0/{device.serial}',os.path.pardir)
-            print(Partloc)
+        try:
+             if os.path.isfile(file_path) or os.path.islink(file_path):
+                 os.remove(file_path)
+             elif os.path.isdir(file_path):
+                 shutil.rmtree(file_path)
+        except Exception as e:
+             print(f"Error deleting {file_path}: {e}")
 
-snRepair = repair
-#snRepair.sn_repair(repair,'sec_efs')
+    def bootfixer(self):
+        username = getpass.getuser()
+        home_dir = os.path.expanduser(f"~{username}")
+        renam=['svb_orange.jpg','booting_warning.jpg','orange_state.jpg','custom_warning.jpg']
+        for dev in client.devices():
+            os.makedirs(f'{dev.serial}', exist_ok=True)
+            os.chdir(f'{dev.serial}')
+            paramdir=os.getcwd()
+            print(paramdir)
+            dev.shell(f'su -c "dd if=/dev/block/by-name/up_param of=/storage/emulated/0/um.tar"')
+            dev.pull('/storage/emulated/0/um.tar', os.path.join(paramdir,f'up.tar'))
+            with tarfile.open(f'{paramdir}\\up.tar', 'r') as tar:
+                obj=tar.getmembers()
+                tar.extractall('up',obj)
+                relpath = f'{dev.serial}\\up'
+                print(relpath)
+                print(os.listdir('up'))
+                for file in os.listdir('up'):
+
+                        if file in renam:
+                            old_path = os.path.join('up', file)
+                            new_name = file.replace('.jpg', '.tdf')
+                            new_path = os.path.join('up', new_name)
+                            os.rename(old_path, new_path)
+
+                tar.close()
+
+            with tarfile.open('newup.tar','w') as tar:
+                for file in os.listdir('up'):
+                    tar.add(os.path.join('up', file),arcname=file)
+                tar.close()
+            dev.push('newup.tar','/storage/emulated/0/td.tar')
+            dev.shell('su -c "dd if=/storage/emulated/0/td.tar of=/dev/block/by-name/up_param"')
+            dev.reboot()
+            os.chdir("..")
+            print(os.getcwd())
+        try:
+                os.remove(dev.serial)
+        except PermissionError as e:
+                print(e)
+boot =repair
+#boot.partrepair(boot,'sec_efs','RWIZZSXCCVN')
+def portsimple():
+    while True:
+        for prt in prtlist.comports():
+            print(prt)
+            #
+            #
+            #dev=serial.Serial.open(prt.device)
+    return prt
+
+
+#snRepair.partrepair(repair,'up_param')
 class modem():
     def __init__(self,ports):
         self.ports = ports
@@ -555,13 +718,13 @@ class modem():
         response=''
         responseli=[]
         for port in ports:
-            response+=str(port.hwid)
+            response += str(port.hwid)
             ser = serial.Serial(port.name)
             print(f"Sending AT+DEVCONINFO\n")
             ser.write(b'AT+DEVCONINFO')
             time.sleep(0.5)
             ret = ser.read_all()
-            response+=ret.decode()
+            response += ret.decode()
             print(f"Received{ret}")
         responseli.append(response.split(';'))
         response = ''.join(responseli[0])  # join the list into a single string
@@ -596,7 +759,40 @@ class modem():
             response.append(arranged_data)
         return response
 
+class flasher():
 
-mode = modem
+    def __init__(self,part):
+        self.part=part
+    def partitionflasher(self,part):
+        with tarfile.open(part,'r') as par:
+            content=par.getmembers()
+            #print(content)
+
+            for port in serial.tools.list_ports.comports():
+               print(port.name, port.manufacturer, port.vid, port.pid)
+               dev = serial.Serial(baudrate=115200, port=port.name)
+               print(dev.port)
+               dev.write(b'ODIN\r\n')
+               time.sleep(1)
+               #dev.write(b'ODIN REBOOT_MODE_CHARGING\r\n')
+               #dev.write(b'WRITE up_param.bin')
+               dev.write(b'THOR\r\n')
+               #dev.write(b'LOKE\r\n')
+               #dev.write(b'FLSW,up_param.bin,up_param')
+               print(dev.read_all().decode())
+
+
+               #dev.close()
+
+
+flash = flasher
+#flash.partitionflasher(flash,f'C:\\Users\\DROID\\Desktop\\a127f\\U5\\BL_A127FXXU5AVC4_CL23021938_QB50163737_REV00_user_low_ship_MULTI_CERT.tar.md5')
 #mode.Readmodem(mode,mode.samport(mode))
 #mode.downloadinfo(mode)
+class fb():
+    def __init__(self):
+        pass
+    def Read_info(self):
+        fb=fastboot.fbdevices()
+frash = flasher
+#frash.flash(frash,"C:\\Users\\DROID\\Desktop\\A035FXXU1AVD3-11-[KMDC6001DM-BXXX_8BD5CA4C]\\OFFICIAL\\A03_CIS_OPEN.pit")

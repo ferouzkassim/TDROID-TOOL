@@ -1,14 +1,11 @@
-import subprocess
-from ppadb.client import Client as AdbClient
+from adb_shell.adb_device import AdbDeviceTcp
 
-def startDaemon():
-    client = AdbClient(host="127.0.0.1", port=5037)
-    device = None
-    for dev in client.devices():
-        device = dev.serial
-    if device is None:
-        subprocess.run(["adb", "start-server"])
-        for dev in client.devices():
-            device = dev.serial
-    return device
+# Connect to the device
+device = AdbDeviceTcp('127.0.0.1' ,5037)
+device.connect()
 
+# Start the ADB server
+#device.start_server()
+device.reboot()
+# Get a shell object
+shell = device.shell("")

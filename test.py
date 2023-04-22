@@ -1,39 +1,22 @@
-def cpreader(self):
-    output = ''
-    replace_dict = {"MN:": "MODEL:\t",
-                    "BASE:": "BASE:\t",
-                    "VER:": "VERSION:\t",
-                    "HIDVER:": "DEVICE FIRMWARE\t",
-                    "MNC:": "MNC:\t",
-                    "MCC:": "MCC:\t",
-                    "PRD:": "PRD:\t",
-                    "AID:": "AID:\t",
-                    "CC:": "CC:\t",
-                    "OMCCODE:": "OMCCODE:\t",
-                    "SN:": "SERIAL NUMBER:\t",
-                    "IMEI:": "IMEI:\t",
-                    "UN:": "UNIQUE ID:\t",
-                    "PN:": "PN:\t",
-                    "CON:": "USB CONNECTION:\t",
-                    "LOCK:": "LOCK\t",
-                    "LIMIT:": "LIMIT\t",
-                    "SDP:": "SDP\t",
-                    "HVID:\t": "DATA TREE:\t"}
-    self.ui.logfield.append('reading in MTP Mode')
-    info = detect.mode.Readmodem(detect.mode, detect.mode.samport(detect.mode))
-    if info == ['']:
-        info
-        info
-    for ifn in info:
-        for dat in ifn:
-            fida = dat.replace('(', ':\t').replace(')', "").replace('AT+DEVCONINFO', '').replace('+DEVCONINFO',
-                                                                                                 '').replace('#OK#',
-                                                                                                             '').replace(
-                'OK', '')
-            fida.replace(')', "")
-            for key, value in replace_dict.items():
-                fida = fida.replace(key, value)
-            output += fida + "\n"
-            self.ui.logfield.append(fida)
-            self.ui.logfield.repaint()
-    return output
+import os
+import shutil
+import subprocess
+
+# mount the ext4 image as a file system
+mount_point = "/mnt/ext4fs"  # choose a mount point that exists on your system
+image_path = "/path/to/ext4/image"
+
+if not os.path.exists(mount_point):
+    os.mkdir(mount_point)
+
+subprocess.call(["ext4fuse", image_path, mount_point])
+
+# manipulate the contents of the mounted file system using standard Python file system operations
+# for example, you can copy a file from the file system to your local machine like this:
+src_file = os.path.join(mount_point, "path/to/file")
+dst_file = "/path/to/local/destination"
+
+shutil.copy(src_file, dst_file)
+
+# unmount the file system
+subprocess.call(["umount", mount_point])

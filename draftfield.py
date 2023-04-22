@@ -1,7 +1,13 @@
 import threading
 import os
+import serial
+import serial.tools.list_ports as prtlist
+import serial_asyncio
+import usb
+import usb1
 import shutil
-from gui import update_logfield
+import asyncio
+#from gui import update_logfield
 def pull_partition(partition_path, part, pcdir, device):
     backup_command = f'su -c "dd if={partition_path}/by-name/{part} of=/storage/emulated/0/td/{part}.tdf"'
     dev = device()
@@ -51,3 +57,16 @@ def PartBackup(self, pclocation, part_name):
             break
 
     return response
+
+
+def portsimple():
+    while True:
+        for prt in prtlist.comports():
+            print(prt)
+            #
+            #dev=serial.Serial.open(prt.device)
+    return prt
+
+
+prt =threading.Thread(portsimple())
+prt.start()

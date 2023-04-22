@@ -1,7 +1,15 @@
 import fastbootpy as fb
 
-def fbdevices():
-    fb.FastbootManager.devices()
-    for dev in fb.FastbootManager.devices():
+class fboot:
+    def __init__(self):
         pass
-    return dev
+
+    def fbdevices(self):
+        devs = fb.FastbootManager.devices()
+        for dev in devs:
+            pass
+        return dev
+    def flasher(self):
+        dev = self.fbdevices(self)
+        dev(fb.FastbootDevice.erase(self,'userdata'))
+#
