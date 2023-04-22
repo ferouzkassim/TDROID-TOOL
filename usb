@@ -14,3 +14,41 @@ progress_bar = tk.Progressbar(window, orient="horizontal", length=200, mode="det
 progress_bar.pack()
 
 device.push(local_path, remote_path, progress=update_progress)
+
+
+at commands
+DOWNLOAD_MODE = "+FUS?"
+
+# Read template for the restricted SIM Access AT command to query EFs
+RSM_TEMPLATE = "+CRSM=176,{},0,0,0"
+
+# AT command to read up to 250 values out of the SIM phone book
+PB_READ = "+CPBR=1,250"
+
+# Vendor-specific AT command to retrieve Android device info
+DEVINFO = "+DEVCONINFO"
+
+# AT command to return error descriptions instead of codes
+VERBOSE_ERROR = "+CMEE=2"
+
+# AT command to change the SMS Center number
+GET_SMSC = "+CSCA?"
+SET_SMSC = "+CSCA=\"telephone number\""
+
+# AT command to request IMSI
+GET_IMSI = "+CIMI?"
+
+"""AT command to set unconditional forwarding
+digit 1 : 0=unconditional, 1=busy, 4=all
+digit 2 : 2=read, 3=set, 4=erase"""
+GET_FWD_CONF = "+CCFC=4,2"
+
+Here are some of the most commonly used commands in the Odin protocol:
+
+HELO: Sends a handshake message to the device to establish a connection.
+FLSW: Sends a firmware file to the device for flashing.
+OPSW: Sends an operation file to the device for flashing.
+NVMT: Writes data to the device's NVM (non-volatile memory) region.
+NVMS: Reads data from the device's NVM region.
+REPT: Requests a report from the device containing information such as the device's model number, firmware version, and more.
+DVIF: Requests the device version information file, which contains information about the device's firmware version.

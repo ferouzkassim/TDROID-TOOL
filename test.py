@@ -1,42 +1,39 @@
-import usb.core
-
-# Find device with specific vendor ID and product ID
-dev = usb.core.find(idVendor=0x04e8, idProduct=0x6860)
-#samsung mtp USB\VID_04E8&PID_6860
-
-if dev is None:
-    print("Device not found.")
-else:
-    print("Device found.")
-    print(dev)
-    # Print iManufacturer descriptor
-    try:
-        ncd = usb.util.get_string(dev,dev.INTERFACE)
-        print(ncd)
-        manufacturer = usb.util.get_string(dev, dev.iManufacturer)
-        print("Manufacturer: " + manufacturer)
-    except:
-        print("Manufacturer descriptor not available.")
-
-    # Print iProduct descriptor
-    try:
-        product = usb.util.get_string(dev, dev.iProduct)
-        print("Product: " + product)
-    except:
-        print("Product descriptor not available.")
-
-    # Print iSerialNumber descriptor
-    try:
-        serial_number = usb.util.get_string(dev, dev.iSerialNumber)
-        print("Serial number: " + serial_number)
-    except:
-        print("Serial number descriptor not available.")
-
-    # Print the interface class string descriptor
-    try:
-        cfg = dev.get_active_configuration()
-        intf = cfg[(0, 0)]
-        bInterfaceClass = usb.util.get_string(dev, intf.bInterfaceClass)
-        print("Interface class: " + bInterfaceClass)
-    except:
-        print("Interface class descriptor not available.")
+def cpreader(self):
+    output = ''
+    replace_dict = {"MN:": "MODEL:\t",
+                    "BASE:": "BASE:\t",
+                    "VER:": "VERSION:\t",
+                    "HIDVER:": "DEVICE FIRMWARE\t",
+                    "MNC:": "MNC:\t",
+                    "MCC:": "MCC:\t",
+                    "PRD:": "PRD:\t",
+                    "AID:": "AID:\t",
+                    "CC:": "CC:\t",
+                    "OMCCODE:": "OMCCODE:\t",
+                    "SN:": "SERIAL NUMBER:\t",
+                    "IMEI:": "IMEI:\t",
+                    "UN:": "UNIQUE ID:\t",
+                    "PN:": "PN:\t",
+                    "CON:": "USB CONNECTION:\t",
+                    "LOCK:": "LOCK\t",
+                    "LIMIT:": "LIMIT\t",
+                    "SDP:": "SDP\t",
+                    "HVID:\t": "DATA TREE:\t"}
+    self.ui.logfield.append('reading in MTP Mode')
+    info = detect.mode.Readmodem(detect.mode, detect.mode.samport(detect.mode))
+    if info == ['']:
+        info
+        info
+    for ifn in info:
+        for dat in ifn:
+            fida = dat.replace('(', ':\t').replace(')', "").replace('AT+DEVCONINFO', '').replace('+DEVCONINFO',
+                                                                                                 '').replace('#OK#',
+                                                                                                             '').replace(
+                'OK', '')
+            fida.replace(')', "")
+            for key, value in replace_dict.items():
+                fida = fida.replace(key, value)
+            output += fida + "\n"
+            self.ui.logfield.append(fida)
+            self.ui.logfield.repaint()
+    return output

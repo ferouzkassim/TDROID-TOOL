@@ -1,4 +1,6 @@
-import time
+import time,threading
+
+import serial
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QDialog, QPushButton
 import serial.tools.list_ports as prtlst
@@ -30,6 +32,8 @@ class MainDialog(QDialog):
         self.modelist = sorted(self.mtklist + self.exynolist + self.qlmlist)
         # Connect button click signal to function
         self.ui.Read_info_adb.clicked.connect(self.read_info_adb)
+        self.ui.Read_info_cp.clicked.connect(self.cpreader)
+        self.ui.readd.clicked.connect(self.dmodeinfo)
         self.ui.Read_Efs.clicked.connect(self.readexynosecurity)
         # self.ui.writeefs.clicked.connect(self.open_backup)
         if self.ui.Read_security.text() == 'Read Nv' and self.ui.modelselector.currentText() in self.mtklist:
@@ -42,24 +46,23 @@ class MainDialog(QDialog):
             self.ui.Read_security.clicked.connect(lambda :[self.readmtk(),print('mtkread')])
         self.ui.Write_Efs.clicked.connect(self.exynoswrtefs)
         self.ui.modelselector.addItems(self.modelist)
-        self.ui.comboBox.addItem(self.update_serial_ports())
+        self.ui.comboBox.addItem(self.detect_unplug())
         self.ui.reset_frp.clicked.connect(self.resetfrp)
         # self.ui.qlmreadefs.clicked.connect(self.readqlmsec)
         self.ui.modelselector.activated.connect(self.modelselector)
-        self.ui.Read_info_cp.clicked.connect(self.read_cp)
-        self.ui.blcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.blline, self.fileloader()))
+        '''self.ui.blcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.blline, self.fileloader()))
         self.ui.apcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.apline, self.fileloader()))
         self.ui.cpcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.cpline, self.fileloader()))
         self.ui.csccheckbox.clicked.connect(lambda: self.loadedfile(self.ui.cscline, self.fileloader()))
         self.ui.userdtacheckbox.clicked.connect(lambda: self.loadedfile(self.ui.userdataline, self.fileloader()))
-        self.ui.pitcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.pitline, self.fileloader()))
+        self.ui.pitcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.pitline, self.fileloader()))'''
 
     def resetfrp(self):
         logging = ''
         usbcom.enableADB()
         detect.detc.adbfrpreset(detect.detc)
-        for log in detect.detc.adbfrpreset(detect.detc):
-            self.ui.logfield.append(log)
+        '''for log in detect.detc.adbfrpreset(detect.detc):
+            self.ui.logfield.append(log)'''
 
     def save_backup(self):
         file, _ = QtWidgets.QFileDialog.getSaveFileName(
@@ -105,6 +108,7 @@ class MainDialog(QDialog):
         self.ui.logfield.append(loging)
         self.ui.logfield.repaint()
 
+
     def fixbbmtk(self):
         loging = ''
         print('mtking')
@@ -124,12 +128,59 @@ class MainDialog(QDialog):
         self.ui.logfield.append(''.join(output_list))
         self.ui.logfield.repaint()
 
-    def read_cp(self):
-        try:
-            usbcom.list_serial_ports()
-        finally:
-            pass
+    def cpreader(self):
+        output = ''
+        replace_dict = {"MN:": "MODEL:\t",
+                        "BASE:": "BASE:\t",
+                        "VER:": "VERSION:\t",
+                        "HIDVER:": "DEVICE FIRMWARE\t",
+                        "MNC:": "MNC:\t",
+                        "MCC:": "MCC:\t",
+                        "PRD:": "PRD:\t",
+                        "AID:": "AID:\t",
+                        "CC:": "CC:\t",
+                        "OMCCODE:": "OMCCODE:\t",
+                        "SN:": "SERIAL NUMBER:\t",
+                        "IMEI:": "IMEI:\t",
+                        "UN:": "UNIQUE ID:\t",
+                        "PN:": "PN:\t",
+                        "CON:": "USB CONNECTION:\t",
+                        "LOCK:": "LOCK\t",
+                        "LIMIT:": "LIMIT\t",
+                        "SDP:": "SDP\t",
+                        "HVID:\t": "DATA TREE:\t"}
+        self.ui.logfield.append('reading in MTP Mode')
+        info = detect.mode.Readmodem(detect.mode, detect.mode.samport(detect.mode))
+        if info == ['']:
+            info
+            info
+        for ifn in info:
+            for dat in ifn:
+                fida = dat.replace('(', ':\t').replace(')', "").replace('AT+DEVCONINFO', '').replace('+DEVCONINFO',
+                                                                                                     '').replace('#OK#',
+                                                                                                                 '').replace(
+                    'OK', '')
+                fida.replace(')', "")
+                for key, value in replace_dict.items():
+                    fida = fida.replace(key, value)
+                output += fida + "\n"
+                self.ui.logfield.append(fida)
+                self.ui.logfield.repaint()
+        return output
 
+    def dmodeinfo(self):
+        response = ''
+        response += 'Reading info in download Mode\n'
+        for otp in detect.mode.downloadinfo(detect.mode):
+            for data in otp:
+             response+=f'{data}\n'
+        self.ui.logfield.append(response)
+        self.ui.logfield.repaint()
+    def read_dv(self):
+      restr=''
+      cmd=detect.mode.downloadinfo(detect.mode)
+      for otp in cmd:
+          restr+=otp
 
 
     def open_backup(self):
@@ -149,16 +200,34 @@ class MainDialog(QDialog):
 
         return response
 
+    def detect_unplug(self):
+        # Get list of all available serial ports
+        ports = prtlst.comports()
+        for port in ports:
+            # Check if the device is connected;
+            if serial.Serial(port.device).is_open:
+                # Device is still connected
+                print(port.description)
+                connected = True
+            else:
+                # Device has been unplugged
+                connected = False
+                # Call the update_serial_ports() function
+                self.update_serial_ports()
     def update_serial_ports(self):
         # Clear existing items in the combo box
         self.ui.comboBox.clear()
         # Get list of all available serial ports
         ports = prtlst.comports()
-        # add current devices to combo box
-        # Add each port name to the combo box
-        for port in ports:
-            self.ui.comboBox.addItem(port.description)
+        while ports:
+            for port in ports:
+                # add current devices to combo box
+                self.ui.comboBox.addItem(port.description)
+                # Add each port name to the combo box
+            break
+
         time.sleep(1)
+
 
     def readexynosecurity(self):
         loging = ''
@@ -186,6 +255,7 @@ class MainDialog(QDialog):
             loging += ''.join(outp)
         self.ui.logfield.append(loging)
         self.ui.logfield.repaint()
+
 
 
 if __name__ == "__main__":

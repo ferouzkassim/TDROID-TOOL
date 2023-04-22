@@ -1,4 +1,8 @@
 import os
+import time
+
+import serial
+import serial.tools.list_ports as prtlist
 import subprocess
 import shutil as shtl
 import tkinter
@@ -537,3 +541,62 @@ class repair(detect):
 
 snRepair = repair
 #snRepair.sn_repair(repair,'sec_efs')
+class modem():
+    def __init__(self,ports):
+        self.ports = ports
+    def samport(self):
+        ports = prtlist.comports()
+        for dport in ports:
+            if dport.pid=='685D' and dport.vid=='04E8':
+                print('domode found')
+
+        return ports
+    def Readmodem(self,ports):
+        response=''
+        responseli=[]
+        for port in ports:
+            response+=str(port.hwid)
+            ser = serial.Serial(port.name)
+            print(f"Sending AT+DEVCONINFO\n")
+            ser.write(b'AT+DEVCONINFO')
+            time.sleep(0.5)
+            ret = ser.read_all()
+            response+=ret.decode()
+            print(f"Received{ret}")
+        responseli.append(response.split(';'))
+        response = ''.join(responseli[0])  # join the list into a single string
+        return responseli
+
+    def downloadinfo(self, formatted_output=None):
+        ports = prtlist.comports()
+        response = []
+
+        for port in ports:
+            arranged_data = []
+            arranged_data.append(f"Found {port.hwid}'")
+            arranged_data.append(f"At {port.name}")
+            ser = serial.Serial(port.name, baudrate=115200, timeout=1)
+            ser.write(b'DVIF\n')
+            time.sleep(0.5)
+            line_data = ser.read_until()
+            ser.close()
+            data = line_data.decode().split(';')
+            for d in data:
+                d = d.replace('PRODUCT', 'EMMC NAME')  # assign the modified string to the same variable
+                d = d.replace('FWVER','AP VERSION')
+                d = d.replace('CAPA','CAPACITY')
+                d = d.replace('VENDOR','EMMC MAKE')
+                d = d.replace('SALES','COUNTRY CSC')
+                d= d.replace('=',':\t\t')
+
+                if "@#" in d:
+                    d = d.replace("@#", "")
+
+                arranged_data.append(d.strip())
+            response.append(arranged_data)
+        return response
+
+
+mode = modem
+#mode.Readmodem(mode,mode.samport(mode))
+#mode.downloadinfo(mode)
