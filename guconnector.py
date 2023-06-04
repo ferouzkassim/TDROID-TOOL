@@ -3,10 +3,12 @@ import serial
 import serial.tools.list_ports as prtlist
 import asyncio
 from PyQt6 import QtWidgets
+from PyQt6.QtCore import QTimer, pyqtSignal, QObject
 from PyQt6.QtWidgets import QApplication, QDialog, QPushButton
 import serial.tools.list_ports as prtlst
 import detect
 import gui
+import samsungflasher
 from samsungflasher import flasher
 import usbcom
 from detect import detector, BackUP, backuping
@@ -15,7 +17,6 @@ from gui import Ui_main
 
 # import pyudev
 # pyudev to monitor the behaviour of attathecd devices
-
 
 class MainDialog(QDialog):
     def __init__(self):
@@ -55,6 +56,7 @@ class MainDialog(QDialog):
 
         self.ui.reset_frp.clicked.connect(self.resetfrp)
         # self.ui.qlmreadefs.clicked.connect(self.readqlmsec)
+        self.ui.flashsmsng.clicked.connect(self.samsung_flasher)
         self.ui.modelselector.activated.connect(self.modelselector)
         self.ui.blcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.blline, self.fileloader()))
         self.ui.apcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.apline, self.fileloader()))
@@ -63,6 +65,8 @@ class MainDialog(QDialog):
         self.ui.userdtacheckbox.clicked.connect(lambda: self.loadedfile(self.ui.userdataline, self.fileloader()))
         self.ui.pitcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.pitline, self.fileloader()))
 
+    def logthread(self,loge):
+        self.ui.logfield.append(loge)
 
     def resetfrp(self):
         logging = ''
@@ -94,7 +98,7 @@ class MainDialog(QDialog):
 
     def loadedfile(self, part, fiel):
         fileloaded = part.setText(fiel)
-        return fileloaded
+        return fileloaded,fiel
 
     def modelselector(self):
         model = self.ui.modelselector.currentText()
@@ -233,7 +237,7 @@ class MainDialog(QDialog):
             for prt in prtlst.comports():
                 print(prt.hwid)
             return f'{prt.manufacturer}({prt.name})'
-        
+
 
 
 
@@ -269,10 +273,28 @@ class MainDialog(QDialog):
         self.ui.logfield.repaint()
     def exynosRestor(self):
         backuping.exynosrestore(BackUP,self.fileloader())
+    def samsung_flasher(self):
+        bl = self.ui.blline.text()
+        ap = self.ui.apline.text()
+        cp = self.ui.cpline.text()
+        csc = self.ui.cscline.text()
+        userdata = self.ui.userdataline.text()
+        firmware = {
+            bl: "-b",
+            ap: "-a",
+            cp: "-c",
+            csc: "-s",
+            userdata: "-u"
+        }
+        for file,prt in firmware.items():
+            sam = samsungflasher.run_flasher(part=prt, file=file)
+            self.logthread(sam)
+            return
 
-def concut(txtfield):
-    def logfield(self):
-        print('bingo',txtfield)
+
+
+
+
 if __name__ == "__main__":
     app = QApplication([])
     main = MainDialog()
