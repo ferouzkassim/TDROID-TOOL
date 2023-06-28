@@ -1,26 +1,51 @@
 import time,threading
+from queue import Queue
+
 import serial
 import serial.tools.list_ports as prtlist
 import asyncio
 from PyQt6 import QtWidgets
-from PyQt6.QtCore import QTimer, pyqtSignal, QObject
+from PyQt6.QtCore import QTimer, pyqtSignal, QObject, QThread
 from PyQt6.QtWidgets import QApplication, QDialog, QPushButton
 import serial.tools.list_ports as prtlst
+from PyQt6.uic.Compiler.qtproxies import QtCore
+
 import detect
+import fastboot
 import gui
 import samsungflasher
-from samsungflasher import flasher
+from samsungflasher import readpit
 import usbcom
 from detect import detector, BackUP, backuping
 from gui import Ui_main
-
+from PyQt6.QtCore import QObject,pyqtSignal
 
 # import pyudev
 # pyudev to monitor the behaviour of attathecd devices
+class mainthread(QThread):
+    resultReady = pyqtSignal(list)
+    updateProgress = pyqtSignal(int)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def run(self):
+        for i in range(1, 101):  # Adjust the range based on the duration
+            time.sleep(0.01)  # Wait for 0.5 seconds
+            self.updateProgress.emit(i)
+        result = detect.modem.downloadinfo(detect.modem)
+
+        self.resultReady.emit(result)
+
 
 class MainDialog(QDialog):
     def __init__(self):
         super().__init__()
+        #threading slotsss
+        self.mainthread = mainthread()
+        self.mainthread.resultReady.connect(self.loghandler)
+        self.mainthread.updateProgress.connect(self.updateProgressBar)
+
         self.ui = Ui_main()
         self.ui.setupUi(self)
         # cpu lists
@@ -52,21 +77,23 @@ class MainDialog(QDialog):
             self.ui.Read_security.clicked.connect(lambda :[self.readmtk(),print('mtkread')])
 
         self.ui.modelselector.addItems(self.modelist)
-        self.ui.comboBox.addItem(self.detect_unplug())
+        self.ui.comboBox.addItem(asyncio.run(self.detect_unplug()))
 
         self.ui.reset_frp.clicked.connect(self.resetfrp)
         # self.ui.qlmreadefs.clicked.connect(self.readqlmsec)
         self.ui.flashsmsng.clicked.connect(self.samsung_flasher)
         self.ui.modelselector.activated.connect(self.modelselector)
+        self.ui.fixdload.clicked.connect(self.readpit)
         self.ui.blcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.blline, self.fileloader()))
         self.ui.apcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.apline, self.fileloader()))
         self.ui.cpcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.cpline, self.fileloader()))
         self.ui.csccheckbox.clicked.connect(lambda: self.loadedfile(self.ui.cscline, self.fileloader()))
         self.ui.userdtacheckbox.clicked.connect(lambda: self.loadedfile(self.ui.userdataline, self.fileloader()))
         self.ui.pitcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.pitline, self.fileloader()))
+        self.ui.fbload.clicked.connect(self.fbloader)
 
-    def logthread(self,loge):
-        self.ui.logfield.append(loge)
+    def updateProgressBar(self, value):
+        self.ui.progressBar.setValue(value)
 
     def resetfrp(self):
         logging = ''
@@ -203,13 +230,20 @@ class MainDialog(QDialog):
         return output
 
     def dmodeinfo(self):
+
+        self.ui.logfield.setStyleSheet("color: blue")
+        self.ui.logfield.append( 'Reading info in download Mode\n')
+        '''dmodethread = threading.Thread(target=detect.modem.downloadinfo(detect.modem),args=[None])
+        dmodethread.start()'''
+        self.mainthread.start()
+    def loghandler(self,result):
         response = ''
-        response += 'Reading info in download Mode\n'
-        for otp in detect.modem.downloadinfo(detect.modem):
-            for data in otp:
-             response+=f'{data}\n'
+        for otp in result:
+                for data in otp:
+                 response+=f'{data}\n'
         self.ui.logfield.append(response)
         self.ui.logfield.repaint()
+
     def read_dv(self):
       restr=''
       cmd=detect.mode.downloadinfo(detect.mode)
@@ -230,18 +264,19 @@ class MainDialog(QDialog):
         self.ui.logfield.repaint()
 
         return response
-    def detect_unplug(self):
-        ports = prtlst.comports()
+    #part for populating combo box
+    async def detect_unplug(self):
+        uplug=asyncio.create_task(self.portexistor())
+        await uplug
+
         # Get list of all available serial ports
-        while prtlst.comports():
-            for prt in prtlst.comports():
-                print(prt.hwid)
-            return f'{prt.manufacturer}({prt.name})'
 
-
-
-
-
+    async def serialloger(self):
+            for prt in prtlist.comports():
+                print(prt.manufacturer)
+                return f'{prt.manufacturer}({prt.name})'
+    async def portexistor(self):
+        await self.serialloger()
     #asyncio.run(portactivator())
     def readexynosecurity(self):
         loging = ''
@@ -254,6 +289,12 @@ class MainDialog(QDialog):
         self.ui.logfield.append(loging)
         self.ui.logfield.repaint()
 
+
+    #serial = asyncio.create_task(self.serialloger())
+    #await serial
+
+
+    #asyncio.run(self.serialloger())
     def exynosbb(self):
         loging = ''
         exnos = BackUP.part_mountex(BackUP, 'efs')
@@ -273,25 +314,63 @@ class MainDialog(QDialog):
         self.ui.logfield.repaint()
     def exynosRestor(self):
         backuping.exynosrestore(BackUP,self.fileloader())
+
     def samsung_flasher(self):
+        self.ui.logfield.setStyleSheet("color: purple")
         bl = self.ui.blline.text()
+        print(bl)
         ap = self.ui.apline.text()
         cp = self.ui.cpline.text()
         csc = self.ui.cscline.text()
         userdata = self.ui.userdataline.text()
+
+        # Create a list of firmware parts
+        firmlist = [bl, ap, cp, csc, userdata]
+
+        # Remove empty spaces from firmware parts
+        #firmlist = [part.replace(" ", "") for part in firmlist]
+
+        # Define the firmware dictionary
         firmware = {
-            bl: "-b",
-            ap: "-a",
-            cp: "-c",
-            csc: "-s",
-            userdata: "-u"
+            bl: "-b ",
+            ap: "-a ",
+            cp: "-c ",
+            csc: "-s ",
+            #userdata: "-u"
+            #userdata: "-u"rea
         }
-        for file,prt in firmware.items():
-            sam = samsungflasher.run_flasher(part=prt, file=file)
-            self.logthread(sam)
-            return
 
+        for file, part in firmware.items():
+            print(file)
+            print(part)
+            if file:
+                # Create a thread to run flashpart
+                flash_thread = threading.Thread(target=samsungflasher.flashpart,
+                                                args=(part,f'"{file}"',self.ui.logfield))
+                flash_thread.start()
 
+            else:
+                pass
+    def flash_and_set_text(self, part, file, logfield):
+        text = samsungflasher.flashpart(part, file)
+        self.ui.logfield.setText(logfield, text)
+    def readpit(self):
+        self.ui.logfield.setText('Fixing odin Error')
+        read_pit=asyncio.run(readpit())
+        self.ui.logfield.setStyleSheet("color: green")
+        self.ui.logfield.setText(read_pit)
+
+    def fbloader(self):
+        firmware = QtWidgets.QFileDialog.getExistingDirectory(caption='Load Firmware directory ')
+        self.ui.fbfirmware.setText(firmware)
+        #t1 =asyncio.run(fastboot.fbb(fastboot.fboot))
+
+        return firmware
+    def fbfirmware(self):
+        self.fbloader()
+
+    def flashinglog(self, loge):
+        self.ui.logfield.setText(loge)
 
 
 

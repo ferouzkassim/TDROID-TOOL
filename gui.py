@@ -547,7 +547,7 @@ class Ui_main(object):
         self.checkBox_7.setStyleSheet("font: 6pt \"MS Shell Dlg 2\";")
         self.checkBox_7.setObjectName("checkBox_7")
         self.rebootdload = QtWidgets.QPushButton(parent=self.frame)
-        self.rebootdload.setGeometry(QtCore.QRect(360, 90, 61, 16))
+        self.rebootdload.setGeometry(QtCore.QRect(360, 70, 61, 16))
         self.rebootdload.setAutoFillBackground(False)
         self.rebootdload.setStyleSheet("background-color: rgb(255, 255, 255);\n"
 "font: 75 6pt \"MS Shell Dlg 2\";\n"
@@ -556,6 +556,16 @@ class Ui_main(object):
         self.rebootdload.setDefault(True)
         self.rebootdload.setFlat(False)
         self.rebootdload.setObjectName("rebootdload")
+        self.fixdload = QtWidgets.QPushButton(parent=self.frame)
+        self.fixdload.setGeometry(QtCore.QRect(360, 120, 61, 16))
+        self.fixdload.setAutoFillBackground(False)
+        self.fixdload.setStyleSheet("background-color: rgb(255, 255, 255);\n"
+"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"\n"
+"color: rgb(85, 170, 0);")
+        self.fixdload.setDefault(True)
+        self.fixdload.setFlat(False)
+        self.fixdload.setObjectName("fixdload")
         self.readd.raise_()
         self.flashsmsng.raise_()
         self.pitline.raise_()
@@ -572,6 +582,7 @@ class Ui_main(object):
         self.rebootdload.raise_()
         self.userdataline.raise_()
         self.cscline.raise_()
+        self.fixdload.raise_()
         self.logfield = QtWidgets.QTextEdit(parent=self.samsungtab)
         self.logfield.setGeometry(QtCore.QRect(440, 0, 441, 531))
         self.logfield.setStyleSheet("color: rgb(0, 0, 0);\n"
@@ -607,6 +618,8 @@ class Ui_main(object):
         self.fblogfield.setObjectName("fblogfield")
         self.logfield_3 = QtWidgets.QTextEdit(parent=self.fatsboottab)
         self.logfield_3.setGeometry(QtCore.QRect(440, -10, 441, 531))
+        self.logfield_3.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.NoContextMenu)
+        self.logfield_3.setAutoFillBackground(False)
         self.logfield_3.setStyleSheet("color: rgb(0, 0, 0);\n"
 "background-color: rgb(255, 255, 255);")
         self.logfield_3.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
@@ -1146,26 +1159,82 @@ class Ui_main(object):
         self.Reboot.setDefault(True)
         self.Reboot.setFlat(False)
         self.Reboot.setObjectName("Reboot")
+        self.widget_3 = QtWidgets.QWidget(parent=self.widget_2)
+        self.widget_3.setGeometry(QtCore.QRect(0, 210, 120, 80))
+        self.widget_3.setObjectName("widget_3")
         self.fbflash = QtWidgets.QPushButton(parent=self.fatsboottab)
         self.fbflash.setGeometry(QtCore.QRect(370, 430, 71, 21))
+        self.fbflash.setStyleSheet("background-color: rgb(255, 255, 255);\n"
+"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"\n"
+"color: rgb(85, 170, 0);")
         self.fbflash.setCheckable(False)
+        self.fbflash.setAutoDefault(True)
         self.fbflash.setDefault(True)
-        self.fbflash.setFlat(True)
+        self.fbflash.setFlat(False)
         self.fbflash.setObjectName("fbflash")
         self.fbflash_3 = QtWidgets.QPushButton(parent=self.fatsboottab)
         self.fbflash_3.setGeometry(QtCore.QRect(370, 340, 71, 21))
         font = QtGui.QFont()
-        font.setFamily("Segoe MDL2 Assets")
-        font.setPointSize(7)
+        font.setFamily("MS Shell Dlg 2")
+        font.setPointSize(6)
         font.setBold(False)
         font.setItalic(False)
-        font.setWeight(50)
+        font.setWeight(9)
         self.fbflash_3.setFont(font)
+        self.fbflash_3.setStyleSheet("background-color: rgb(255, 255, 255);\n"
+"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"\n"
+"color: rgb(85, 170, 0);")
         self.fbflash_3.setCheckable(False)
         self.fbflash_3.setAutoDefault(False)
         self.fbflash_3.setDefault(True)
-        self.fbflash_3.setFlat(True)
+        self.fbflash_3.setFlat(False)
         self.fbflash_3.setObjectName("fbflash_3")
+        self.widget_4 = QtWidgets.QWidget(parent=self.fatsboottab)
+        self.widget_4.setGeometry(QtCore.QRect(0, 220, 441, 291))
+        self.widget_4.setStyleSheet("font: 75 6pt \"MS Shell Dlg 2\";\n"
+"border-color: rgb(41, 91, 255);\n"
+"gridline-color: rgb(0, 0, 127);\n"
+"color: rgb(0, 0, 0);\n"
+"background-color: rgb(218, 218, 218);")
+        self.widget_4.setObjectName("widget_4")
+        self.fblistView = QtWidgets.QListView(parent=self.widget_4)
+        self.fblistView.setGeometry(QtCore.QRect(0, 40, 351, 271))
+        self.fblistView.setObjectName("fblistView")
+        self.fbfirmware = QtWidgets.QTextEdit(parent=self.widget_4)
+        self.fbfirmware.setGeometry(QtCore.QRect(0, 0, 351, 31))
+        self.fbfirmware.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
+        self.fbfirmware.setStyleSheet("font: 6pt \"Myanmar Text\";")
+        self.fbfirmware.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
+        self.fbfirmware.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.fbfirmware.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        #self.fbfirmware.setTabStopWidth(82)
+        self.fbfirmware.setObjectName("fbfirmware")
+        self.fbload = QtWidgets.QPushButton(parent=self.widget_4)
+        self.fbload.setGeometry(QtCore.QRect(370, 0, 71, 21))
+        font = QtGui.QFont()
+        font.setFamily("MS Shell Dlg 2")
+        font.setPointSize(6)
+        font.setBold(False)
+        font.setItalic(False)
+        font.setWeight(9)
+        self.fbload.setFont(font)
+        self.fbload.setStyleSheet("background-color: rgb(255, 255, 255);\n"
+"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"\n"
+"color: rgb(85, 170, 0);")
+        self.fbload.setCheckable(False)
+        self.fbload.setAutoDefault(False)
+        self.fbload.setDefault(True)
+        self.fbload.setFlat(False)
+        self.fbload.setObjectName("fbload")
+        self.widget_4.raise_()
+        self.fblogfield.raise_()
+        self.logfield_3.raise_()
+        self.widget_2.raise_()
+        self.fbflash.raise_()
+        self.fbflash_3.raise_()
         self.tablet.addTab(self.fatsboottab, "")
         self.mtktab = QtWidgets.QWidget()
         self.mtktab.setObjectName("mtktab")
@@ -1211,7 +1280,7 @@ class Ui_main(object):
         self.verticalLayout.addWidget(self.progressBar)
 
         self.retranslateUi(main)
-        self.tablet.setCurrentIndex(2)
+        self.tablet.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(main)
 
     def retranslateUi(self, main):
@@ -1244,6 +1313,7 @@ class Ui_main(object):
         self.blcheckbox.setText(_translate("main", "BL"))
         self.checkBox_7.setText(_translate("main", "ALL"))
         self.rebootdload.setText(_translate("main", "Reboot D/load"))
+        self.fixdload.setText(_translate("main", "Read Pit"))
         self.tablet.setTabText(self.tablet.indexOf(self.samsungtab), _translate("main", "Samsung "))
         self.tablet.setTabText(self.tablet.indexOf(self.adbtab), _translate("main", "Adb Tools"))
         self.label_4.setText(_translate("main", "fastboot port"))
@@ -1256,7 +1326,19 @@ class Ui_main(object):
         self.Reboot.setText(_translate("main", "Reboot Normal"))
         self.fbflash.setText(_translate("main", "Flash"))
         self.fbflash_3.setText(_translate("main", "Bootloader unlock 2"))
+        self.fbfirmware.setPlaceholderText(_translate("main", "Firmware dir"))
+        self.fbload.setText(_translate("main", "Load FW"))
         self.tablet.setTabText(self.tablet.indexOf(self.fatsboottab), _translate("main", "Fastboot Tool"))
         self.tablet.setTabText(self.tablet.indexOf(self.mtktab), _translate("main", "Mediatek_Util"))
         self.tablet.setTabText(self.tablet.indexOf(self.qualcomtab), _translate("main", "Qualcom"))
         self.tablet.setTabText(self.tablet.indexOf(self.spdtab), _translate("main", "Spd/Unisoc"))
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    main = QtWidgets.QDialog()
+    ui = Ui_main()
+    ui.setupUi(main)
+    main.show()
+    sys.exit(app.exec())

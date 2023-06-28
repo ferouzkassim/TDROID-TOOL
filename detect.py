@@ -150,6 +150,7 @@ class detect:
 
 
 
+
 def rootfs():
     device =startDaemon()
     locations = 'dev/block/platform'
@@ -311,9 +312,12 @@ class BackUP(detect):
         if pcf.endswith('.tar'):
             print('using tar format')
             for file in os.listdir(working_dir):
-                part, sn = file.split('+')
-                newname=file.replace(f'+{sn}','')
-                os.rename(file, newname)
+                try:
+                    part, sn = file.split('+')
+                    newname=file.replace(f'+{sn}','')
+                    os.rename(file, newname)
+                except:
+                    pass
         elif pcf.endswith('.zip'):
             print('using zip format')
             for file in os.listdir(working_dir):
@@ -718,14 +722,19 @@ class modem():
         response=''
         responseli=[]
         for port in ports:
-            response += str(port.hwid)
-            ser = serial.Serial(port.name)
-            print(f"Sending AT+DEVCONINFO\n")
-            ser.write(b'AT+DEVCONINFO')
-            time.sleep(0.5)
-            ret = ser.read_all()
-            response += ret.decode()
-            print(f"Received{ret}")
+            #USB\VID_04E8 & PID_6860
+
+            if port.vid==0x4E8 and port.pid==0x6860:
+                response += str(port.hwid)
+                ser = serial.Serial(port.name)
+                print(f"Sending AT+DEVCONINFO\n")
+                ser.write(b'AT+DEVCONINFO')
+                time.sleep(0.5)
+                ret = ser.read_all()
+                response += ret.decode()
+                print(f"Received{ret}")
+            #else:
+             #   pass
         responseli.append(response.split(';'))
         response = ''.join(responseli[0])  # join the list into a single string
         return responseli
@@ -736,27 +745,32 @@ class modem():
 
         for port in ports:
             arranged_data = []
-            arranged_data.append(f"Found {port.hwid}'")
-            arranged_data.append(f"At {port.name}")
-            ser = serial.Serial(port.name, baudrate=115200, timeout=1)
-            ser.write(b'DVIF\n')
-            time.sleep(0.5)
-            line_data = ser.read_until()
-            ser.close()
-            data = line_data.decode().split(';')
-            for d in data:
-                d = d.replace('PRODUCT', 'EMMC NAME')  # assign the modified string to the same variable
-                d = d.replace('FWVER','AP VERSION')
-                d = d.replace('CAPA','CAPACITY')
-                d = d.replace('VENDOR','EMMC MAKE')
-                d = d.replace('SALES','COUNTRY CSC')
-                d= d.replace('=',':\t\t')
+            if port.vid==0x4E8 and port.pid==0x685D:
+                arranged_data.append(f"Found {port.hwid}'")
+                arranged_data.append(f"At {port.name}")
+                #USB VID:PID=04E8:685D
+                ser = serial.Serial(port.name, baudrate=115200, timeout=1)
+                ser.write(b'DVIF\n')
+                time.sleep(0.0001)
+                line_data = ser.read_until()
+                ser.close()
+                data = line_data.decode().split(';')
+                print (data)
+                for d in data:
+                    d = d.replace('PRODUCT', 'EMMC NAME')  # assign the modified string to the same variable
+                    d = d.replace('FWVER','AP VERSION')
+                    d = d.replace('CAPA','CAPACITY')
+                    d = d.replace('VENDOR','EMMC MAKE')
+                    d = d.replace('SALES','COUNTRY CSC')
+                    d= d.replace('=',':\t\t')
 
-                if "@#" in d:
-                    d = d.replace("@#", "")
+                    if "@#" in d:
+                        d = d.replace("@#", "")
 
-                arranged_data.append(d.strip())
-            response.append(arranged_data)
+                    arranged_data.append(d.strip())
+                response.append(arranged_data)
+            else:
+                pass
         return response
 
 class flasher():

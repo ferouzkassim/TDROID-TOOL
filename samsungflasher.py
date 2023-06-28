@@ -1,56 +1,30 @@
 import subprocess
 import threading
 from queue import Queue
-
+import asyncio
 import serial
 import serial.tools.list_ports as liport
-def flasher(part, file,output_queue):
-    """
-    Flashes a device with the given partition and file.
+import asyncio
+import subprocess
 
-    Args:
-        part (str): The partition to flash.
-        file (str): The file to flash.
+async def readpit():
+    samstrt = await asyncio.create_subprocess_exec("daemon/sam.exe",'--reboot',stdout=asyncio.subprocess.PIPE,
+                                                    stderr =asyncio.subprocess.PIPE)
+    stdout, stderr = await samstrt.communicate()
+    text = stdout.decode()
+    return text
+def flashpart(part,file,logfield):
+    cmd = ["daemon/sam"]
+    print("Executing command:", " ".join(cmd))
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, )
+    for line in process.stdout:
+        text = line.decode()
+        print(text)
 
-    Returns:
-        str: The output of the flash operation.
-    """
-    outpt = ""
+        logfield.insertPlainText(text)
 
-    # Check if the daemon is running.
-    com = subprocess.run(["daemon/sam.exe", "-l"])
-    if com.returncode != 0:
-        print("Error: The daemon is not running.")
-        return None
-
-    # Flash the device.
-    par = subprocess.run(["daemon/sam.exe", f"{part}", file],
-                         universal_newlines=True,
-                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if par.returncode != 0:
-        print("Error: The flash operation failed.")
-        return None
-
-    # Iterate over output lines.
-    output_lines = par.stdout
-    outpt = par.stdout.strip() + par.stderr.strip()
-
-    #print(output_lines)
-    #print(outpt)
-
-    output_queue.put(outpt)
-    #return outpt
-
-def run_flasher(part,file):
-    output_queue = Queue()
-    thread = threading.Thread(target=flasher, args=(part, file,output_queue))
-    thread.start()
-    thread.join()
-    flasher_output = output_queue.get()
-    return flasher_output
-
-#run_flasher(part='b',file='C:\\Users\\DROID\\Desktop\\A125F U2\\offici\\BL_A125FXXS2BVA3_CL22457755_QB48025674_REV00_user_low_ship_MULTI_CERT.tar.md5')
-
+    process.communicate()
+    #print(process.stdin)
 def pitanalyzer(pit):
     with open(pit,'r')as p:
         cont = p.readlines()
