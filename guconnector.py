@@ -22,7 +22,7 @@ from PyQt6.QtCore import QObject,pyqtSignal
 
 # import pyudev
 # pyudev to monitor the behaviour of attathecd devices
-class mainthread(QThread):
+class Dmode(QThread):
     resultReady = pyqtSignal(list)
     updateProgress = pyqtSignal(int)
 
@@ -36,15 +36,26 @@ class mainthread(QThread):
         result = detect.modem.downloadinfo(detect.modem)
 
         self.resultReady.emit(result)
+class Adb_thread(QThread):
+    logresponse =pyqtSignal(str)
+
+    def __init__(self):
+        super().__init__()
+    def run(self):
+        adbfunc = detect.detect.adbConnect(detect.detect)
+        self.logresponse.emit(adbfunc)
 
 
 class MainDialog(QDialog):
     def __init__(self):
         super().__init__()
-        #threading slotsss
-        self.mainthread = mainthread()
-        self.mainthread.resultReady.connect(self.loghandler)
-        self.mainthread.updateProgress.connect(self.updateProgressBar)
+        #threading download mode slotsss
+        self.dmodethread = Dmode()
+        self.dmodethread.resultReady.connect(self.loghandler)
+        self.dmodethread.updateProgress.connect(self.updateProgressBar)
+        #threading adb
+        self.Adbthread = Adb_thread()
+        self.Adbthread.logresponse.connect(self.Adb_handler)
 
         self.ui = Ui_main()
         self.ui.setupUi(self)
@@ -177,18 +188,20 @@ class MainDialog(QDialog):
         self.ui.logfield.append(loging)
         self.ui.logfield.repaint()
 
-    def read_info_adb(self):
+    def read_info_adb(self,Rres):
         # Call adbConnect function
-        output_list = []
-        for output in BackUP.adbConnect(BackUP):
-            output_list.append(output)
-        # Append entire output to logfield
-        #log = threading.Thread(concut,args=('hte logfield'))
-        #log.start()
+        self.ui.logfield.setStyleSheet('color:brown')
+        self.Adbthread.start()
         self.ui.logfield.append(f'logging for {self.ui.modelselector.currentText()}\n')
-        self.ui.logfield.append(''.join(output_list))
         self.ui.logfield.repaint()
+    def Adb_handler(self,res):
+        response =''
+        time.sleep(0.5)
+        for otp in res:
+            response+=otp
 
+        self.ui.logfield.setText(response)
+        self.ui.logfield.repaint()
     def cpreader(self):
         output = ''
         replace_dict = {"MN": "MODEL:\t",
@@ -235,7 +248,7 @@ class MainDialog(QDialog):
         self.ui.logfield.append( 'Reading info in download Mode\n')
         '''dmodethread = threading.Thread(target=detect.modem.downloadinfo(detect.modem),args=[None])
         dmodethread.start()'''
-        self.mainthread.start()
+        self.dmodethread.start()
     def loghandler(self,result):
         response = ''
         for otp in result:
@@ -244,11 +257,7 @@ class MainDialog(QDialog):
         self.ui.logfield.append(response)
         self.ui.logfield.repaint()
 
-    def read_dv(self):
-      restr=''
-      cmd=detect.mode.downloadinfo(detect.mode)
-      for otp in cmd:
-          restr+=otp
+
     def open_backup(self):
         fiel, _ = QtWidgets.QFileDialog.getOpenFileName(filter="files (*.img *.bin *.tdf *.tar *.*)",
                                                         initialFilter='.tdf')

@@ -770,7 +770,10 @@ class modem():
                     arranged_data.append(d.strip())
                 response.append(arranged_data)
             else:
-                pass
+                data = 'No Dmode Device found with 0x4E8 / 0x685D'
+                arranged_data.append(data.strip())
+                response.append(arranged_data)
+
         return response
 
 class flasher():
