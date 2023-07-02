@@ -1199,17 +1199,19 @@ class Ui_main(object):
 "color: rgb(0, 0, 0);\n"
 "background-color: rgb(218, 218, 218);")
         self.widget_4.setObjectName("widget_4")
-        self.fblistView = QtWidgets.QListView(parent=self.widget_4)
-        self.fblistView.setGeometry(QtCore.QRect(0, 40, 351, 271))
-        self.fblistView.setObjectName("fblistView")
+        self.fblistWidget = QtWidgets.QListWidget(parent=self.widget_4)
+        self.fblistWidget.setGeometry(QtCore.QRect(0, 40, 351, 271))
+        self.fblistWidget.setObjectName("fblistWidget")
         self.fbfirmware = QtWidgets.QTextEdit(parent=self.widget_4)
         self.fbfirmware.setGeometry(QtCore.QRect(0, 0, 351, 31))
+        self.fbfirmware.viewport().setProperty("cursor", QtGui.QCursor(QtCore.Qt.CursorShape.ForbiddenCursor))
+        self.fbfirmware.setAcceptDrops(False)
         self.fbfirmware.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.fbfirmware.setStyleSheet("font: 6pt \"Myanmar Text\";")
         self.fbfirmware.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
         self.fbfirmware.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.fbfirmware.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        #self.fbfirmware.setTabStopWidth(82)
+#        self.fbfirmware.setTabStopWidth(82)
         self.fbfirmware.setObjectName("fbfirmware")
         self.fbload = QtWidgets.QPushButton(parent=self.widget_4)
         self.fbload.setGeometry(QtCore.QRect(370, 0, 71, 21))
@@ -1280,7 +1282,7 @@ class Ui_main(object):
         self.verticalLayout.addWidget(self.progressBar)
 
         self.retranslateUi(main)
-        self.tablet.setCurrentIndex(0)
+        self.tablet.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(main)
 
     def retranslateUi(self, main):

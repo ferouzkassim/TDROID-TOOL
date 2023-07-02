@@ -1,3 +1,4 @@
+import os
 import subprocess
 import threading
 from queue import Queue
@@ -13,15 +14,16 @@ async def readpit():
     stdout, stderr = await samstrt.communicate()
     text = stdout.decode()
     return text
-def flashpart(part,file,logfield):
-    cmd = ["daemon/sam"]
-    print("Executing command:", " ".join(cmd))
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, )
+def flashpart(part,file):
+    cmd = "daemon/sam.exe"
+    process = subprocess.Popen([cmd, part, file], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    print(f'starting {cmd}{part}{file}')
+    print(os.curdir)
     for line in process.stdout:
         text = line.decode()
         print(text)
 
-        logfield.insertPlainText(text)
+        #logfield.insertPlainText(text)
 
     process.communicate()
     #print(process.stdin)

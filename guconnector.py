@@ -1,3 +1,4 @@
+import os
 import time,threading
 from queue import Queue
 
@@ -101,7 +102,7 @@ class MainDialog(QDialog):
         self.ui.csccheckbox.clicked.connect(lambda: self.loadedfile(self.ui.cscline, self.fileloader()))
         self.ui.userdtacheckbox.clicked.connect(lambda: self.loadedfile(self.ui.userdataline, self.fileloader()))
         self.ui.pitcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.pitline, self.fileloader()))
-        self.ui.fbload.clicked.connect(self.fbloader)
+        self.ui.fbload.clicked.connect(lambda: self.fbloader(self.fbscripter))
 
     def updateProgressBar(self, value):
         self.ui.progressBar.setValue(value)
@@ -327,7 +328,6 @@ class MainDialog(QDialog):
     def samsung_flasher(self):
         self.ui.logfield.setStyleSheet("color: purple")
         bl = self.ui.blline.text()
-        print(bl)
         ap = self.ui.apline.text()
         cp = self.ui.cpline.text()
         csc = self.ui.cscline.text()
@@ -341,25 +341,25 @@ class MainDialog(QDialog):
 
         # Define the firmware dictionary
         firmware = {
-            bl: "-b ",
-            ap: "-a ",
-            cp: "-c ",
-            csc: "-s ",
-            #userdata: "-u"
+            bl: " -b ",
+            ap: " -a ",
+            cp: " -c ",
+            csc: " -s ",
+            userdata: " -u"
             #userdata: "-u"rea
         }
 
-        for file, part in firmware.items():
-            print(file)
-            print(part)
-            if file:
+        for firmware_file, firmware_part in firmware.items():
+            print(firmware_file)
+            print(firmware_part)
+            if firmware_file:
+                print(os.curdir)
                 # Create a thread to run flashpart
-                flash_thread = threading.Thread(target=samsungflasher.flashpart,
-                                                args=(part,f'"{file}"',self.ui.logfield))
-                flash_thread.start()
+            flash_thread = threading.Thread(target=samsungflasher.flashpart,
+                                                args=(firmware_part, firmware_file))
+            flash_thread.start()
 
-            else:
-                pass
+
     def flash_and_set_text(self, part, file, logfield):
         text = samsungflasher.flashpart(part, file)
         self.ui.logfield.setText(logfield, text)
@@ -369,12 +369,25 @@ class MainDialog(QDialog):
         self.ui.logfield.setStyleSheet("color: green")
         self.ui.logfield.setText(read_pit)
 
-    def fbloader(self):
+    def fbloader(self,callback):
         firmware = QtWidgets.QFileDialog.getExistingDirectory(caption='Load Firmware directory ')
         self.ui.fbfirmware.setText(firmware)
-        #t1 =asyncio.run(fastboot.fbb(fastboot.fboot))
-
+        #used callback bse i wud later call the function and use its output
+        callback(firmware)
         return firmware
+    def fbscripter(self,firmwarepath,callback):
+        li_firmware_parsers=['.bat','.xml']
+        fimrware_dir = os.listdir(firmwarepath)
+        for item in fimrware_dir:
+            self.ui.fblistWidget.setStyleSheet('color:blue')
+            self.ui.fblistWidget.addItem(item)
+            matching_ext = next((ext for ext in li_firmware_parsers if item.endswith(ext)), None)
+            if matching_ext:
+                self.ui.fbflash.setText(f'Flash {matching_ext}')
+                #BASICALLY THE CALLBACK IS TO BE USED BY THE OTHER FUCNTION TO FLASHH
+            callback(matching_ext)
+
+
     def fbfirmware(self):
         self.fbloader()
 

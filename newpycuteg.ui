@@ -3453,7 +3453,7 @@ gridline-color: rgb(0, 0, 127);
 color: rgb(0, 0, 0);
 background-color: rgb(218, 218, 218);</string>
        </property>
-       <widget class="QListView" name="fblistView">
+       <widget class="QListWidget" name="fblistWidget">
         <property name="geometry">
          <rect>
           <x>0</x>
