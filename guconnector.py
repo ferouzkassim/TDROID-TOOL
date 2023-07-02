@@ -375,8 +375,8 @@ class MainDialog(QDialog):
         #used callback bse i wud later call the function and use its output
         callback(firmware)
         return firmware
-    def fbscripter(self,firmwarepath,callback):
-        li_firmware_parsers=['.bat','.xml']
+    def fbscripter(self,firmwarepath):
+        li_firmware_parsers=['.bat','.xml','.cfg']
         fimrware_dir = os.listdir(firmwarepath)
         for item in fimrware_dir:
             self.ui.fblistWidget.setStyleSheet('color:blue')
@@ -385,7 +385,7 @@ class MainDialog(QDialog):
             if matching_ext:
                 self.ui.fbflash.setText(f'Flash {matching_ext}')
                 #BASICALLY THE CALLBACK IS TO BE USED BY THE OTHER FUCNTION TO FLASHH
-            callback(matching_ext)
+            #callback(matching_ext)
 
 
     def fbfirmware(self):
