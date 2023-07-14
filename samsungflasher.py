@@ -16,7 +16,7 @@ async def readpit():
     return text
 def flashpart(part,file):
     cmd = "daemon/sam.exe"
-    process = subprocess.Popen([cmd, part, file], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    process = subprocess.run([cmd, part, file], capture_output=True,shell=True)
     print(f'starting {cmd}{part}{file}')
     print(os.curdir)
     for line in process.stdout:

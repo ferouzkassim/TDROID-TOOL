@@ -617,7 +617,7 @@ class Ui_main(object):
         self.fblogfield.setLineWidth(7)
         self.fblogfield.setObjectName("fblogfield")
         self.logfield_3 = QtWidgets.QTextEdit(parent=self.fatsboottab)
-        self.logfield_3.setGeometry(QtCore.QRect(440, -10, 441, 531))
+        self.logfield_3.setGeometry(QtCore.QRect(440, 0, 441, 491))
         self.logfield_3.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.NoContextMenu)
         self.logfield_3.setAutoFillBackground(False)
         self.logfield_3.setStyleSheet("color: rgb(0, 0, 0);\n"

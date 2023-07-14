@@ -1714,9 +1714,9 @@ background-color: rgb(255, 255, 255);</string>
        <property name="geometry">
         <rect>
          <x>440</x>
-         <y>-10</y>
+         <y>0</y>
          <width>441</width>
-         <height>531</height>
+         <height>491</height>
         </rect>
        </property>
        <property name="contextMenuPolicy">

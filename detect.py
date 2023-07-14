@@ -9,12 +9,7 @@ import serial.tools.list_ports as prtlist
 import subprocess
 import shutil as shtl
 
-import py7zr
 
-from py7zr import py7zr as pyz
-import pathlib as pth
-
-import fastboot
 from adbcon import startDaemon, host, port, client, stopDaemon
 #py7zr a module to use for compressing snd decompressing with password
 #importing the class to do detecting and exposing the srial number
@@ -806,10 +801,5 @@ flash = flasher
 #flash.partitionflasher(flash,f'C:\\Users\\DROID\\Desktop\\a127f\\U5\\BL_A127FXXU5AVC4_CL23021938_QB50163737_REV00_user_low_ship_MULTI_CERT.tar.md5')
 #mode.Readmodem(mode,mode.samport(mode))
 #mode.downloadinfo(mode)
-class fb():
-    def __init__(self):
-        pass
-    def Read_info(self):
-        fb=fastboot.fbdevices()
-frash = flasher
+
 #frash.flash(frash,"C:\\Users\\DROID\\Desktop\\A035FXXU1AVD3-11-[KMDC6001DM-BXXX_8BD5CA4C]\\OFFICIAL\\A03_CIS_OPEN.pit")
