@@ -378,6 +378,7 @@ class MainDialog(QDialog):
     #after u create the async funtion then go ahead and create the runner
     def runFbootinfo(self):
         self.ui.progressBar.setValue(0)
+        self.ui.logfield_3.append("waiting for fastboot device")
         thh=threading.Thread(target=fastboot.usb_monitor,args=(self.ui.logfield_3,))
         thh.start()
         thh.join(timeout=1)
