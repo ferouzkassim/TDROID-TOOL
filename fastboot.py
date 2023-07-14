@@ -1,9 +1,10 @@
 import asyncio
 import subprocess
+import threading
 import time
 
 import usb
-from PyQt6.uic.uiparser import QtWidgets
+
 
 
 class Fboot:
@@ -11,21 +12,11 @@ class Fboot:
         self.fastb = None
         self.cmd = 'daemon/fastboot.exe'
 
-    async def fboot(self,cmd1,cmd2,cmd3):
-        command = [self.cmd,cmd1,cmd2,cmd3]
-        process = await asyncio.create_subprocess_exec(*command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-        # Create separate tasks to read from stdout and stderr asynchronously
-        stdout_task = asyncio.create_task(process.stdout.read())
-        stderr_task = asyncio.create_task(process.stderr.read())
-
-        # Wait for both tasks to complete
-        await asyncio.wait([stdout_task, stderr_task])
-
-        # Get the output from the completed tasks
-        stdout_output = stdout_task.result()
-        stderr_output = stderr_task.result()
-        self.fastb = (stdout_output, stderr_output)
+    def fboot(self, cmd1, cmd2, cmd3):
+        command = [self.cmd, cmd1, cmd2, cmd3]
+        process = subprocess.run(command, capture_output=True)
+        # Assign the output streams directly to self.fastb
+        self.fastb = (process.stderr, process.stdout)
 
     def get_output(self):
         stdout_output, stderr_output = self.fastb
@@ -40,7 +31,6 @@ class Fboot:
 
     def fastbootinfo(self,logfield):
         fbb = Fboot()
-        print('bingoing')
         fbb.fboot('getvar','all','')
         result = fbb.get_output()
         logfield.setStyleSheet('color: green;'
@@ -51,11 +41,11 @@ class Fboot:
 
         logfield.append(result)
     #after u create the async funtion then go ahead and create the runner
-    def Fbootinfo(self,logfield):
+    """ def Fbootinfo(self,logfield):
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             loop.run_until_complete(self.fastbootinfo(logfield))
-            loop.close()
+            loop.close()"""
     def fbscripter(self, firmwarepath):
             matching_ext = None
             li_firmware_parsers = ['.bat', '.xml', '.cfg']
@@ -106,27 +96,26 @@ class Fboot:
         pass
 fbb = Fboot()
 
-
-async def usb_monitor(logfield):
-    while True:
-        # Check if the USB device is connected
+def usb_monitor(logfield):
         device = usb.core.find(idVendor=0x18d1, idProduct=0x4ee0)
-        #fastboot pids USB\VID_18D1&PID_4EE0&REV_0100
-        #Found device: VID=0x18d1, PID=0x4ee0,Pixel 3,Google
+        if device:
+            #fastboot pids USB\VID_18D1&PID_4EE0&REV_0100
+            #Found device: VID=0x18d1, PID=0x4ee0,Pixel 3,Google
 
-        print('devcie found')
+            print('devcie found')
 
-        if device is not None:
-            # The device is connected, run the function
-            await fbb.Fbootinfo(logfield)
-        else:
-            print('no fastboot device connected')
-            devices = usb.core.find(find_all=True)
+            if device is not None:
+                # The device is connected, run the function
+                fb = fbb.fastbootinfo(logfield)
 
-            if devices:
-                # Iterate over the devices and print their VID and PID
-                for device in devices:
-                    print(f"Found device: VID={hex(device.idVendor)}, PID={hex(device.idProduct)},")
+            else:
+                print('no fastboot device connected')
+                devices = usb.core.find(find_all=True)
+
+                if devices:
+                    # Iterate over the devices and print their VID and PID
+                    for device in devices:
+                        print(f"Found device: VID={hex(device.idVendor)}, PID={hex(device.idProduct)},")
+                # Wait for some time before checking again
             # Wait for some time before checking again
-        # Wait for some time before checking again
-        time.sleep(1)
+            time.sleep(2)

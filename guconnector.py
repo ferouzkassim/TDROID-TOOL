@@ -76,7 +76,7 @@ class MainDialog(QDialog):
         self.ui.Read_info_cp.clicked.connect(self.cpreader)
         self.ui.readd.clicked.connect(self.dmodeinfo)
         self.ui.fixbootloader.clicked.connect(self.bootfix)
-        self.ui.Readinfofb.clicked.connect(self.runFbootinfo)
+        self.ui.Readinfofb.clicked.connect(lambda: self.runFbootinfo())
         # self.ui.writeefs.clicked.connect(self.open_backup)
         if self.ui.modelselector.currentText() in self.exynolist:
             self.ui.Fixbaseband.clicked.connect(lambda: self.exynosbb)
@@ -376,16 +376,11 @@ class MainDialog(QDialog):
 
     # fastboot session started here
     #after u create the async funtion then go ahead and create the runner
-    async def runFbootinfo(self):
+    def runFbootinfo(self):
         self.ui.progressBar.setValue(0)
-        #fb = fastboot.fbb.Fbootinfo(self.ui.logfield_3)
-        fbbinfo =asyncio.create_task(fastboot.usb_monitor(self.ui.logfield_3))
-        asyncio.run(fbbinfo)
-                #
-        loop = asyncio.get_event_loop()
-
-        loop.run_until_complete(asyncio.wait(fbbinfo))
-        loop.close()
+        thh=threading.Thread(target=fastboot.usb_monitor,args=(self.ui.logfield_3,))
+        thh.start()
+        thh.join(timeout=1)
         self.ui.progressBar.setValue(100)
     def fbloader(self):
         firmware = QtWidgets.QFileDialog.getOpenFileName(caption='Load Firmware File ',
