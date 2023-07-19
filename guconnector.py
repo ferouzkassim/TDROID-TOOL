@@ -46,6 +46,24 @@ class Adb_thread(QThread):
         adbfunc = detect.detect.adbConnect(detect.detect)[0]
         self.logresponse.emit(adbfunc)
 
+class funboot(QThread):
+    log3 = pyqtSignal(str)
+
+    def __int__(self):
+        super().__init__()
+    def run(self):
+        thh = fastboot.fbb.fastbootinfo()[0]
+        self.log3.emit(thh)
+
+
+
+        """ if thh.is_alive():
+            thh.join(timeout=5)
+        else:
+            for i in range(1, 99):
+                time.sleep(0.01)
+                self.ui.progressBar.setValue(i)"""
+
 class MainDialog(QDialog):
     def __init__(self):
         super().__init__()
@@ -59,6 +77,8 @@ class MainDialog(QDialog):
         self.Adbthread = Adb_thread()
         self.Adbthread.logresponse.connect(self.Adb_handler)
         # fastboot uitk
+        #self.fbthread = funboot()
+        #self.fbthread.log3.connect(self.runFbootinfo)
         # cpu lists
         self.mtklist = ['Mtk General', 'SM-A013G', 'SM-A037F', 'SM-A125F', 'SM-A225F', ]
         self.exynolist = ['Exynos General', 'SM-A127F', 'SM-A217f', 'SM-A135F', 'SM-A047F']
@@ -76,7 +96,8 @@ class MainDialog(QDialog):
         self.ui.Read_info_cp.clicked.connect(self.cpreader)
         self.ui.readd.clicked.connect(self.dmodeinfo)
         self.ui.fixbootloader.clicked.connect(self.bootfix)
-        self.ui.Readinfofb.clicked.connect(lambda: self.runFbootinfo())
+        self.ui.Readinfofb.clicked.connect(self.fastbooinfo)
+        self.ui.fbBootUnlocker.clicked.connect(self.fb_unlocking)
         # self.ui.writeefs.clicked.connect(self.open_backup)
         if self.ui.modelselector.currentText() in self.exynolist:
             self.ui.Fixbaseband.clicked.connect(lambda: self.exynosbb)
@@ -103,6 +124,7 @@ class MainDialog(QDialog):
         self.ui.userdtacheckbox.clicked.connect(lambda: self.loadedfile(self.ui.userdataline, self.fileloader()))
         self.ui.pitcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.pitline, self.fileloader()))
         self.ui.fbload.clicked.connect(lambda: self.fbloader())
+
     def updateProgressBar(self, value):
         self.ui.progressBar.setValue(value)
 
@@ -375,14 +397,27 @@ class MainDialog(QDialog):
         self.ui.logfield.setText(read_pit)
 
     # fastboot session started here
-    #after u create the async funtion then go ahead and create the runner
-    def runFbootinfo(self):
-        self.ui.progressBar.setValue(0)
+    # after u create the async funtion then go ahead and create the runner
+    async def runfboot(self):
         self.ui.logfield_3.append("waiting for fastboot device")
-        thh=threading.Thread(target=fastboot.usb_monitor,args=(self.ui.logfield_3,))
-        thh.start()
-        thh.join(timeout=1)
+        self.ui.progressBar.setValue(0)
+
+        #t1 = asyncio.create_task(fastboot.fbb.fastbootinfo(self.ui.logfield_3))
+        t2 = asyncio.create_task(fastboot.usb_monitor(fastboot.fbb.fastbootinfo
+                                                      (self.ui.logfield_3),self.ui.logfield_3))
+        await t2
+
+    def fastbooinfo(self):
+
+        asyncio.run(self.runfboot())
         self.ui.progressBar.setValue(100)
+
+    def fb_unlocking(self):
+        self.ui.progressBar.setValue(10)
+        thh = threading.Thread(target=fastboot.usb_monitor, args=(self.ui.logfield_3
+                                                                  ,
+                                                                  fastboot.fbb.bootloadr_unlocker(self.ui.logfield_3)))
+
     def fbloader(self):
         firmware = QtWidgets.QFileDialog.getOpenFileName(caption='Load Firmware File ',
                                                          initialFilter='.yml',
@@ -391,11 +426,12 @@ class MainDialog(QDialog):
         self.ui.fbfirmware.repaint()
         fb_var = fastboot.fbb.ext_parser(firmware)
         for i in fb_var:
-            i.replace('','fastboot')
-            self.ui.fblistWidget.addItem(i)
-            self.ui.fblistWidget.setStyleSheet('color:white;background-color:black;font-size:10pt'
-                                               ';font-weight:bold')
-            self.ui.fblistWidget.repaint()
+            if i.startswith('fastboot'):
+                i.replace('fastboot', '')
+                self.ui.fblistwidget.append(i)
+                self.ui.fblistwidget.setStyleSheet('color:white;background-color:black;font-size:8pt'
+                                                   ';font-weight:bold')
+                self.ui.fblistwidget.repaint()
 
         return firmware
 
