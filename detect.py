@@ -1,3 +1,4 @@
+import asyncio
 import getpass
 import os
 import shutil
@@ -10,7 +11,7 @@ import subprocess
 import shutil as shtl
 
 
-from adbcon import startDaemon, host, port, client, stopDaemon
+from adbcon import startDaemon, host, port, client
 #py7zr a module to use for compressing snd decompressing with password
 #importing the class to do detecting and exposing the srial number
 
@@ -23,7 +24,7 @@ class detect:
     def __init__(self,dev):
         self.dev =dev
 
-    def adbConnect(self):
+    async def adbConnect(self,logfield):
         startDaemon()
         prop = []
         resultprop = {}
@@ -85,14 +86,14 @@ class detect:
         ]
         devices = client.devices()
         output = ''
-        output = 'Reading info\n '
-        output += 'starting dameon\n'
+        logfield.append('Reading info ')
+        logfield.append('starting dameon')
         for dev in devices:
-            output += f'device found on {port} \n at {host}\n'
+            logfield.append(f'device found on {port}  at {host}')
             # This will allow the GUI to update while the function is running
             if dev.serial is None:
                 # This will allow the GUI to update while the function is running
-                output += 'No Device Found\n'
+                logfield.append('No Device Found')
             else:
                 propstr = dev.shell('getprop')
                 prop.append(propstr.split('\n'))
@@ -107,10 +108,10 @@ class detect:
                                 resultprop[key] = value
                                 if key in filter_keys:
                                     filteredprops[key] = value
-                    output += f"\n{dev.serial}\n"
+                    logfield.append(f"{dev.serial}")
                     for prop, answer in filteredprops.items():
                         short_prop = prop_names.get(prop, prop)
-                        output += f"{short_prop} = {answer}\n\n"
+                        logfield.append( f"{short_prop} = {answer}\n")
 
         return output
     def adbfrpreset(self):
@@ -713,63 +714,63 @@ class modem():
                 print('domode found')
 
         return ports
-    def Readmodem(self,ports):
-        response=''
-        responseli=[]
+   #method to run the at command sending to the serial port
+
+    async  def Readmodem(self,ports):
+        resp=''
+        responselist=[]
         for port in ports:
-            #USB\VID_04E8 & PID_6860
+            if port.vid == 0x4E8 and port.pid == 0x6860:
+                with serial.Serial(port.name) as samport:
+                    samport.write(b'AT+DEVCONINFO')
+                    await asyncio.sleep(0.25)
+                    t1 = samport.read_all().decode()
+                    resp += t1
+                    samport.close
+        responselist.append(resp.split(";"))
+        return responselist
 
-            if port.vid==0x4E8 and port.pid==0x6860:
-                response += str(port.hwid)
-                ser = serial.Serial(port.name)
-                print(f"Sending AT+DEVCONINFO\n")
-                ser.write(b'AT+DEVCONINFO')
-                time.sleep(0.5)
-                ret = ser.read_all()
-                response += ret.decode()
-                print(f"Received{ret}")
-            #else:
-             #   pass
-        responseli.append(response.split(';'))
-        response = ''.join(responseli[0])  # join the list into a single string
-        return responseli
-
-    def downloadinfo(self, formatted_output=None):
+    async def downloadinfo(self, logfield):
         ports = prtlist.comports()
-        response = []
+        response = ''
 
         for port in ports:
             arranged_data = []
-            if port.vid==0x4E8 and port.pid==0x685D:
+            print(port)
+            if port.vid == 0x4E8 and port.pid == 0x685D:
                 arranged_data.append(f"Found {port.hwid}'")
                 arranged_data.append(f"At {port.name}")
-                #USB VID:PID=04E8:685D
+                # USB VID:PID=04E8:685D
                 ser = serial.Serial(port.name, baudrate=115200, timeout=1)
                 ser.write(b'DVIF\n')
-                time.sleep(0.0001)
+                await asyncio.sleep(0.002)  # Await the sleep coroutine
                 line_data = ser.read_until()
+
                 ser.close()
                 data = line_data.decode().split(';')
-                print (data)
                 for d in data:
                     d = d.replace('PRODUCT', 'EMMC NAME')  # assign the modified string to the same variable
-                    d = d.replace('FWVER','AP VERSION')
-                    d = d.replace('CAPA','CAPACITY')
-                    d = d.replace('VENDOR','EMMC MAKE')
-                    d = d.replace('SALES','COUNTRY CSC')
-                    d= d.replace('=',':\t\t')
+                    d = d.replace('FWVER', 'AP VERSION')
+                    d = d.replace('CAPA', 'CAPACITY')
+                    d = d.replace('VENDOR', 'EMMC MAKE')
+                    d = d.replace('SALES', 'COUNTRY CSC')
+                    d = d.replace('=', ':\t\t')
 
                     if "@#" in d:
                         d = d.replace("@#", "")
 
                     arranged_data.append(d.strip())
-                response.append(arranged_data)
+                response += '\n'.join(arranged_data)  # Convert the list to a string before concatenating
+                for i in arranged_data:  # Also, use the 'arranged_data' list instead of 'response'
+                    logfield.append(str(i))
             else:
-                data = 'No Dmode Device found with 0x4E8 / 0x685D'
+                data = 'NO device with 0x4E8 / 0x685D connected'
                 arranged_data.append(data.strip())
-                response.append(arranged_data)
+                response += '\n'.join(arranged_data)  # Convert the list to a string before concatenating
+                for i in arranged_data:  # Also, use the 'arranged_data' list instead of 'response'
+                    #logfield.setText(str(i))
+                    print(i)
 
-        return response
 
 class flasher():
 

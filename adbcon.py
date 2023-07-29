@@ -13,6 +13,7 @@ def startDaemon():
     # Start the adb server
     try:
         subprocess.run(['daemon/adb.exe', 'start-server'], capture_output=True)
+
     except FileNotFoundError:
         print('restarting server at')
         subprocess.run(['daemon/adb.exe', 'kill-server'])

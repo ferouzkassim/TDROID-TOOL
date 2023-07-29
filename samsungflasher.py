@@ -1,12 +1,7 @@
-import os
-import subprocess
-import threading
-from queue import Queue
 import asyncio
-import serial
-import serial.tools.list_ports as liport
-import asyncio
+import io
 import subprocess
+
 
 async def readpit():
     samstrt = await asyncio.create_subprocess_exec("daemon/sam.exe",'--reboot',stdout=asyncio.subprocess.PIPE,
@@ -14,31 +9,25 @@ async def readpit():
     stdout, stderr = await samstrt.communicate()
     text = stdout.decode()
     return text
-def flashpart(part,file):
+async def flashpart(part,file,logfield):
+    def process_line(line):
+        decoded_line = line
+        logfield.append(decoded_line)
+
     cmd = "daemon/sam.exe"
-    process = subprocess.run([cmd, part, file], capture_output=True,shell=True)
-    print(f'starting {cmd}{part}{file}')
-    print(os.curdir)
-    for line in process.stdout:
-        text = line.decode()
-        print(text)
+    process = await asyncio.create_subprocess_exec(cmd,part,file,
+                stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.PIPE)
+    await process.communicate()
+    samlog = await process.stderr.read()
+    print(samlog)
+    """ t2 = await asyncio.StreamReader.read(process.stderr)
+    print(t2)
+    logfield.append(t2.decode())
+"""
 
-        #logfield.insertPlainText(text)
-
-    process.communicate()
-    #print(process.stdin)
 def pitanalyzer(pit):
     with open(pit,'r')as p:
         cont = p.readlines()
         for li in cont:
             print(li)
 #pitanalyzer('sample/orgnala03s.pit')
-def samsung_protocol():
-    for ser in liport.comports():
-        pid=ser.pid
-        print(hex(ser.pid))
-        print(hex(pid))
-        print(hex(ser.vid))
-        if ser.vid==hex(1256):
-            print(ser)
-#samsung_protocol()

@@ -7,7 +7,6 @@ from PyQt6 import QtSerialPort
 from typing import List
 import serial
 import serial.tools.list_ports as prtlst
-import usb1
 from serial.tools import list_ports_common
 import time
 

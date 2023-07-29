@@ -30,56 +30,19 @@ class Dmode(QThread):
     def run(self):
         for i in range(1, 101):  # Adjust the range based on the duration
             time.sleep(0.01)  # Wait for 0.5 seconds
-            self.updateProgress.emit(i)
+        self.updateProgress.emit(i)
         result = detect.modem.downloadinfo(detect.modem)
 
         self.resultReady.emit(result)
-
-
-class Adb_thread(QThread):
-    logresponse = pyqtSignal(str)
-
-    def __init__(self):
-        super().__init__()
-
-    def run(self):
-        adbfunc = detect.detect.adbConnect(detect.detect)[0]
-        self.logresponse.emit(adbfunc)
-
-class funboot(QThread):
-    log3 = pyqtSignal(str)
-
-    def __int__(self):
-        super().__init__()
-    def run(self):
-        thh = fastboot.fbb.fastbootinfo()[0]
-        self.log3.emit(thh)
-
-
-
-        """ if thh.is_alive():
-            thh.join(timeout=5)
-        else:
-            for i in range(1, 99):
-                time.sleep(0.01)
-                self.ui.progressBar.setValue(i)"""
-
 class MainDialog(QDialog):
     def __init__(self):
         super().__init__()
         self.ui = Ui_main()
         self.ui.setupUi(self)
         # threading download mode slotsss
-        self.dmodethread = Dmode()
+        """self.dmodethread = Dmode()
         self.dmodethread.resultReady.connect(self.loghandler)
-        self.dmodethread.updateProgress.connect(self.updateProgressBar)
-        # threading adb
-        self.Adbthread = Adb_thread()
-        self.Adbthread.logresponse.connect(self.Adb_handler)
-        # fastboot uitk
-        #self.fbthread = funboot()
-        #self.fbthread.log3.connect(self.runFbootinfo)
-        # cpu lists
+        self.dmodethread.updateProgress.connect(self.updateProgressBar)"""
         self.mtklist = ['Mtk General', 'SM-A013G', 'SM-A037F', 'SM-A125F', 'SM-A225F', ]
         self.exynolist = ['Exynos General', 'SM-A127F', 'SM-A217f', 'SM-A135F', 'SM-A047F']
         self.qlmlist = ['SM-A235F']
@@ -94,10 +57,11 @@ class MainDialog(QDialog):
         # Connect button click signal to function
         self.ui.Read_info_adb.clicked.connect(self.read_info_adb)
         self.ui.Read_info_cp.clicked.connect(self.cpreader)
-        self.ui.readd.clicked.connect(self.dmodeinfo)
+        self.ui.readd.clicked.connect(self.dmodeasync)
         self.ui.fixbootloader.clicked.connect(self.bootfix)
         self.ui.Readinfofb.clicked.connect(self.fastbooinfo)
         self.ui.fbBootUnlocker.clicked.connect(self.fb_unlocking)
+        self.ui.fbflash.clicked.connect(self.fbFlashing)
         # self.ui.writeefs.clicked.connect(self.open_backup)
         if self.ui.modelselector.currentText() in self.exynolist:
             self.ui.Fixbaseband.clicked.connect(lambda: self.exynosbb)
@@ -124,7 +88,7 @@ class MainDialog(QDialog):
         self.ui.userdtacheckbox.clicked.connect(lambda: self.loadedfile(self.ui.userdataline, self.fileloader()))
         self.ui.pitcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.pitline, self.fileloader()))
         self.ui.fbload.clicked.connect(lambda: self.fbloader())
-
+        self.ui.logfield.setStyleSheet("color: green;font-weight:bold")
     def updateProgressBar(self, value):
         self.ui.progressBar.setValue(value)
 
@@ -213,23 +177,18 @@ class MainDialog(QDialog):
 
     def read_info_adb(self, Rres):
         # Call adbConnect function
-        self.ui.logfield.setStyleSheet('color:brown')
-        self.Adbthread.start()
-        self.ui.logfield.append(f'logging for {self.ui.modelselector.currentText()}\n')
+        self.ui.progressBar.setValue(0)
+        self.ui.logfield.setText(f'logging for {self.ui.modelselector.currentText()}\n')
+        self.ui.progressBar.setValue(50)
+        t2 = asyncio.run(detect.detc.adbConnect(detect,self.ui.logfield))
         self.ui.logfield.repaint()
-
-    def Adb_handler(self, res):
-        response = ''
-        time.sleep(0.5)
-        for otp in res:
-            response += otp
-
-        self.ui.logfield.setText(response)
-        self.ui.logfield.repaint()
-
+        self.ui.progressBar.setValue(100)
     def cpreader(self):
+        self.ui.logfield.append('reading in MTP Mode')
+        self.ui.progressBar.setValue(0)
+        self.ui.logfield.setStyleSheet('color:green;font-weight:bold')
         output = ''
-        replace_dict = {"MN": "MODEL:\t",
+        replace_dict = {"MN":"MODEL:\t",
                         "BASE:": "BASE:\t",
                         "VER:": "VERSION:\t",
                         "HIDVER:": "DEVICE FIRMWARE\t",
@@ -247,12 +206,11 @@ class MainDialog(QDialog):
                         "LOCK:": "LOCK\t",
                         "LIMIT:": "LIMIT\t",
                         "SDP:": "SDP\t",
-                        "HVID:\t": "DATA TREE:\t"}
-        self.ui.logfield.append('reading in MTP Mode')
-        info = detect.modem.Readmodem(detect.modem, detect.modem.samport(detect.modem))
-        if info == ['']:
-            info
-            info
+                        "HVID:": "DATA TREE:\t"}
+
+        info = asyncio.run(detect.modem.Readmodem(detect.modem,
+                                                  detect.modem.samport(detect.modem)))
+
         for ifn in info:
             for dat in ifn:
                 fida = dat.replace('(', ':\t').replace(')', "").replace('AT+DEVCONINFO', '').replace('+DEVCONINFO',
@@ -265,15 +223,23 @@ class MainDialog(QDialog):
                 output += fida + "\n"
                 self.ui.logfield.append(fida)
                 self.ui.logfield.repaint()
+        self.ui.progressBar.setValue(100)
         return output
 
-    def dmodeinfo(self):
+    async def dmodeinfo(self):
 
-        self.ui.logfield.setStyleSheet("color: blue")
+        self.ui.logfield.setStyleSheet("color: green;font-weight:bold")
         self.ui.logfield.append('Reading info in download Mode\n')
         '''dmodethread = threading.Thread(target=detect.modem.downloadinfo(detect.modem),args=[None])
-        dmodethread.start()'''
-        self.dmodethread.start()
+        dmodethread.start()
+        self.dmodethread.start()'''
+        dmo = asyncio.create_task(detect.modem.downloadinfo(detect.modem, self.ui.logfield))
+        await dmo
+        self.ui.logfield.append(dmo.result())
+        print(dmo.result())
+
+    def dmodeasync(self):
+        t1 = asyncio.run(self.dmodeinfo())
 
     def loghandler(self, result):
         response = ''
@@ -359,36 +325,16 @@ class MainDialog(QDialog):
         cp = self.ui.cpline.text()
         csc = self.ui.cscline.text()
         userdata = self.ui.userdataline.text()
-
-        # Create a list of firmware parts
-        firmlist = [bl, ap, cp, csc, userdata]
-
-        # Remove empty spaces from firmware parts
-        # firmlist = [part.replace(" ", "") for part in firmlist]
-
-        # Define the firmware dictionary
         firmware = {
-            bl: " -b ",
-            ap: " -a ",
-            cp: " -c ",
-            csc: " -s ",
-            userdata: " -u"
-            # userdata: "-u"rea
+            "-b ": bl,
+            "-a ": ap,
+            "-c ": cp,
+            "-s ": csc,
+            "-u": userdata,
         }
-
-        for firmware_file, firmware_part in firmware.items():
-            print(firmware_file)
-            print(firmware_part)
-            if firmware_file:
-                print(os.curdir)
-                # Create a thread to run flashpart
-            flash_thread = threading.Thread(target=samsungflasher.flashpart,
-                                            args=(firmware_part, firmware_file))
-            flash_thread.start()
-
-    def flash_and_set_text(self, part, file, logfield):
-        text = samsungflasher.flashpart(part, file)
-        self.ui.logfield.setText(logfield, text)
+        if firmware.items():
+            print(firmware.keys())
+        asyncio.run(samsungflasher.flashpart('-b',bl,self.ui.logfield))
 
     def readpit(self):
         self.ui.logfield.setText('Fixing odin Error')
@@ -402,9 +348,9 @@ class MainDialog(QDialog):
         self.ui.logfield_3.append("waiting for fastboot device")
         self.ui.progressBar.setValue(0)
 
-        #t1 = asyncio.create_task(fastboot.fbb.fastbootinfo(self.ui.logfield_3))
+        # t1 = asyncio.create_task(fastboot.fbb.fastbootinfo(self.ui.logfield_3))
         t2 = asyncio.create_task(fastboot.usb_monitor(fastboot.fbb.fastbootinfo
-                                                      (self.ui.logfield_3),self.ui.logfield_3))
+                                                      (self.ui.logfield_3), self.ui.logfield_3, self.ui.progressBar))
         await t2
 
     def fastbooinfo(self):
@@ -425,15 +371,36 @@ class MainDialog(QDialog):
         self.ui.fbfirmware.append(str(firmware))
         self.ui.fbfirmware.repaint()
         fb_var = fastboot.fbb.ext_parser(firmware)
+        self.ui.fblistwidget.setStyleSheet('color:white;background-color:black;'
+                                           'font-size:8pt'
+                                           ';font-weight:bold')
         for i in fb_var:
-            if i.startswith('fastboot'):
-                i.replace('fastboot', '')
-                self.ui.fblistwidget.append(i)
-                self.ui.fblistwidget.setStyleSheet('color:white;background-color:black;font-size:8pt'
-                                                   ';font-weight:bold')
-                self.ui.fblistwidget.repaint()
+            if i.startswith('tf'):
+                self.ui.fblistwidget.append(
+                    i.replace('tf', '\n') or
+                    i.replace('tf', ''))
+
+            self.ui.fblistwidget.repaint()
 
         return firmware
+
+    async def batflasher(self):
+
+        fbtask = asyncio.create_task(fastboot.usb_monitor
+                                     ((fastboot.fbb.fbtflasher('.bat', self.ui.logfield_3)
+                                       ), self.ui.logfield_3, self.ui.progressBar))
+        await fbtask
+
+    def fbFlashing(self):
+        print('am here btw')
+        self.ui.logfield_3.setStyleSheet('color: green;'
+                                         ' background-color: black;'
+                                         'font-size: 8pt;'
+                                         ' font-weight: bold; '
+                                         )
+        self.ui.logfield_3.append('waiting for fastboot')
+        self.ui.progressBar.setValue(0)
+        asyncio.run(self.batflasher())
 
 
 if __name__ == "__main__":

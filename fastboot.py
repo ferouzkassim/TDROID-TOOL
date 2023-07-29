@@ -1,11 +1,8 @@
 import asyncio
 import subprocess
 import threading
-import time
-
-import libusb1
 import usb
-import usb1
+from usb.backend import libusb1
 
 
 class Fboot:
@@ -68,10 +65,21 @@ class Fboot:
             matching_ext = None
             li_firmware_parsers = ['.bat', '.xml', '.cfg']
             print(firmwarepath)
-    async def fastbut_flasher(self,flashcmd,logfield):
+    def batfile(self):
+        flashing_threads=[]
+        for i in self.batreaded:
+             flashing_threads.append(i.replace('fastboot',''))
+        for p in flashing_threads:
+            str(p)
+            pthread=threading.Thread(target=fbb.fboot,args=())
+            #pthread.start()
+
+
+    async def fastboot_flasher(self,flashcmd,logfield):
             fbb = Fboot()
             logfield.append('Waiting for fastboot arrival')
-            await fbb.fboot(flashcmd,"","","")
+
+            await fbb.batfile()
             result = fbb.get_output()
             logfield.setStyleSheet('color: green;'
                                              ' background-color: black;'
@@ -80,18 +88,13 @@ class Fboot:
                                              )
             logfield.append(result)
 
-    def fastbut_flasher(self,file_ext):
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                #loop.run_until_complete(self.ext_parser('.bat'))
-                if self.ui.fbflash.text() == 'Flash .bat':
-                    print('matching indoce founf')
-                    parsing_Ext =self.ext_parser(self.fbscripter)
 
-                else:
-                    #loop.run_until_complete(self.fastbut_flasher('-h'))
-                    #loop.close()
-                    pass
+    async def fbtflasher(self,file_ext,logfield):
+        print(f'found{file_ext}')
+        bat = self.batfile()
+
+
+
     def ext_parser(self,ext):
         files_to_flash = []
 
@@ -99,19 +102,17 @@ class Fboot:
             files_to_flash.append(i)
         for x in files_to_flash:
                 print(x)
-                if x.endswith(".bat") or x.endswith(".sh"):
-                    print("bat file found")
+                if x.endswith(".bat") or x.endswith(".sh") or x.endswith('.tfb'):
+                    print("tfb file found")
                     with open(x,"r") as batopener:
                         line=batopener.readlines()
                         for p in line :
-                            if p.startswith('fastboot'):
-                                p.replace('fastboot','')
+                            if p.startswith('tf'):
+                                p.replace('tf','')
                                 self.batreaded.append(p)
-                        print(self.batreaded)
                         return self.batreaded
 
-    def bat_flasher(self,):
-        pass
+
 fbb = Fboot()
 #fbb.fastbootinfo()
 def parse_usb_id(usb_id):
@@ -120,17 +121,19 @@ def parse_usb_id(usb_id):
     revision = int(usb_id.split("&")[2].split("_")[1], 16)
     print(vendor_id,product_id)
     return vendor_id, product_id,revision
-async def usb_monitor(func_to_run,logfield):
+async def usb_monitor(func_to_run,logfield,progressbar):
     # Define the USB device ID string
-    usb_id_string = "USB\VID_18D1&PID_4EE0&REV_0100"
+    usb_id_string = r"USB\VID_18D1&PID_4EE0&REV_0100"
     # Convert the USB ID string to integer values
+    #libusb install filer
+    # install-filter install "--device=USB\VID_18D1&PID_4EE0&REV_0100"
     vendor_id, product_id, revision = parse_usb_id(usb_id_string)
     vid=[0x18d1,]
     pid=[0x4ee0,0xd001]
+    bckedn = libusb1.get_backend()
     while True:
         # Check if the device with the specified vendor ID and product ID is connected
-        device = usb.core.find(idVendor= 0x18d1, idProduct=0x4ee0)
-
+        device = usb.core.find(idVendor= 0x18d1, idProduct=0x4ee0,backend=bckedn)
         if device is not None:
             # The device is connected, run the function asynchronously
             await func_to_run
@@ -138,10 +141,24 @@ async def usb_monitor(func_to_run,logfield):
         else:
             # No fastboot device is connected
             logfield.setText('waiting for fastboot arrival')
+
+            for i in range(1,101):
+                await asyncio.sleep(0.00025)
+                progressbar.setValue(i)
+            #await func_to_run
+            logfield.append("couldn't find any fastboot device attached")
+            logfield.append("\ntrying to auto filter usb port\nif failed install libusb manually")
+            command = ['daemon/usbif.exe', f'install', f'--device={usb_id_string}']
+            lbusb = subprocess.run(command, capture_output=True)
+
+            # Print the output of the subprocess.
+            print(lbusb.stdout)
+            logfield.append(lbusb.stderr.decode())
             logfield.repaint()
             devices = usb.core.find(find_all=True)
             """for device in devices:
                 print(f"Found device: VID={hex(device.idVendor)}, PID={hex(device.idProduct)}")
                 print(device)"""
+            break
         # Wait for 2 seconds before checking again
         await asyncio.sleep(0.005)
