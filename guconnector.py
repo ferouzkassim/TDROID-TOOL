@@ -5,7 +5,7 @@ import time
 
 import serial.tools.list_ports as prtlist
 from PyQt6 import QtWidgets, QtCore
-from PyQt6.QtCore import QThread
+from PyQt6.QtCore import QThread, QEventLoop, QObject
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QApplication, QDialog
 
@@ -34,6 +34,27 @@ class Dmode(QThread):
         result = detect.modem.downloadinfo(detect.modem)
 
         self.resultReady.emit(result)
+#samsung flashing log thread
+class LogEmitter(QObject):
+    logReady = pyqtSignal(str)
+
+class SamsungFlasherThread(QThread):
+    def __init__(self, prt, nme,lf):
+        super().__init__()
+        self.lf = lf
+        self.part = prt
+        self.nme = nme
+    def run(self):
+        emitter = LogEmitter()
+        emitter.logReady.connect(self.logToGUI)
+        asyncio.run(samsungflasher.run_flashpart(self.part, self.nme, self.lf))
+    def logToGUI(self, message):
+        # Update the GUI with the log message
+        print('bingo')
+        #self.lf.append(message)
+
+
+
 class MainDialog(QDialog):
     def __init__(self):
         super().__init__()
@@ -43,6 +64,8 @@ class MainDialog(QDialog):
         """self.dmodethread = Dmode()
         self.dmodethread.resultReady.connect(self.loghandler)
         self.dmodethread.updateProgress.connect(self.updateProgressBar)"""
+        #self.samsung_thread = SamsungFlasherThread(self.ui.blline.text(), self.ui.logfield)
+        # Connect to the slot method
         self.mtklist = ['Mtk General', 'SM-A013G', 'SM-A037F', 'SM-A125F', 'SM-A225F', ]
         self.exynolist = ['Exynos General', 'SM-A127F', 'SM-A217f', 'SM-A135F', 'SM-A047F']
         self.qlmlist = ['SM-A235F']
@@ -78,7 +101,7 @@ class MainDialog(QDialog):
 
         self.ui.reset_frp.clicked.connect(self.resetfrp)
         # self.ui.qlmreadefs.clicked.connect(self.readqlmsec)
-        self.ui.flashsmsng.clicked.connect(self.samsung_flasher)
+        self.ui.flashsmsng.clicked.connect(self.samlog)
         self.ui.modelselector.activated.connect(self.modelselector)
         self.ui.fixdload.clicked.connect(self.readpit)
         self.ui.blcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.blline, self.fileloader()))
@@ -89,8 +112,12 @@ class MainDialog(QDialog):
         self.ui.pitcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.pitline, self.fileloader()))
         self.ui.fbload.clicked.connect(lambda: self.fbloader())
         self.ui.logfield.setStyleSheet("color: green;font-weight:bold")
+
     def updateProgressBar(self, value):
         self.ui.progressBar.setValue(value)
+
+    def logupdater(self, value):
+        self.ui.logfield.append(value)
 
     def resetfrp(self):
         logging = ''
@@ -180,15 +207,16 @@ class MainDialog(QDialog):
         self.ui.progressBar.setValue(0)
         self.ui.logfield.setText(f'logging for {self.ui.modelselector.currentText()}\n')
         self.ui.progressBar.setValue(50)
-        t2 = asyncio.run(detect.detc.adbConnect(detect,self.ui.logfield))
+        t2 = asyncio.run(detect.detc.adbConnect(detect, self.ui.logfield))
         self.ui.logfield.repaint()
         self.ui.progressBar.setValue(100)
+
     def cpreader(self):
         self.ui.logfield.append('reading in MTP Mode')
         self.ui.progressBar.setValue(0)
         self.ui.logfield.setStyleSheet('color:green;font-weight:bold')
         output = ''
-        replace_dict = {"MN":"MODEL:\t",
+        replace_dict = {"MN": "MODEL:\t",
                         "BASE:": "BASE:\t",
                         "VER:": "VERSION:\t",
                         "HIDVER:": "DEVICE FIRMWARE\t",
@@ -318,8 +346,21 @@ class MainDialog(QDialog):
     def exynosRestor(self):
         backuping.exynosrestore(BackUP, self.fileloader())
 
-    def samsung_flasher(self):
-        self.ui.logfield.setStyleSheet("color: purple")
+    async def samsung_flasher(self):
+        bl = self.ui.blline.text()
+        """ap = self.ui.apline.text()
+        cp = self.ui.cpline.text()
+        csc = self.ui.cscline.text()
+        userdata = self.ui.userdataline.text()"""
+        firmware = {
+            "-b ": bl,
+        }
+        sam = asyncio.run(samsungflasher.flashpart('-b', bl,))
+        # Wait for the task to complete
+        self.ui.logfield.append(bl)
+
+    def samlog(self):
+
         bl = self.ui.blline.text()
         ap = self.ui.apline.text()
         cp = self.ui.cpline.text()
@@ -327,14 +368,18 @@ class MainDialog(QDialog):
         userdata = self.ui.userdataline.text()
         firmware = {
             "-b ": bl,
-            "-a ": ap,
-            "-c ": cp,
-            "-s ": csc,
-            "-u": userdata,
+            "-a":ap,
+            "-c":cp,
+            "-s":csc,
+            "-u":userdata
         }
-        if firmware.items():
-            print(firmware.keys())
-        asyncio.run(samsungflasher.flashpart('-b',bl,self.ui.logfield))
+        for name,value in firmware.items():
+            if value:
+                print(f'{name} is flashng {value}')
+        self.samsung_thread = SamsungFlasherThread(name,value, self.ui.logfield)
+        self.samsung_thread.start()
+    def update_text_area(self, line):
+        self.ui.logfield.append(line)
 
     def readpit(self):
         self.ui.logfield.setText('Fixing odin Error')

@@ -1,17 +1,33 @@
-import usb.core
-import usb.backend.libusb1 as libusb1
+class LogEmitter(QObject):
+    logReady = pyqtSignal(str)
 
-# Set the backend to libusb1
-backend = libusb1.get_backend()
 
-# Find the USB device using vendor and product IDs
-vendor_id = 0x18d1
-product_id = 0x4ee0
+class SamsungFlasherThread(QThread):
+    def run(self):
+        # Perform the processing...
+        log_message = "This is a log message from SamsungFlasherThread"
+        emitter = LogEmitter()
+        emitter.logReady.emit(log_message)
 
-# Find the USB device based on vendor ID and product ID with libusb1 backend
-device = usb.core.find(idVendor=vendor_id, idProduct=product_id, backend=backend)
 
-if device is None:
-    print("Device not found.")
-else:
-    print("Device found:", device)
+class MainDialog(QDialog):
+    def __init__(self):
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_main()
+        self.ui.setupUi(self)
+        self.samsung_thread = SamsungFlasherThread()
+        self.samsung_thread.start()
+        self.samsung_thread.finished.connect(self.samsung_thread.deleteLater)
+        self.samsung_thread.finished.connect(self.on_samsung_thread_finished)
+
+    def on_samsung_thread_finished(self):
+        self.ui.logfield.append("SamsungFlasherThread has finished.")
+
+    @pyqtSlot(str)
+    def update_logfield(self, log_message):
+        self.ui.logfield.append(log_message)
+
+        # Inside the MainDialog class (where you instantiate SamsungFlasherThread):
+        emitter = LogEmitter()
+        emitter.logReady.connect(self.update_logfield)

@@ -1,7 +1,6 @@
 import subprocess
 import asyncio
 import time
-from adb_shell.adb_device import *
 from ppadb.client import Client as AdbClient
 from subprocess import PIPE
 

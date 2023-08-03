@@ -124,16 +124,20 @@ def parse_usb_id(usb_id):
 async def usb_monitor(func_to_run,logfield,progressbar):
     # Define the USB device ID string
     usb_id_string = r"USB\VID_18D1&PID_4EE0&REV_0100"
+    #USB\VID_0E8D&PID_201C&REV_0100
+    #USB\VID_18D1&PID_D00D
+
+
     # Convert the USB ID string to integer values
     #libusb install filer
     # install-filter install "--device=USB\VID_18D1&PID_4EE0&REV_0100"
     vendor_id, product_id, revision = parse_usb_id(usb_id_string)
-    vid=[0x18d1,]
-    pid=[0x4ee0,0xd001]
+    vid=[0x18d1,0x0E8D]
+    pid=[0x4ee0,0xd001,0x201C]
     bckedn = libusb1.get_backend()
     while True:
         # Check if the device with the specified vendor ID and product ID is connected
-        device = usb.core.find(idVendor= 0x18d1, idProduct=0x4ee0,backend=bckedn)
+        device = usb.core.find(idVendor=0X18d1, idProduct=0XD00D,backend=bckedn)
         if device is not None:
             # The device is connected, run the function asynchronously
             await func_to_run

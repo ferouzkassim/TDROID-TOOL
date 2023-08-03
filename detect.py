@@ -726,7 +726,7 @@ class modem():
                     await asyncio.sleep(0.25)
                     t1 = samport.read_all().decode()
                     resp += t1
-                    samport.close
+                    samport.close()
         responselist.append(resp.split(";"))
         return responselist
 

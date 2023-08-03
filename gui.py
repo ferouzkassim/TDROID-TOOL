@@ -13,7 +13,7 @@ class Ui_main(object):
     def setupUi(self, main):
         main.setObjectName("main")
         main.setEnabled(True)
-        main.resize(920, 590)
+        main.resize(882, 561)
         main.setMaximumSize(QtCore.QSize(1677, 1677))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(219, 219, 219))
@@ -65,7 +65,7 @@ class Ui_main(object):
         self.verticalLayout.setObjectName("verticalLayout")
         self.tablet = QtWidgets.QTabWidget(parent=main)
         self.tablet.setEnabled(True)
-        self.tablet.setStyleSheet("font: 7pt \"Segoe MDL2 Assets\";\n"
+        self.tablet.setStyleSheet("font: 75 8pt \"MS Shell Dlg 2\";\n"
 "background-color: rgb(255, 255, 255);\n"
 "")
         self.tablet.setTabPosition(QtWidgets.QTabWidget.TabPosition.South)
@@ -103,48 +103,54 @@ class Ui_main(object):
         self.label_2 = QtWidgets.QLabel(parent=self.groupBox)
         self.label_2.setGeometry(QtCore.QRect(250, 0, 61, 41))
         font = QtGui.QFont()
-        font.setFamily("Segoe MDL2 Assets")
-        font.setPointSize(6)
+        font.setFamily("MS Shell Dlg 2")
+        font.setPointSize(8)
         font.setBold(False)
         font.setItalic(False)
         self.label_2.setFont(font)
-        self.label_2.setStyleSheet("font: 6pt \"Segoe MDL2 Assets\";")
+        self.label_2.setStyleSheet("font: 75 8pt \"MS Shell Dlg 2\";")
         self.label_2.setObjectName("label_2")
         self.label_3 = QtWidgets.QLabel(parent=self.groupBox)
         self.label_3.setGeometry(QtCore.QRect(10, 0, 61, 41))
         font = QtGui.QFont()
-        font.setFamily("Segoe MDL2 Assets")
-        font.setPointSize(6)
+        font.setFamily("MS Shell Dlg 2")
+        font.setPointSize(8)
         font.setBold(False)
         font.setItalic(False)
         self.label_3.setFont(font)
-        self.label_3.setStyleSheet("font: 6pt \"Segoe MDL2 Assets\";")
+        self.label_3.setStyleSheet("font: 75 8pt \"MS Shell Dlg 2\";")
         self.label_3.setObjectName("label_3")
         self.widget = QtWidgets.QWidget(parent=self.groupBox)
-        self.widget.setGeometry(QtCore.QRect(10, 30, 441, 141))
+        self.widget.setGeometry(QtCore.QRect(10, 30, 491, 141))
+        font = QtGui.QFont()
+        font.setFamily("MS Shell Dlg 2")
+        font.setPointSize(8)
+        font.setBold(False)
+        font.setItalic(False)
+        self.widget.setFont(font)
         self.widget.setStyleSheet("background-color: rgb(255, 189, 0);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";")
+"font: 75 8pt \"MS Shell Dlg 2\";")
         self.widget.setObjectName("widget")
         self.write_security = QtWidgets.QPushButton(parent=self.widget)
-        self.write_security.setGeometry(QtCore.QRect(70, 90, 61, 16))
+        self.write_security.setGeometry(QtCore.QRect(120, 90, 71, 21))
         self.write_security.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.write_security.setAutoDefault(True)
         self.write_security.setFlat(False)
         self.write_security.setObjectName("write_security")
         self.Fixbaseband = QtWidgets.QPushButton(parent=self.widget)
-        self.Fixbaseband.setGeometry(QtCore.QRect(0, 90, 61, 16))
+        self.Fixbaseband.setGeometry(QtCore.QRect(360, 90, 81, 21))
         self.Fixbaseband.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.Fixbaseband.setAutoDefault(True)
         self.Fixbaseband.setFlat(False)
         self.Fixbaseband.setObjectName("Fixbaseband")
         self.reset_frp = QtWidgets.QPushButton(parent=self.widget)
-        self.reset_frp.setGeometry(QtCore.QRect(0, 50, 61, 16))
+        self.reset_frp.setGeometry(QtCore.QRect(0, 60, 81, 21))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(85, 170, 0))
         brush.setStyle(QtCore.Qt.BrushStyle.SolidPattern)
@@ -210,13 +216,19 @@ class Ui_main(object):
         brush.setStyle(QtCore.Qt.BrushStyle.SolidPattern)
         palette.setBrush(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRole.PlaceholderText, brush)
         self.reset_frp.setPalette(palette)
+        font = QtGui.QFont()
+        font.setFamily("MS Shell Dlg 2")
+        font.setPointSize(8)
+        font.setBold(False)
+        font.setItalic(False)
+        self.reset_frp.setFont(font)
         self.reset_frp.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.reset_frp.setStatusTip("")
         self.reset_frp.setWhatsThis("")
         self.reset_frp.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.reset_frp.setAutoFillBackground(False)
         self.reset_frp.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.reset_frp.setCheckable(False)
@@ -225,16 +237,16 @@ class Ui_main(object):
         self.reset_frp.setFlat(False)
         self.reset_frp.setObjectName("reset_frp")
         self.Read_security = QtWidgets.QPushButton(parent=self.widget)
-        self.Read_security.setGeometry(QtCore.QRect(140, 90, 61, 16))
+        self.Read_security.setGeometry(QtCore.QRect(240, 90, 71, 21))
         self.Read_security.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.Read_security.setAutoDefault(True)
         self.Read_security.setFlat(False)
         self.Read_security.setObjectName("Read_security")
         self.Read_info_cp = QtWidgets.QPushButton(parent=self.widget)
-        self.Read_info_cp.setGeometry(QtCore.QRect(70, 30, 61, 16))
+        self.Read_info_cp.setGeometry(QtCore.QRect(120, 30, 71, 21))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(85, 170, 0))
         brush.setStyle(QtCore.Qt.BrushStyle.SolidPattern)
@@ -306,7 +318,7 @@ class Ui_main(object):
         self.Read_info_cp.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.Read_info_cp.setAutoFillBackground(False)
         self.Read_info_cp.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.Read_info_cp.setCheckable(False)
@@ -315,30 +327,30 @@ class Ui_main(object):
         self.Read_info_cp.setFlat(False)
         self.Read_info_cp.setObjectName("Read_info_cp")
         self.MountNetwork = QtWidgets.QPushButton(parent=self.widget)
-        self.MountNetwork.setGeometry(QtCore.QRect(70, 50, 61, 16))
+        self.MountNetwork.setGeometry(QtCore.QRect(120, 60, 71, 21))
         self.MountNetwork.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.MountNetwork.setAutoDefault(True)
         self.MountNetwork.setFlat(False)
         self.MountNetwork.setObjectName("MountNetwork")
         self.Write_Efs = QtWidgets.QPushButton(parent=self.widget)
-        self.Write_Efs.setGeometry(QtCore.QRect(140, 70, 61, 16))
+        self.Write_Efs.setGeometry(QtCore.QRect(240, 60, 71, 21))
         self.Write_Efs.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.Write_Efs.setObjectName("Write_Efs")
         self.Read_Efs = QtWidgets.QPushButton(parent=self.widget)
-        self.Read_Efs.setGeometry(QtCore.QRect(70, 70, 61, 16))
+        self.Read_Efs.setGeometry(QtCore.QRect(240, 30, 71, 21))
         self.Read_Efs.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.Read_Efs.setObjectName("Read_Efs")
         self.Read_info_adb = QtWidgets.QPushButton(parent=self.widget)
-        self.Read_info_adb.setGeometry(QtCore.QRect(0, 30, 61, 16))
+        self.Read_info_adb.setGeometry(QtCore.QRect(0, 30, 81, 21))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(85, 170, 0))
         brush.setStyle(QtCore.Qt.BrushStyle.SolidPattern)
@@ -411,7 +423,7 @@ class Ui_main(object):
         self.Read_info_adb.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.Read_info_adb.setAutoFillBackground(False)
         self.Read_info_adb.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.Read_info_adb.setCheckable(False)
@@ -426,25 +438,25 @@ class Ui_main(object):
         self.label.setStyleSheet("color: rgb(255, 255, 255);")
         self.label.setObjectName("label")
         self.repairsn = QtWidgets.QPushButton(parent=self.widget)
-        self.repairsn.setGeometry(QtCore.QRect(140, 30, 61, 16))
+        self.repairsn.setGeometry(QtCore.QRect(360, 30, 81, 21))
         self.repairsn.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.repairsn.setAutoDefault(True)
         self.repairsn.setFlat(False)
         self.repairsn.setObjectName("repairsn")
         self.fixbootloader = QtWidgets.QPushButton(parent=self.widget)
-        self.fixbootloader.setGeometry(QtCore.QRect(0, 70, 61, 16))
+        self.fixbootloader.setGeometry(QtCore.QRect(0, 90, 81, 21))
         self.fixbootloader.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.fixbootloader.setAutoDefault(True)
         self.fixbootloader.setFlat(False)
         self.fixbootloader.setObjectName("fixbootloader")
         self.snEdit = QtWidgets.QLineEdit(parent=self.widget)
-        self.snEdit.setGeometry(QtCore.QRect(210, 30, 91, 21))
+        self.snEdit.setGeometry(QtCore.QRect(360, 60, 81, 21))
         self.snEdit.setToolTip("")
         self.snEdit.setToolTipDuration(2)
         self.snEdit.setStyleSheet("font: 63 9pt \"Segoe UI Semibold\";")
@@ -478,7 +490,7 @@ class Ui_main(object):
         self.groupBox_2.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter|QtCore.Qt.AlignmentFlag.AlignTop)
         self.groupBox_2.setObjectName("groupBox_2")
         self.frame = QtWidgets.QFrame(parent=self.groupBox_2)
-        self.frame.setGeometry(QtCore.QRect(10, 20, 441, 351))
+        self.frame.setGeometry(QtCore.QRect(10, 20, 441, 311))
         self.frame.setStyleSheet("font: 75 6pt \"MS Shell Dlg 2\";\n"
 "border-color: rgb(41, 91, 255);\n"
 "gridline-color: rgb(0, 0, 127);\n"
@@ -488,27 +500,27 @@ class Ui_main(object):
         self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame.setObjectName("frame")
         self.readd = QtWidgets.QPushButton(parent=self.frame)
-        self.readd.setGeometry(QtCore.QRect(360, 30, 61, 16))
+        self.readd.setGeometry(QtCore.QRect(360, 30, 81, 21))
         self.readd.setAutoFillBackground(False)
         self.readd.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.readd.setDefault(True)
         self.readd.setFlat(False)
         self.readd.setObjectName("readd")
         self.flashsmsng = QtWidgets.QPushButton(parent=self.frame)
-        self.flashsmsng.setGeometry(QtCore.QRect(360, 160, 61, 16))
+        self.flashsmsng.setGeometry(QtCore.QRect(360, 160, 81, 21))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(4)
         sizePolicy.setVerticalStretch(4)
         sizePolicy.setHeightForWidth(self.flashsmsng.sizePolicy().hasHeightForWidth())
         self.flashsmsng.setSizePolicy(sizePolicy)
         self.flashsmsng.setBaseSize(QtCore.QSize(1, 1))
+        self.flashsmsng.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.flashsmsng.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.NoContextMenu)
-        self.flashsmsng.setAutoFillBackground(False)
         self.flashsmsng.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.flashsmsng.setInputMethodHints(QtCore.Qt.InputMethodHint.ImhNone)
@@ -538,57 +550,148 @@ class Ui_main(object):
         self.pitcheckbox.setGeometry(QtCore.QRect(0, 10, 71, 20))
         font = QtGui.QFont()
         font.setFamily("MS Shell Dlg 2")
-        font.setPointSize(6)
+        font.setPointSize(8)
         font.setBold(False)
         font.setItalic(False)
         self.pitcheckbox.setFont(font)
         self.pitcheckbox.setAutoFillBackground(False)
-        self.pitcheckbox.setStyleSheet("font: 6pt \"MS Shell Dlg 2\";")
+        self.pitcheckbox.setStyleSheet("font: 75 8pt \"MS Shell Dlg 2\";")
         self.pitcheckbox.setIconSize(QtCore.QSize(30, 20))
         self.pitcheckbox.setObjectName("pitcheckbox")
         self.apcheckbox = QtWidgets.QCheckBox(parent=self.frame)
         self.apcheckbox.setGeometry(QtCore.QRect(0, 90, 91, 20))
-        self.apcheckbox.setStyleSheet("font: 6pt \"MS Shell Dlg 2\";")
+        self.apcheckbox.setStyleSheet("font: 75 8pt \"MS Shell Dlg 2\";")
         self.apcheckbox.setObjectName("apcheckbox")
         self.cpcheckbox = QtWidgets.QCheckBox(parent=self.frame)
         self.cpcheckbox.setGeometry(QtCore.QRect(0, 130, 71, 29))
-        self.cpcheckbox.setStyleSheet("font: 6pt \"MS Shell Dlg 2\";")
+        self.cpcheckbox.setStyleSheet("font: 75 8pt \"MS Shell Dlg 2\";")
         self.cpcheckbox.setObjectName("cpcheckbox")
         self.userdtacheckbox = QtWidgets.QCheckBox(parent=self.frame)
-        self.userdtacheckbox.setGeometry(QtCore.QRect(0, 210, 181, 31))
-        self.userdtacheckbox.setStyleSheet("font: 6pt \"MS Shell Dlg 2\";")
+        self.userdtacheckbox.setGeometry(QtCore.QRect(0, 221, 181, 20))
+        self.userdtacheckbox.setStyleSheet("font: 75 8pt \"MS Shell Dlg 2\";")
         self.userdtacheckbox.setObjectName("userdtacheckbox")
         self.csccheckbox = QtWidgets.QCheckBox(parent=self.frame)
         self.csccheckbox.setGeometry(QtCore.QRect(0, 170, 132, 29))
-        self.csccheckbox.setStyleSheet("font: 6pt \"MS Shell Dlg 2\";")
+        self.csccheckbox.setStyleSheet("font: 75 8pt \"MS Shell Dlg 2\";")
         self.csccheckbox.setObjectName("csccheckbox")
         self.blcheckbox = QtWidgets.QCheckBox(parent=self.frame)
-        self.blcheckbox.setGeometry(QtCore.QRect(0, 50, 81, 29))
+        self.blcheckbox.setGeometry(QtCore.QRect(0, 50, 31, 21))
         self.blcheckbox.setObjectName("blcheckbox")
         self.checkBox_7 = QtWidgets.QCheckBox(parent=self.frame)
         self.checkBox_7.setGeometry(QtCore.QRect(0, 250, 132, 29))
-        self.checkBox_7.setStyleSheet("font: 6pt \"MS Shell Dlg 2\";")
+        self.checkBox_7.setStyleSheet("font: 75 8pt \"MS Shell Dlg 2\";")
         self.checkBox_7.setObjectName("checkBox_7")
         self.rebootdload = QtWidgets.QPushButton(parent=self.frame)
-        self.rebootdload.setGeometry(QtCore.QRect(360, 70, 61, 16))
+        self.rebootdload.setGeometry(QtCore.QRect(360, 80, 81, 21))
         self.rebootdload.setAutoFillBackground(False)
         self.rebootdload.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.rebootdload.setDefault(True)
         self.rebootdload.setFlat(False)
         self.rebootdload.setObjectName("rebootdload")
         self.fixdload = QtWidgets.QPushButton(parent=self.frame)
-        self.fixdload.setGeometry(QtCore.QRect(360, 120, 61, 16))
+        self.fixdload.setGeometry(QtCore.QRect(360, 120, 81, 21))
         self.fixdload.setAutoFillBackground(False)
         self.fixdload.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.fixdload.setDefault(True)
         self.fixdload.setFlat(False)
         self.fixdload.setObjectName("fixdload")
+        self.blbtn = QtWidgets.QPushButton(parent=self.frame)
+        self.blbtn.setGeometry(QtCore.QRect(50, 50, 41, 21))
+        font = QtGui.QFont()
+        font.setFamily("Times New Roman")
+        font.setPointSize(9)
+        font.setBold(True)
+        font.setItalic(False)
+        self.blbtn.setFont(font)
+        self.blbtn.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
+        self.blbtn.setStyleSheet("color: rgb(255, 255, 255);\n"
+"background-color: rgb(255, 189, 0);\n"
+"font: 700 9pt \"Times New Roman\";\n"
+"alternate-background-color: rgb(217, 198, 176);")
+        self.blbtn.setCheckable(True)
+        self.blbtn.setAutoDefault(False)
+        self.blbtn.setDefault(False)
+        self.blbtn.setFlat(False)
+        self.blbtn.setObjectName("blbtn")
+        self.apbtn = QtWidgets.QPushButton(parent=self.frame)
+        self.apbtn.setGeometry(QtCore.QRect(50, 90, 41, 21))
+        font = QtGui.QFont()
+        font.setFamily("Times New Roman")
+        font.setPointSize(9)
+        font.setBold(True)
+        font.setItalic(False)
+        self.apbtn.setFont(font)
+        self.apbtn.setLayoutDirection(QtCore.Qt.LayoutDirection.RightToLeft)
+        self.apbtn.setAutoFillBackground(False)
+        self.apbtn.setStyleSheet("color: rgb(255, 255, 255);\n"
+"background-color: rgb(255, 189, 0);\n"
+"font: 700 9pt \"Times New Roman\";\n"
+"alternate-background-color: rgb(217, 198, 176);")
+        self.apbtn.setCheckable(True)
+        self.apbtn.setAutoDefault(False)
+        self.apbtn.setDefault(True)
+        self.apbtn.setFlat(False)
+        self.apbtn.setObjectName("apbtn")
+        self.cpbdtn = QtWidgets.QPushButton(parent=self.frame)
+        self.cpbdtn.setGeometry(QtCore.QRect(50, 130, 41, 21))
+        font = QtGui.QFont()
+        font.setFamily("Times New Roman")
+        font.setPointSize(9)
+        font.setBold(True)
+        font.setItalic(False)
+        self.cpbdtn.setFont(font)
+        self.cpbdtn.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
+        self.cpbdtn.setStyleSheet("color: rgb(255, 255, 255);\n"
+"background-color: rgb(255, 189, 0);\n"
+"font: 700 9pt \"Times New Roman\";\n"
+"alternate-background-color: rgb(217, 198, 176);")
+        self.cpbdtn.setCheckable(True)
+        self.cpbdtn.setAutoDefault(False)
+        self.cpbdtn.setDefault(False)
+        self.cpbdtn.setFlat(False)
+        self.cpbdtn.setObjectName("cpbdtn")
+        self.cscbtn = QtWidgets.QPushButton(parent=self.frame)
+        self.cscbtn.setGeometry(QtCore.QRect(50, 170, 41, 21))
+        font = QtGui.QFont()
+        font.setFamily("Times New Roman")
+        font.setPointSize(9)
+        font.setBold(True)
+        font.setItalic(False)
+        self.cscbtn.setFont(font)
+        self.cscbtn.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
+        self.cscbtn.setStyleSheet("color: rgb(255, 255, 255);\n"
+"background-color: rgb(255, 189, 0);\n"
+"font: 700 9pt \"Times New Roman\";\n"
+"alternate-background-color: rgb(217, 198, 176);")
+        self.cscbtn.setCheckable(True)
+        self.cscbtn.setAutoDefault(False)
+        self.cscbtn.setDefault(False)
+        self.cscbtn.setFlat(False)
+        self.cscbtn.setObjectName("cscbtn")
+        self.databtn = QtWidgets.QPushButton(parent=self.frame)
+        self.databtn.setGeometry(QtCore.QRect(50, 220, 41, 21))
+        font = QtGui.QFont()
+        font.setFamily("Times New Roman")
+        font.setPointSize(9)
+        font.setBold(True)
+        font.setItalic(False)
+        self.databtn.setFont(font)
+        self.databtn.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
+        self.databtn.setStyleSheet("color: rgb(255, 255, 255);\n"
+"background-color: rgb(255, 189, 0);\n"
+"font: 700 9pt \"Times New Roman\";\n"
+"alternate-background-color: rgb(217, 198, 176);")
+        self.databtn.setCheckable(True)
+        self.databtn.setAutoDefault(False)
+        self.databtn.setDefault(False)
+        self.databtn.setFlat(False)
+        self.databtn.setObjectName("databtn")
         self.readd.raise_()
         self.flashsmsng.raise_()
         self.pitline.raise_()
@@ -600,14 +703,19 @@ class Ui_main(object):
         self.cpcheckbox.raise_()
         self.userdtacheckbox.raise_()
         self.csccheckbox.raise_()
-        self.blcheckbox.raise_()
         self.checkBox_7.raise_()
         self.rebootdload.raise_()
         self.userdataline.raise_()
         self.cscline.raise_()
         self.fixdload.raise_()
+        self.blbtn.raise_()
+        self.blcheckbox.raise_()
+        self.apbtn.raise_()
+        self.cpbdtn.raise_()
+        self.cscbtn.raise_()
+        self.databtn.raise_()
         self.logfield = QtWidgets.QTextEdit(parent=self.samsungtab)
-        self.logfield.setGeometry(QtCore.QRect(440, 0, 451, 521))
+        self.logfield.setGeometry(QtCore.QRect(440, 0, 451, 481))
         self.logfield.setStyleSheet("color: rgb(0, 0, 0);\n"
 "background-color: rgb(255, 255, 255);")
         self.logfield.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
@@ -1357,12 +1465,18 @@ class Ui_main(object):
         self.pitcheckbox.setText(_translate("main", "Pit"))
         self.apcheckbox.setText(_translate("main", "AP"))
         self.cpcheckbox.setText(_translate("main", "CP"))
-        self.userdtacheckbox.setText(_translate("main", "USERDATA"))
+        self.userdtacheckbox.setText(_translate("main", "USER"))
         self.csccheckbox.setText(_translate("main", "CSC"))
+        self.blcheckbox.setStyleSheet(_translate("main", "font: 75 8pt \"MS Shell Dlg 2\";"))
         self.blcheckbox.setText(_translate("main", "BL"))
         self.checkBox_7.setText(_translate("main", "ALL"))
         self.rebootdload.setText(_translate("main", "Reboot D/load"))
         self.fixdload.setText(_translate("main", "Read Pit"))
+        self.blbtn.setText(_translate("main", "BL"))
+        self.apbtn.setText(_translate("main", "AP"))
+        self.cpbdtn.setText(_translate("main", "CP"))
+        self.cscbtn.setText(_translate("main", "CSC"))
+        self.databtn.setText(_translate("main", "DATA"))
         self.tablet.setTabText(self.tablet.indexOf(self.samsungtab), _translate("main", "Samsung "))
         self.label_4.setText(_translate("main", "fastboot port"))
         self.Readinfofb.setText(_translate("main", "Read Info"))
@@ -1377,13 +1491,3 @@ class Ui_main(object):
         self.fbfirmware.setPlaceholderText(_translate("main", "Firmware dir"))
         self.fbload.setText(_translate("main", "Load FW"))
         self.tablet.setTabText(self.tablet.indexOf(self.fatsboottab), _translate("main", "Fastboot Tool"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    main = QtWidgets.QDialog()
-    ui = Ui_main()
-    ui.setupUi(main)
-    main.show()
-    sys.exit(app.exec())
