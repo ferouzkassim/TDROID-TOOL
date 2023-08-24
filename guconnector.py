@@ -1,14 +1,12 @@
 import asyncio
-import os
+import os.path
 import threading
 import time
-
 import serial.tools.list_ports as prtlist
 from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtCore import QThread, QEventLoop, QObject
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QApplication, QDialog
-
 import detect
 import fastboot
 import samsungflasher
@@ -16,10 +14,6 @@ import usbcom
 from detect import BackUP, backuping
 from gui import Ui_main
 from samsungflasher import readpit
-
-
-# import pyudev
-# pyudev to monitor the behaviour of attathecd devices
 class Dmode(QThread):
     resultReady = pyqtSignal(list)
     updateProgress = pyqtSignal(int)
@@ -39,24 +33,32 @@ class LogEmitter(QObject):
     logReady = pyqtSignal(str)
 
 class SamsungFlasherThread(QThread):
-    def __init__(self, prt, nme,lf):
+    def __init__(self, prt, nme,lf,pbar):
         super().__init__()
         self.lf = lf
         self.part = prt
         self.nme = nme
+        self.pbar = pbar
     def run(self):
         emitter = LogEmitter()
-        emitter.logReady.connect(self.logToGUI)
-        asyncio.run(samsungflasher.run_flashpart(self.part, self.nme, self.lf))
-    def logToGUI(self, message):
-        # Update the GUI with the log message
-        print('bingo')
-        #self.lf.append(message)
+        #emitter.logReady.connect(self.logToGUI)
+        asyncio.run(samsungflasher.run_flashpart(self.part, self.nme, self.lf,self.pbar))
+class fastboot_flasher(QThread):
+    def __init__(self,part,file,widget):
+        super().__init__()
+        self.part=part
+        self.file = file
+        self.widget = widget
+
+    def run(self):
+        asyncio.run(fastboot.usb_monitor(fastboot.fbb.fbtflasher(self.part,self.file,self.widget)))
 
 
 
 class MainDialog(QDialog):
     def __init__(self):
+        self.fastboot_flasher = None
+        self.draftli = []
         super().__init__()
         self.ui = Ui_main()
         self.ui.setupUi(self)
@@ -95,6 +97,9 @@ class MainDialog(QDialog):
         elif self.ui.modelselector.currentText() in self.mtklist:
             self.ui.Fixbaseband.clicked.connect(lambda: self.fixbbmtk)
             self.ui.Read_security.clicked.connect(lambda: [self.readmtk(), print('mtkread')])
+        else :
+            self.ui.modelselector.currentText() in self.qlmlist
+            self.ui.write_security.clicked.connect(lambda:self.writeqlm())
 
         self.ui.modelselector.addItems(self.modelist)
         self.ui.comboBox.addItem(asyncio.run(self.detect_unplug()))
@@ -115,6 +120,7 @@ class MainDialog(QDialog):
 
     def updateProgressBar(self, value):
         self.ui.progressBar.setValue(value)
+
 
     def logupdater(self, value):
         self.ui.logfield.append(value)
@@ -293,6 +299,13 @@ class MainDialog(QDialog):
         self.ui.logfield.repaint()
 
         return response
+    def writeqlm(self):
+        print('writing the qualcom backup')
+        self.ui.logfield.append('Writing back qualcom security back up file ')
+        bckupfile = self.open_backup()
+        asyncio.run(detect.BackUP.qlmrestore(BackUP,bckupfile))
+        self.ui.logfield.append('Creating restoration folder')
+        self.ui.logfield.append('Extracting to Folder')
 
     # part for populating combo box
     async def detect_unplug(self):
@@ -376,7 +389,7 @@ class MainDialog(QDialog):
         for name,value in firmware.items():
             if value:
                 print(f'{name} is flashng {value}')
-        self.samsung_thread = SamsungFlasherThread(name,value, self.ui.logfield)
+        self.samsung_thread = SamsungFlasherThread("-b",bl, self.ui.logfield,self.ui.progressBar)
         self.samsung_thread.start()
     def update_text_area(self, line):
         self.ui.logfield.append(line)
@@ -395,7 +408,7 @@ class MainDialog(QDialog):
 
         # t1 = asyncio.create_task(fastboot.fbb.fastbootinfo(self.ui.logfield_3))
         t2 = asyncio.create_task(fastboot.usb_monitor(fastboot.fbb.fastbootinfo
-                                                      (self.ui.logfield_3), self.ui.logfield_3, self.ui.progressBar))
+                                                      (self.ui.logfield_3),))
         await t2
 
     def fastbooinfo(self):
@@ -410,10 +423,9 @@ class MainDialog(QDialog):
                                                                   fastboot.fbb.bootloadr_unlocker(self.ui.logfield_3)))
 
     def fbloader(self):
-        firmware = QtWidgets.QFileDialog.getOpenFileName(caption='Load Firmware File ',
-                                                         initialFilter='.yml',
+        firmware = QtWidgets.QFileDialog.getOpenFileName(caption='Load Firmware File '
                                                          )
-        self.ui.fbfirmware.append(str(firmware))
+        self.ui.fbfirmware.setText(firmware[0])
         self.ui.fbfirmware.repaint()
         fb_var = fastboot.fbb.ext_parser(firmware)
         self.ui.fblistwidget.setStyleSheet('color:white;background-color:black;'
@@ -422,22 +434,20 @@ class MainDialog(QDialog):
         for i in fb_var:
             if i.startswith('tf'):
                 self.ui.fblistwidget.append(
-                    i.replace('tf', '\n') or
+                    i.replace('tf', '') or
                     i.replace('tf', ''))
+            elif i.startswith('fastboot'):
+                self.ui.fblistwidget.append(i.replace('fastboot',''))
 
             self.ui.fblistwidget.repaint()
 
         return firmware
 
-    async def batflasher(self):
-
-        fbtask = asyncio.create_task(fastboot.usb_monitor
-                                     ((fastboot.fbb.fbtflasher('.bat', self.ui.logfield_3)
-                                       ), self.ui.logfield_3, self.ui.progressBar))
-        await fbtask
 
     def fbFlashing(self):
-        print('am here btw')
+        pth = ''
+        cmd=[]
+        file=[]
         self.ui.logfield_3.setStyleSheet('color: green;'
                                          ' background-color: black;'
                                          'font-size: 8pt;'
@@ -445,7 +455,30 @@ class MainDialog(QDialog):
                                          )
         self.ui.logfield_3.append('waiting for fastboot')
         self.ui.progressBar.setValue(0)
-        asyncio.run(self.batflasher())
+        #problem is here
+        li = self.ui.fblistwidget.toPlainText()
+        fbpath = self.ui.fbfirmware
+        filepath = fbpath.toPlainText().split()
+        if filepath:
+            path = os.path.dirname(filepath[0])
+            print(path)
+            pth+=path
+        else:
+            self.ui.logfield_3.setStyleSheet('Firmware Link invalid ')
+        split_li=li.split('\n')
+        print(split_li)
+        for i in split_li:
+            if i.startswith(' flash') or i.startswith(' -w'):
+                print(i)
+            else:
+                print('no flashing found')
+
+
+        self.fastboot_flasher = fastboot_flasher("bootloader","C:\\Users\\DROID\\Desktop\\sargo-sp2a.220505.008\\bootloader-sargo-b4s4-0.4-8048689.img",self.ui.logfield_3)
+        self.fastboot_flasher.start()
+
+#06/02/2023 stopped lookign for fastboot ttesm to flash
+#09082023 stuck wth using diferent threads to execute the job
 
 
 if __name__ == "__main__":

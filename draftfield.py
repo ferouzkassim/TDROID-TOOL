@@ -9,7 +9,6 @@ class SamsungFlasherThread(QThread):
         emitter = LogEmitter()
         emitter.logReady.emit(log_message)
 
-
 class MainDialog(QDialog):
     def __init__(self):
     def __init__(self):

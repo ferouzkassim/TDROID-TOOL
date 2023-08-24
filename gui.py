@@ -14,7 +14,12 @@ class Ui_main(object):
         main.setObjectName("main")
         main.setEnabled(True)
         main.resize(882, 561)
-        main.setMaximumSize(QtCore.QSize(1677, 1677))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(main.sizePolicy().hasHeightForWidth())
+        main.setSizePolicy(sizePolicy)
+        main.setMaximumSize(QtCore.QSize(882, 561))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(219, 219, 219))
         brush.setStyle(QtCore.Qt.BrushStyle.SolidPattern)
@@ -715,7 +720,7 @@ class Ui_main(object):
         self.cscbtn.raise_()
         self.databtn.raise_()
         self.logfield = QtWidgets.QTextEdit(parent=self.samsungtab)
-        self.logfield.setGeometry(QtCore.QRect(440, 0, 451, 481))
+        self.logfield.setGeometry(QtCore.QRect(440, 0, 451, 491))
         self.logfield.setStyleSheet("color: rgb(0, 0, 0);\n"
 "background-color: rgb(255, 255, 255);")
         self.logfield.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
@@ -737,7 +742,7 @@ class Ui_main(object):
         self.fblogfield.setLineWidth(7)
         self.fblogfield.setObjectName("fblogfield")
         self.logfield_3 = QtWidgets.QTextEdit(parent=self.fatsboottab)
-        self.logfield_3.setGeometry(QtCore.QRect(440, 0, 451, 511))
+        self.logfield_3.setGeometry(QtCore.QRect(440, 0, 451, 491))
         self.logfield_3.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.NoContextMenu)
         self.logfield_3.setAutoFillBackground(False)
         self.logfield_3.setStyleSheet("color: rgb(0, 0, 0);\n"
@@ -762,7 +767,7 @@ class Ui_main(object):
         self.fbport.setMaxVisibleItems(10)
         self.fbport.setObjectName("fbport")
         self.Readinfofb = QtWidgets.QPushButton(parent=self.widget_2)
-        self.Readinfofb.setGeometry(QtCore.QRect(0, 70, 61, 16))
+        self.Readinfofb.setGeometry(QtCore.QRect(0, 70, 81, 21))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(85, 170, 0))
         brush.setStyle(QtCore.Qt.BrushStyle.SolidPattern)
@@ -835,7 +840,7 @@ class Ui_main(object):
         self.Readinfofb.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.Readinfofb.setAutoFillBackground(False)
         self.Readinfofb.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.Readinfofb.setCheckable(False)
@@ -845,7 +850,7 @@ class Ui_main(object):
         self.Readinfofb.setFlat(False)
         self.Readinfofb.setObjectName("Readinfofb")
         self.formatdata = QtWidgets.QPushButton(parent=self.widget_2)
-        self.formatdata.setGeometry(QtCore.QRect(0, 110, 61, 16))
+        self.formatdata.setGeometry(QtCore.QRect(0, 110, 81, 21))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(85, 170, 0))
         brush.setStyle(QtCore.Qt.BrushStyle.SolidPattern)
@@ -918,7 +923,7 @@ class Ui_main(object):
         self.formatdata.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.formatdata.setAutoFillBackground(False)
         self.formatdata.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.formatdata.setCheckable(False)
@@ -928,7 +933,7 @@ class Ui_main(object):
         self.formatdata.setFlat(False)
         self.formatdata.setObjectName("formatdata")
         self.resetfrp = QtWidgets.QPushButton(parent=self.widget_2)
-        self.resetfrp.setGeometry(QtCore.QRect(0, 150, 61, 16))
+        self.resetfrp.setGeometry(QtCore.QRect(0, 150, 81, 21))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(85, 170, 0))
         brush.setStyle(QtCore.Qt.BrushStyle.SolidPattern)
@@ -1001,7 +1006,7 @@ class Ui_main(object):
         self.resetfrp.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.resetfrp.setAutoFillBackground(False)
         self.resetfrp.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.resetfrp.setCheckable(False)
@@ -1011,7 +1016,7 @@ class Ui_main(object):
         self.resetfrp.setFlat(False)
         self.resetfrp.setObjectName("resetfrp")
         self.flashroot = QtWidgets.QPushButton(parent=self.widget_2)
-        self.flashroot.setGeometry(QtCore.QRect(0, 190, 61, 16))
+        self.flashroot.setGeometry(QtCore.QRect(0, 190, 81, 21))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(85, 170, 0))
         brush.setStyle(QtCore.Qt.BrushStyle.SolidPattern)
@@ -1084,7 +1089,7 @@ class Ui_main(object):
         self.flashroot.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.flashroot.setAutoFillBackground(False)
         self.flashroot.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.flashroot.setCheckable(False)
@@ -1094,7 +1099,7 @@ class Ui_main(object):
         self.flashroot.setFlat(False)
         self.flashroot.setObjectName("flashroot")
         self.Read_info_adb_6 = QtWidgets.QPushButton(parent=self.widget_2)
-        self.Read_info_adb_6.setGeometry(QtCore.QRect(380, 180, 61, 16))
+        self.Read_info_adb_6.setGeometry(QtCore.QRect(360, 180, 81, 21))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(85, 170, 0))
         brush.setStyle(QtCore.Qt.BrushStyle.SolidPattern)
@@ -1167,7 +1172,7 @@ class Ui_main(object):
         self.Read_info_adb_6.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.Read_info_adb_6.setAutoFillBackground(False)
         self.Read_info_adb_6.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.Read_info_adb_6.setCheckable(False)
@@ -1177,7 +1182,7 @@ class Ui_main(object):
         self.Read_info_adb_6.setFlat(False)
         self.Read_info_adb_6.setObjectName("Read_info_adb_6")
         self.Read_info_adb_7 = QtWidgets.QPushButton(parent=self.widget_2)
-        self.Read_info_adb_7.setGeometry(QtCore.QRect(380, 120, 61, 16))
+        self.Read_info_adb_7.setGeometry(QtCore.QRect(360, 120, 81, 21))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(85, 170, 0))
         brush.setStyle(QtCore.Qt.BrushStyle.SolidPattern)
@@ -1250,7 +1255,7 @@ class Ui_main(object):
         self.Read_info_adb_7.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.Read_info_adb_7.setAutoFillBackground(False)
         self.Read_info_adb_7.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.Read_info_adb_7.setCheckable(False)
@@ -1260,7 +1265,7 @@ class Ui_main(object):
         self.Read_info_adb_7.setFlat(False)
         self.Read_info_adb_7.setObjectName("Read_info_adb_7")
         self.Reboot = QtWidgets.QPushButton(parent=self.widget_2)
-        self.Reboot.setGeometry(QtCore.QRect(380, 70, 61, 16))
+        self.Reboot.setGeometry(QtCore.QRect(360, 70, 81, 21))
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(85, 170, 0))
         brush.setStyle(QtCore.Qt.BrushStyle.SolidPattern)
@@ -1333,7 +1338,7 @@ class Ui_main(object):
         self.Reboot.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.Reboot.setAutoFillBackground(False)
         self.Reboot.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.Reboot.setCheckable(False)
@@ -1345,34 +1350,6 @@ class Ui_main(object):
         self.widget_3 = QtWidgets.QWidget(parent=self.widget_2)
         self.widget_3.setGeometry(QtCore.QRect(0, 210, 120, 80))
         self.widget_3.setObjectName("widget_3")
-        self.fbflash = QtWidgets.QPushButton(parent=self.fatsboottab)
-        self.fbflash.setGeometry(QtCore.QRect(370, 430, 71, 21))
-        self.fbflash.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
-"\n"
-"color: rgb(85, 170, 0);")
-        self.fbflash.setCheckable(False)
-        self.fbflash.setAutoDefault(True)
-        self.fbflash.setDefault(True)
-        self.fbflash.setFlat(False)
-        self.fbflash.setObjectName("fbflash")
-        self.fbBootUnlocker = QtWidgets.QPushButton(parent=self.fatsboottab)
-        self.fbBootUnlocker.setGeometry(QtCore.QRect(370, 340, 71, 21))
-        font = QtGui.QFont()
-        font.setFamily("MS Shell Dlg 2")
-        font.setPointSize(6)
-        font.setBold(False)
-        font.setItalic(False)
-        self.fbBootUnlocker.setFont(font)
-        self.fbBootUnlocker.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
-"\n"
-"color: rgb(85, 170, 0);")
-        self.fbBootUnlocker.setCheckable(False)
-        self.fbBootUnlocker.setAutoDefault(False)
-        self.fbBootUnlocker.setDefault(True)
-        self.fbBootUnlocker.setFlat(False)
-        self.fbBootUnlocker.setObjectName("fbBootUnlocker")
         self.widget_4 = QtWidgets.QWidget(parent=self.fatsboottab)
         self.widget_4.setGeometry(QtCore.QRect(0, 220, 441, 291))
         self.widget_4.setStyleSheet("font: 75 6pt \"MS Shell Dlg 2\";\n"
@@ -1393,15 +1370,15 @@ class Ui_main(object):
         self.fbfirmware.setProperty("tabStopWidth", 82)
         self.fbfirmware.setObjectName("fbfirmware")
         self.fbload = QtWidgets.QPushButton(parent=self.widget_4)
-        self.fbload.setGeometry(QtCore.QRect(370, 0, 71, 21))
+        self.fbload.setGeometry(QtCore.QRect(370, 0, 81, 21))
         font = QtGui.QFont()
         font.setFamily("MS Shell Dlg 2")
-        font.setPointSize(6)
+        font.setPointSize(8)
         font.setBold(False)
         font.setItalic(False)
         self.fbload.setFont(font)
         self.fbload.setStyleSheet("background-color: rgb(255, 255, 255);\n"
-"font: 75 6pt \"MS Shell Dlg 2\";\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
 "\n"
 "color: rgb(85, 170, 0);")
         self.fbload.setCheckable(False)
@@ -1419,13 +1396,42 @@ class Ui_main(object):
         self.fblistwidget.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.fblistwidget.setLineWidth(7)
         self.fblistwidget.setObjectName("fblistwidget")
+        self.fbBootUnlocker = QtWidgets.QPushButton(parent=self.widget_4)
+        self.fbBootUnlocker.setGeometry(QtCore.QRect(360, 120, 81, 21))
+        font = QtGui.QFont()
+        font.setFamily("MS Shell Dlg 2")
+        font.setPointSize(8)
+        font.setBold(False)
+        font.setItalic(False)
+        self.fbBootUnlocker.setFont(font)
+        self.fbBootUnlocker.setStyleSheet("background-color: rgb(255, 255, 255);\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
+"\n"
+"color: rgb(85, 170, 0);")
+        self.fbBootUnlocker.setCheckable(False)
+        self.fbBootUnlocker.setAutoDefault(False)
+        self.fbBootUnlocker.setDefault(True)
+        self.fbBootUnlocker.setFlat(False)
+        self.fbBootUnlocker.setObjectName("fbBootUnlocker")
+        self.fbflash = QtWidgets.QPushButton(parent=self.widget_4)
+        self.fbflash.setGeometry(QtCore.QRect(360, 210, 81, 21))
+        self.fbflash.setStyleSheet("background-color: rgb(255, 255, 255);\n"
+"font: 75 8pt \"MS Shell Dlg 2\";\n"
+"\n"
+"color: rgb(85, 170, 0);")
+        self.fbflash.setCheckable(False)
+        self.fbflash.setAutoDefault(True)
+        self.fbflash.setDefault(True)
+        self.fbflash.setFlat(False)
+        self.fbflash.setObjectName("fbflash")
         self.widget_4.raise_()
         self.fblogfield.raise_()
         self.logfield_3.raise_()
         self.widget_2.raise_()
-        self.fbflash.raise_()
-        self.fbBootUnlocker.raise_()
         self.tablet.addTab(self.fatsboottab, "")
+        self.Adb = QtWidgets.QWidget()
+        self.Adb.setObjectName("Adb")
+        self.tablet.addTab(self.Adb, "")
         self.verticalLayout.addWidget(self.tablet)
         self.progressBar = QtWidgets.QProgressBar(parent=main)
         self.progressBar.setEnabled(True)
@@ -1486,8 +1492,19 @@ class Ui_main(object):
         self.Read_info_adb_6.setText(_translate("main", "Read Adb"))
         self.Read_info_adb_7.setText(_translate("main", "Reboot Recovery"))
         self.Reboot.setText(_translate("main", "Reboot Normal"))
-        self.fbflash.setText(_translate("main", "Flash"))
-        self.fbBootUnlocker.setText(_translate("main", "Bootloader unlock "))
         self.fbfirmware.setPlaceholderText(_translate("main", "Firmware dir"))
         self.fbload.setText(_translate("main", "Load FW"))
+        self.fbBootUnlocker.setText(_translate("main", "Bootloader unlock "))
+        self.fbflash.setText(_translate("main", "Flash"))
         self.tablet.setTabText(self.tablet.indexOf(self.fatsboottab), _translate("main", "Fastboot Tool"))
+        self.tablet.setTabText(self.tablet.indexOf(self.Adb), _translate("main", "Adb_tools"))
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    main = QtWidgets.QDialog()
+    ui = Ui_main()
+    ui.setupUi(main)
+    main.show()
+    sys.exit(app.exec())

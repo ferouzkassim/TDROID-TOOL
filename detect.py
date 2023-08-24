@@ -5,6 +5,8 @@ import shutil
 import tarfile
 import tempfile
 import time
+
+import py7zr
 import serial
 import serial.tools.list_ports as prtlist
 import subprocess
@@ -23,7 +25,13 @@ from adbcon import startDaemon, host, port, client
 class detect:
     def __init__(self,dev):
         self.dev =dev
-
+    async def wait_for_device(devc):
+        while True:
+            output = devc.shell("getprop sys.boot_completed")
+            #ofcourse for every device that boots it neds to have a boot completed == 1
+            if output.strip() == "1":
+                return
+            await asyncio.sleep(1)
     async def adbConnect(self,logfield):
         startDaemon()
         prop = []
@@ -89,6 +97,7 @@ class detect:
         logfield.append('Reading info ')
         logfield.append('starting dameon')
         for dev in devices:
+            await self.wait_for_device(dev)
             logfield.append(f'device found on {port}  at {host}')
             # This will allow the GUI to update while the function is running
             if dev.serial is None:
@@ -424,15 +433,72 @@ class BackUP(detect):
                 response += f'\nfolder contains {fr}\n'
                 # fr.split(os.getcwd())
                 files_to_send.append(fr)
-    def qlmrestore(self,pcfile):
+####qualcom restoring helpers
+
+    def loger(self, ):
+         # Strip leading and trailing whitespace
+        print('am logging here')
+    async def qlmrestore(self,pcfile):
+        #this function is intedning to restore backups made by tools like easyjatg
+        #its meant to unzip resote and delete the data used
         username = getpass.getuser()
         paramdir=os.getcwd()
-        for dev in client.devices():
+        to_look_for =['nvrebuild1.bin','nvrebuild2.bin','nvrebuild3.bin',
+                      'sec_efs.img','efs.img']
+        async for dev in client.devices():
             os.makedirs(f'{dev.serial}', exist_ok=True)
             os.chdir(f'{dev.serial}')
-            with tarfile.open(pcfile, 'r') as tar:
-                bj = tar.getmembers()
-                tar.extractall('modem', bj)
+            dir = os.path.dirname(f'{dev.serial}')
+            try:
+                if pcfile.endswith('.7z'):
+                    with py7zr.SevenZipFile(pcfile,mode='r')as z:
+                        z.extractall(dir)
+                    files = os.listdir()
+                    for i in files:
+                        if i.endswith('.bin') or i.endswith('.img'):
+                            if i in to_look_for:
+                                print(i)
+                                dev.push(i,dest=f'/storage/emulated/0/{i}',progress=None)
+
+                                if i =='sec_efs.img':
+                                    dev.shell(f'su -c dd if=/storage/emulated/0/{i} of=/dev/block/by-name/{i[:-4]}'
+                                              , handler=self.loger(self))
+                                    print('nv')
+                                elif i=='nvrebuild1.bin':
+                                    dev.shell(f'su -c dd if=/storage/emulated/0/{i} of=/dev/block/by-name/modemst1'
+                                              , handler=self.loger(self))
+                                    print('nv1 gone')
+                                elif i == 'nvrebuild2.bin':
+                                    dev.shell(f'su -c dd if=/storage/emulated/0/{i} of=/dev/block/by-name/modemst2'
+                                              , handler=self.loger(self))
+                                    print('nv2 gone')
+                                elif i == 'nvrebuild3.bin':
+                                    dev.shell(f'su -c dd if=/storage/emulated/0/{i} of=/dev/block/by-name/fsg'
+                                              , handler=self.loger(self))
+                                else:
+                                    dev.shell(f'su -c dd if=/storage/emulated/0/{i} of=/dev/blockby-name/{i[:-4]}')
+                else:
+                    with tarfile.open(pcfile, 'r') as tar:
+                        bj = tar.getmembers()
+                        tar.extractall('modem', bj)
+                await asyncio.sleep(0.05)
+                dev.reboot()
+            finally:
+                os.chdir(paramdir)
+                try:
+                    shutil.rmtree(f'{dev.serial}')
+                except OSError as e:
+                    print(f"Error deleting directory: {e}")
+                await self.wait_for_device(dev)
+                #waits for the device to boot while using a differnt fucntion to check
+
+                print('waiting for adb connection')
+                await dev
+                dev.shell(f'su -c mke2fs /dev/block/by-name/modemst1')
+                dev.shell(f'su -c mke2fs /dev/block/by-name/modemst2')
+                dev.reboot()
+
+
 
     def pusher(self,filed_to_send,workingdir):
         response = ''
