@@ -43,6 +43,16 @@ class SamsungFlasherThread(QThread):
         emitter = LogEmitter()
         #emitter.logReady.connect(self.logToGUI)
         asyncio.run(samsungflasher.run_flashpart(self.part, self.nme, self.lf,self.pbar))
+class write_backup(QThread):
+    def __init__(self,file_to_write,logfield):
+        super().__init__()
+        self.file_to_write = file_to_write
+        self.logfield = logfield
+
+    def run(self) :
+        print('connnected here')
+        asyncio.run(detect.BackUP.qlmrestore(BackUP,self.file_to_write,self.logfield))
+
 class fastboot_flasher(QThread):
     def __init__(self,part,file,widget):
         super().__init__()
@@ -58,6 +68,7 @@ class fastboot_flasher(QThread):
 class MainDialog(QDialog):
     def __init__(self):
         self.fastboot_flasher = None
+        self.write_backup =None
         self.draftli = []
         super().__init__()
         self.ui = Ui_main()
@@ -99,7 +110,7 @@ class MainDialog(QDialog):
             self.ui.Read_security.clicked.connect(lambda: [self.readmtk(), print('mtkread')])
         else :
             self.ui.modelselector.currentText() in self.qlmlist
-            self.ui.write_security.clicked.connect(lambda:self.writeqlm())
+            self.ui.write_security.clicked.connect(self.writeqlm)
 
         self.ui.modelselector.addItems(self.modelist)
         self.ui.comboBox.addItem(asyncio.run(self.detect_unplug()))
@@ -303,9 +314,9 @@ class MainDialog(QDialog):
         print('writing the qualcom backup')
         self.ui.logfield.append('Writing back qualcom security back up file ')
         bckupfile = self.open_backup()
-        asyncio.run(detect.BackUP.qlmrestore(BackUP,bckupfile))
-        self.ui.logfield.append('Creating restoration folder')
-        self.ui.logfield.append('Extracting to Folder')
+        " asyncio.run(detect.BackUP.qlmrestore(BackUP,bckupfile))"
+        self.write_backup = write_backup(bckupfile,self.ui.logfield)
+        self.write_backup.start()
 
     # part for populating combo box
     async def detect_unplug(self):

@@ -24,14 +24,19 @@ from adbcon import startDaemon, host, port, client
 #apend it to a blank list the return the listy with the index and app appnended to it
 class detect:
     def __init__(self,dev):
-        self.dev =dev
-    async def wait_for_device(devc):
+        self.dev = dev
+
+    async def wait_for_device(self,devc):
         while True:
-            output = devc.shell("getprop sys.boot_completed")
-            #ofcourse for every device that boots it neds to have a boot completed == 1
-            if output.strip() == "1":
-                return
-            await asyncio.sleep(1)
+            devices = client.devices()
+            if devices:
+                print( devices[0].serial)
+                return devices[0]# Return the first connected device
+                if devices[0]:
+                    break
+            await asyncio.sleep(0.5)
+
+
     async def adbConnect(self,logfield):
         startDaemon()
         prop = []
@@ -97,12 +102,13 @@ class detect:
         logfield.append('Reading info ')
         logfield.append('starting dameon')
         for dev in devices:
-            await self.wait_for_device(dev)
+
             logfield.append(f'device found on {port}  at {host}')
             # This will allow the GUI to update while the function is running
             if dev.serial is None:
                 # This will allow the GUI to update while the function is running
                 logfield.append('No Device Found')
+                await self.wait_for_device(dev)
             else:
                 propstr = dev.shell('getprop')
                 prop.append(propstr.split('\n'))
@@ -435,22 +441,27 @@ class BackUP(detect):
                 files_to_send.append(fr)
 ####qualcom restoring helpers
 
-    def loger(self, ):
+    def loger(self,log_field,log):
          # Strip leading and trailing whitespace
         print('am logging here')
-    async def qlmrestore(self,pcfile):
+        log_field.append(f'{log}\n')
+
+    async def qlmrestore(self,pcfile,log_field):
         #this function is intedning to restore backups made by tools like easyjatg
         #its meant to unzip resote and delete the data used
         username = getpass.getuser()
         paramdir=os.getcwd()
         to_look_for =['nvrebuild1.bin','nvrebuild2.bin','nvrebuild3.bin',
                       'sec_efs.img','efs.img']
-        async for dev in client.devices():
+        devices =  client.devices()
+        for dev in devices:
             os.makedirs(f'{dev.serial}', exist_ok=True)
             os.chdir(f'{dev.serial}')
+            self.loger(self,log_field,log=f'found device with sn : {dev.serial}')
             dir = os.path.dirname(f'{dev.serial}')
             try:
                 if pcfile.endswith('.7z'):
+                    self.loger(self,log_field,'using .7Z exploit')
                     with py7zr.SevenZipFile(pcfile,mode='r')as z:
                         z.extractall(dir)
                     files = os.listdir()
@@ -459,44 +470,50 @@ class BackUP(detect):
                             if i in to_look_for:
                                 print(i)
                                 dev.push(i,dest=f'/storage/emulated/0/{i}',progress=None)
-
+                                self.loger(self,log_field,'pushing extracted file to device ')
                                 if i =='sec_efs.img':
                                     dev.shell(f'su -c dd if=/storage/emulated/0/{i} of=/dev/block/by-name/{i[:-4]}'
-                                              , handler=self.loger(self))
-                                    print('nv')
+                                              , )
+                                    self.loger(self,log_field,'Adding Sn Security')
                                 elif i=='nvrebuild1.bin':
                                     dev.shell(f'su -c dd if=/storage/emulated/0/{i} of=/dev/block/by-name/modemst1'
-                                              , handler=self.loger(self))
-                                    print('nv1 gone')
+                                              ,)
+                                    self.loger(self,log_field,'Adding security block1')
                                 elif i == 'nvrebuild2.bin':
                                     dev.shell(f'su -c dd if=/storage/emulated/0/{i} of=/dev/block/by-name/modemst2'
-                                              , handler=self.loger(self))
-                                    print('nv2 gone')
+                                              , )
+                                    self.loger(self,log_field,'Adding Secuirty block2')
+
                                 elif i == 'nvrebuild3.bin':
                                     dev.shell(f'su -c dd if=/storage/emulated/0/{i} of=/dev/block/by-name/fsg'
-                                              , handler=self.loger(self))
+                                              , )
+                                    self.loger(self,log_field,'Adding Final Block ')
                                 else:
                                     dev.shell(f'su -c dd if=/storage/emulated/0/{i} of=/dev/blockby-name/{i[:-4]}')
+                                self.loger(self,log_field,f'mounting security type as block into device systems')
                 else:
                     with tarfile.open(pcfile, 'r') as tar:
                         bj = tar.getmembers()
                         tar.extractall('modem', bj)
-                await asyncio.sleep(0.05)
+
                 dev.reboot()
+                self.loger(self,log_field,'Rebooting device')
             finally:
                 os.chdir(paramdir)
                 try:
                     shutil.rmtree(f'{dev.serial}')
+                    self.loger(self,log_field,'Cleaning up used space ')
                 except OSError as e:
                     print(f"Error deleting directory: {e}")
-                await self.wait_for_device(dev)
-                #waits for the device to boot while using a differnt fucntion to check
+            await self.wait_for_device(self,devc=dev)
+            #waits for the device to boot while using a differnt fucntion to check
 
-                print('waiting for adb connection')
-                await dev
-                dev.shell(f'su -c mke2fs /dev/block/by-name/modemst1')
-                dev.shell(f'su -c mke2fs /dev/block/by-name/modemst2')
-                dev.reboot()
+            print('waiting for adb connection')
+            self.loger(self,log_field,'waiting to verify restored items in respective blocks ')
+            dev.shell(f'su -c mke2fs /dev/block/by-name/modemst1')
+            dev.shell(f'su -c mke2fs /dev/block/by-name/modemst2')
+            dev.reboot()
+            self.loger(self,log_field,f'blocks verified \nrebooting device {dev.serial}')
 
 
 

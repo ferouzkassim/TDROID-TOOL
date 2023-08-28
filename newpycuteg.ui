@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>882</width>
-    <height>561</height>
+    <height>548</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -177,7 +177,7 @@ background-color: rgb(255, 255, 255);
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <property name="iconSize">
       <size>
@@ -198,7 +198,7 @@ background-color: rgb(255, 255, 255);
          <x>-10</x>
          <y>0</y>
          <width>451</width>
-         <height>151</height>
+         <height>491</height>
         </rect>
        </property>
        <property name="styleSheet">
@@ -311,7 +311,7 @@ selection-background-color: rgb(85, 170, 0);</string>
          <rect>
           <x>10</x>
           <y>30</y>
-          <width>491</width>
+          <width>441</width>
           <height>141</height>
          </rect>
         </property>
@@ -1217,7 +1217,7 @@ color: rgb(85, 170, 0);</string>
         <widget class="QLabel" name="label">
          <property name="geometry">
           <rect>
-           <x>0</x>
+           <x>10</x>
            <y>0</y>
            <width>231</width>
            <height>31</height>
@@ -1348,604 +1348,633 @@ color: rgb(85, 170, 0);</string>
         <zorder>snEdit</zorder>
         <zorder>modelselector</zorder>
        </widget>
-      </widget>
-      <widget class="QGroupBox" name="groupBox_2">
-       <property name="geometry">
-        <rect>
-         <x>-10</x>
-         <y>160</y>
-         <width>461</width>
-         <height>1001</height>
-        </rect>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">font: 75 6pt &quot;MS Shell Dlg 2&quot;;</string>
-       </property>
-       <property name="title">
-        <string>Flash</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignHCenter|Qt::AlignTop</set>
-       </property>
-       <widget class="QFrame" name="frame">
+       <widget class="QGroupBox" name="groupBox_2">
         <property name="geometry">
          <rect>
-          <x>10</x>
-          <y>20</y>
-          <width>441</width>
-          <height>311</height>
+          <x>0</x>
+          <y>170</y>
+          <width>451</width>
+          <height>331</height>
          </rect>
         </property>
         <property name="styleSheet">
-         <string notr="true">font: 75 6pt &quot;MS Shell Dlg 2&quot;;
+         <string notr="true">font: 75 6pt &quot;MS Shell Dlg 2&quot;;</string>
+        </property>
+        <property name="title">
+         <string>Flash</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignHCenter|Qt::AlignTop</set>
+        </property>
+        <widget class="QFrame" name="frame">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>10</y>
+           <width>441</width>
+           <height>341</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">font: 75 6pt &quot;MS Shell Dlg 2&quot;;
 border-color: rgb(41, 91, 255);
 gridline-color: rgb(0, 0, 127);
 color: rgb(0, 0, 0);
 background-color: rgb(218, 218, 218);</string>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <widget class="QPushButton" name="readd">
-         <property name="geometry">
-          <rect>
-           <x>360</x>
-           <y>30</y>
-           <width>81</width>
-           <height>21</height>
-          </rect>
          </property>
-         <property name="autoFillBackground">
-          <bool>false</bool>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
          </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <widget class="QPushButton" name="readd">
+          <property name="geometry">
+           <rect>
+            <x>360</x>
+            <y>30</y>
+            <width>81</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(255, 255, 255);
 font: 75 8pt &quot;MS Shell Dlg 2&quot;;
 
 color: rgb(85, 170, 0);</string>
-         </property>
-         <property name="text">
-          <string>Read info</string>
-         </property>
-         <property name="default">
-          <bool>true</bool>
-         </property>
-         <property name="flat">
-          <bool>false</bool>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="flashsmsng">
-         <property name="geometry">
-          <rect>
-           <x>360</x>
-           <y>160</y>
-           <width>81</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>4</horstretch>
-           <verstretch>4</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="baseSize">
-          <size>
-           <width>1</width>
-           <height>1</height>
-          </size>
-         </property>
-         <property name="focusPolicy">
-          <enum>Qt::NoFocus</enum>
-         </property>
-         <property name="contextMenuPolicy">
-          <enum>Qt::NoContextMenu</enum>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);
+          </property>
+          <property name="text">
+           <string>Read info</string>
+          </property>
+          <property name="default">
+           <bool>true</bool>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="flashsmsng">
+          <property name="geometry">
+           <rect>
+            <x>360</x>
+            <y>160</y>
+            <width>81</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>4</horstretch>
+            <verstretch>4</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="baseSize">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
+          <property name="contextMenuPolicy">
+           <enum>Qt::NoContextMenu</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(255, 255, 255);
 font: 75 8pt &quot;MS Shell Dlg 2&quot;;
 
 color: rgb(85, 170, 0);</string>
-         </property>
-         <property name="inputMethodHints">
-          <set>Qt::ImhNone</set>
-         </property>
-         <property name="text">
-          <string>Flash</string>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
-         <property name="default">
-          <bool>false</bool>
-         </property>
-         <property name="flat">
-          <bool>false</bool>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="pitline">
-         <property name="geometry">
-          <rect>
-           <x>120</x>
-           <y>10</y>
-           <width>191</width>
-           <height>20</height>
-          </rect>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="apline">
-         <property name="geometry">
-          <rect>
-           <x>120</x>
-           <y>90</y>
-           <width>191</width>
-           <height>20</height>
-          </rect>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="blline">
-         <property name="geometry">
-          <rect>
-           <x>120</x>
-           <y>50</y>
-           <width>191</width>
-           <height>20</height>
-          </rect>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="cpline">
-         <property name="geometry">
-          <rect>
-           <x>120</x>
-           <y>130</y>
-           <width>191</width>
-           <height>20</height>
-          </rect>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="cscline">
-         <property name="geometry">
-          <rect>
-           <x>119</x>
-           <y>170</y>
-           <width>191</width>
-           <height>20</height>
-          </rect>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="userdataline">
-         <property name="geometry">
-          <rect>
-           <x>120</x>
-           <y>220</y>
-           <width>191</width>
-           <height>20</height>
-          </rect>
-         </property>
-        </widget>
-        <widget class="QCheckBox" name="pitcheckbox">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>10</y>
-           <width>71</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <family>MS Shell Dlg 2</family>
-           <pointsize>8</pointsize>
-           <italic>false</italic>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="autoFillBackground">
-          <bool>false</bool>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
-         </property>
-         <property name="text">
-          <string>Pit</string>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>30</width>
-           <height>20</height>
-          </size>
-         </property>
-        </widget>
-        <widget class="QCheckBox" name="apcheckbox">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>90</y>
-           <width>91</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
-         </property>
-         <property name="text">
-          <string>AP</string>
-         </property>
-        </widget>
-        <widget class="QCheckBox" name="cpcheckbox">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>130</y>
-           <width>71</width>
-           <height>29</height>
-          </rect>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
-         </property>
-         <property name="text">
-          <string>CP</string>
-         </property>
-        </widget>
-        <widget class="QCheckBox" name="userdtacheckbox">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>221</y>
-           <width>181</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
-         </property>
-         <property name="text">
-          <string>USER</string>
-         </property>
-        </widget>
-        <widget class="QCheckBox" name="csccheckbox">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>170</y>
-           <width>132</width>
-           <height>29</height>
-          </rect>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
-         </property>
-         <property name="text">
-          <string>CSC</string>
-         </property>
-        </widget>
-        <widget class="QCheckBox" name="blcheckbox">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>50</y>
-           <width>31</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="styleSheet">
-          <string>font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
-         </property>
-         <property name="text">
-          <string>BL</string>
-         </property>
-        </widget>
-        <widget class="QCheckBox" name="checkBox_7">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>250</y>
-           <width>132</width>
-           <height>29</height>
-          </rect>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
-         </property>
-         <property name="text">
-          <string>ALL</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="rebootdload">
-         <property name="geometry">
-          <rect>
-           <x>360</x>
-           <y>80</y>
-           <width>81</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="autoFillBackground">
-          <bool>false</bool>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);
+          </property>
+          <property name="inputMethodHints">
+           <set>Qt::ImhNone</set>
+          </property>
+          <property name="text">
+           <string>Flash</string>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
+          <property name="default">
+           <bool>false</bool>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+         </widget>
+         <widget class="QLineEdit" name="pitline">
+          <property name="geometry">
+           <rect>
+            <x>120</x>
+            <y>10</y>
+            <width>191</width>
+            <height>20</height>
+           </rect>
+          </property>
+         </widget>
+         <widget class="QLineEdit" name="apline">
+          <property name="geometry">
+           <rect>
+            <x>120</x>
+            <y>90</y>
+            <width>191</width>
+            <height>20</height>
+           </rect>
+          </property>
+         </widget>
+         <widget class="QLineEdit" name="blline">
+          <property name="geometry">
+           <rect>
+            <x>120</x>
+            <y>50</y>
+            <width>191</width>
+            <height>20</height>
+           </rect>
+          </property>
+         </widget>
+         <widget class="QLineEdit" name="cpline">
+          <property name="geometry">
+           <rect>
+            <x>120</x>
+            <y>130</y>
+            <width>191</width>
+            <height>20</height>
+           </rect>
+          </property>
+         </widget>
+         <widget class="QLineEdit" name="cscline">
+          <property name="geometry">
+           <rect>
+            <x>119</x>
+            <y>170</y>
+            <width>191</width>
+            <height>20</height>
+           </rect>
+          </property>
+         </widget>
+         <widget class="QLineEdit" name="userdataline">
+          <property name="geometry">
+           <rect>
+            <x>120</x>
+            <y>220</y>
+            <width>191</width>
+            <height>20</height>
+           </rect>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="pitcheckbox">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>10</y>
+            <width>71</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <family>MS Shell Dlg 2</family>
+            <pointsize>8</pointsize>
+            <italic>false</italic>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
+          </property>
+          <property name="text">
+           <string>Pit</string>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>30</width>
+            <height>20</height>
+           </size>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="apcheckbox">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>90</y>
+            <width>91</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
+          </property>
+          <property name="text">
+           <string>AP</string>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="cpcheckbox">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>130</y>
+            <width>71</width>
+            <height>29</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
+          </property>
+          <property name="text">
+           <string>CP</string>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="userdtacheckbox">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>221</y>
+            <width>181</width>
+            <height>20</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
+          </property>
+          <property name="text">
+           <string>USER</string>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="csccheckbox">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>170</y>
+            <width>132</width>
+            <height>29</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
+          </property>
+          <property name="text">
+           <string>CSC</string>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="blcheckbox">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>50</y>
+            <width>31</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string>font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
+          </property>
+          <property name="text">
+           <string>BL</string>
+          </property>
+         </widget>
+         <widget class="QCheckBox" name="checkBox_7">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>250</y>
+            <width>132</width>
+            <height>29</height>
+           </rect>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
+          </property>
+          <property name="text">
+           <string>ALL</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="rebootdload">
+          <property name="geometry">
+           <rect>
+            <x>360</x>
+            <y>80</y>
+            <width>81</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(255, 255, 255);
 font: 75 8pt &quot;MS Shell Dlg 2&quot;;
 
 color: rgb(85, 170, 0);</string>
-         </property>
-         <property name="text">
-          <string>Reboot D/load</string>
-         </property>
-         <property name="default">
-          <bool>true</bool>
-         </property>
-         <property name="flat">
-          <bool>false</bool>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="fixdload">
-         <property name="geometry">
-          <rect>
-           <x>360</x>
-           <y>120</y>
-           <width>81</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="autoFillBackground">
-          <bool>false</bool>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);
+          </property>
+          <property name="text">
+           <string>Reboot D/load</string>
+          </property>
+          <property name="default">
+           <bool>true</bool>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="fixdload">
+          <property name="geometry">
+           <rect>
+            <x>360</x>
+            <y>120</y>
+            <width>81</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(255, 255, 255);
 font: 75 8pt &quot;MS Shell Dlg 2&quot;;
 
 color: rgb(85, 170, 0);</string>
-         </property>
-         <property name="text">
-          <string>Read Pit</string>
-         </property>
-         <property name="default">
-          <bool>true</bool>
-         </property>
-         <property name="flat">
-          <bool>false</bool>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="blbtn">
-         <property name="geometry">
-          <rect>
-           <x>50</x>
-           <y>50</y>
-           <width>41</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
-           <italic>false</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">color: rgb(255, 255, 255);
+          </property>
+          <property name="text">
+           <string>Read Pit</string>
+          </property>
+          <property name="default">
+           <bool>true</bool>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="blbtn">
+          <property name="geometry">
+           <rect>
+            <x>50</x>
+            <y>50</y>
+            <width>41</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <family>Times New Roman</family>
+            <pointsize>9</pointsize>
+            <italic>false</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(255, 255, 255);
 background-color: rgb(255, 189, 0);
 font: 700 9pt &quot;Times New Roman&quot;;
 alternate-background-color: rgb(217, 198, 176);</string>
-         </property>
-         <property name="text">
-          <string>BL</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
-         <property name="default">
-          <bool>false</bool>
-         </property>
-         <property name="flat">
-          <bool>false</bool>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="apbtn">
-         <property name="geometry">
-          <rect>
-           <x>50</x>
-           <y>90</y>
-           <width>41</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
-           <italic>false</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::RightToLeft</enum>
-         </property>
-         <property name="autoFillBackground">
-          <bool>false</bool>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">color: rgb(255, 255, 255);
+          </property>
+          <property name="text">
+           <string>BL</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
+          <property name="default">
+           <bool>false</bool>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="apbtn">
+          <property name="geometry">
+           <rect>
+            <x>50</x>
+            <y>90</y>
+            <width>41</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <family>Times New Roman</family>
+            <pointsize>9</pointsize>
+            <italic>false</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::RightToLeft</enum>
+          </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(255, 255, 255);
 background-color: rgb(255, 189, 0);
 font: 700 9pt &quot;Times New Roman&quot;;
 alternate-background-color: rgb(217, 198, 176);</string>
-         </property>
-         <property name="text">
-          <string>AP</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
-         <property name="default">
-          <bool>true</bool>
-         </property>
-         <property name="flat">
-          <bool>false</bool>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="cpbdtn">
-         <property name="geometry">
-          <rect>
-           <x>50</x>
-           <y>130</y>
-           <width>41</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
-           <italic>false</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">color: rgb(255, 255, 255);
+          </property>
+          <property name="text">
+           <string>AP</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
+          <property name="default">
+           <bool>true</bool>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="cpbdtn">
+          <property name="geometry">
+           <rect>
+            <x>50</x>
+            <y>130</y>
+            <width>41</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <family>Times New Roman</family>
+            <pointsize>9</pointsize>
+            <italic>false</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(255, 255, 255);
 background-color: rgb(255, 189, 0);
 font: 700 9pt &quot;Times New Roman&quot;;
 alternate-background-color: rgb(217, 198, 176);</string>
-         </property>
-         <property name="text">
-          <string>CP</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
-         <property name="default">
-          <bool>false</bool>
-         </property>
-         <property name="flat">
-          <bool>false</bool>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="cscbtn">
-         <property name="geometry">
-          <rect>
-           <x>50</x>
-           <y>170</y>
-           <width>41</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
-           <italic>false</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">color: rgb(255, 255, 255);
+          </property>
+          <property name="text">
+           <string>CP</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
+          <property name="default">
+           <bool>false</bool>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="cscbtn">
+          <property name="geometry">
+           <rect>
+            <x>50</x>
+            <y>170</y>
+            <width>41</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <family>Times New Roman</family>
+            <pointsize>9</pointsize>
+            <italic>false</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(255, 255, 255);
 background-color: rgb(255, 189, 0);
 font: 700 9pt &quot;Times New Roman&quot;;
 alternate-background-color: rgb(217, 198, 176);</string>
-         </property>
-         <property name="text">
-          <string>CSC</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
-         <property name="default">
-          <bool>false</bool>
-         </property>
-         <property name="flat">
-          <bool>false</bool>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="databtn">
-         <property name="geometry">
-          <rect>
-           <x>50</x>
-           <y>220</y>
-           <width>41</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <family>Times New Roman</family>
-           <pointsize>9</pointsize>
-           <italic>false</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">color: rgb(255, 255, 255);
+          </property>
+          <property name="text">
+           <string>CSC</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
+          <property name="default">
+           <bool>false</bool>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="databtn">
+          <property name="geometry">
+           <rect>
+            <x>50</x>
+            <y>220</y>
+            <width>41</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <family>Times New Roman</family>
+            <pointsize>9</pointsize>
+            <italic>false</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(255, 255, 255);
 background-color: rgb(255, 189, 0);
 font: 700 9pt &quot;Times New Roman&quot;;
 alternate-background-color: rgb(217, 198, 176);</string>
-         </property>
-         <property name="text">
-          <string>DATA</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
-         <property name="default">
-          <bool>false</bool>
-         </property>
-         <property name="flat">
-          <bool>false</bool>
-         </property>
+          </property>
+          <property name="text">
+           <string>DATA</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
+          <property name="default">
+           <bool>false</bool>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="Kill">
+          <property name="geometry">
+           <rect>
+            <x>390</x>
+            <y>250</y>
+            <width>41</width>
+            <height>24</height>
+           </rect>
+          </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(255, 255, 255);
+selection-background-color: rgb(234, 0, 0);
+selection-background-color: rgb(255, 0, 0);
+background-color: rgb(235, 0, 0);</string>
+          </property>
+          <property name="text">
+           <string>CanCel</string>
+          </property>
+          <property name="default">
+           <bool>true</bool>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+         </widget>
+         <zorder>readd</zorder>
+         <zorder>flashsmsng</zorder>
+         <zorder>pitline</zorder>
+         <zorder>apline</zorder>
+         <zorder>blline</zorder>
+         <zorder>cpline</zorder>
+         <zorder>pitcheckbox</zorder>
+         <zorder>apcheckbox</zorder>
+         <zorder>cpcheckbox</zorder>
+         <zorder>userdtacheckbox</zorder>
+         <zorder>csccheckbox</zorder>
+         <zorder>checkBox_7</zorder>
+         <zorder>rebootdload</zorder>
+         <zorder>userdataline</zorder>
+         <zorder>cscline</zorder>
+         <zorder>fixdload</zorder>
+         <zorder>blbtn</zorder>
+         <zorder>blcheckbox</zorder>
+         <zorder>apbtn</zorder>
+         <zorder>cpbdtn</zorder>
+         <zorder>cscbtn</zorder>
+         <zorder>databtn</zorder>
+         <zorder>Kill</zorder>
         </widget>
-        <zorder>readd</zorder>
-        <zorder>flashsmsng</zorder>
-        <zorder>pitline</zorder>
-        <zorder>apline</zorder>
-        <zorder>blline</zorder>
-        <zorder>cpline</zorder>
-        <zorder>pitcheckbox</zorder>
-        <zorder>apcheckbox</zorder>
-        <zorder>cpcheckbox</zorder>
-        <zorder>userdtacheckbox</zorder>
-        <zorder>csccheckbox</zorder>
-        <zorder>checkBox_7</zorder>
-        <zorder>rebootdload</zorder>
-        <zorder>userdataline</zorder>
-        <zorder>cscline</zorder>
-        <zorder>fixdload</zorder>
-        <zorder>blbtn</zorder>
-        <zorder>blcheckbox</zorder>
-        <zorder>apbtn</zorder>
-        <zorder>cpbdtn</zorder>
-        <zorder>cscbtn</zorder>
-        <zorder>databtn</zorder>
        </widget>
       </widget>
       <widget class="QTextEdit" name="logfield">
@@ -1953,9 +1982,12 @@ alternate-background-color: rgb(217, 198, 176);</string>
         <rect>
          <x>440</x>
          <y>0</y>
-         <width>451</width>
-         <height>491</height>
+         <width>421</width>
+         <height>461</height>
         </rect>
+       </property>
+       <property name="contextMenuPolicy">
+        <enum>Qt::NoContextMenu</enum>
        </property>
        <property name="styleSheet">
         <string notr="true">color: rgb(0, 0, 0);
@@ -1970,10 +2002,12 @@ background-color: rgb(255, 255, 255);</string>
        <property name="lineWidth">
         <number>7</number>
        </property>
+       <property name="verticalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOn</enum>
+       </property>
       </widget>
-      <zorder>groupBox_2</zorder>
-      <zorder>groupBox</zorder>
       <zorder>logfield</zorder>
+      <zorder>groupBox</zorder>
      </widget>
      <widget class="QWidget" name="fatsboottab">
       <attribute name="title">
