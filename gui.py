@@ -731,7 +731,7 @@ class Ui_main(object):
         self.databtn.raise_()
         self.Kill.raise_()
         self.logfield = QtWidgets.QTextEdit(parent=self.samsungtab)
-        self.logfield.setGeometry(QtCore.QRect(440, 0, 421, 461))
+        self.logfield.setGeometry(QtCore.QRect(440, 0, 421, 471))
         self.logfield.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.NoContextMenu)
         self.logfield.setStyleSheet("color: rgb(0, 0, 0);\n"
 "background-color: rgb(255, 255, 255);")
@@ -754,7 +754,7 @@ class Ui_main(object):
         self.fblogfield.setLineWidth(7)
         self.fblogfield.setObjectName("fblogfield")
         self.logfield_3 = QtWidgets.QTextEdit(parent=self.fatsboottab)
-        self.logfield_3.setGeometry(QtCore.QRect(440, 0, 451, 491))
+        self.logfield_3.setGeometry(QtCore.QRect(440, 0, 451, 471))
         self.logfield_3.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.NoContextMenu)
         self.logfield_3.setAutoFillBackground(False)
         self.logfield_3.setStyleSheet("color: rgb(0, 0, 0);\n"
@@ -1399,7 +1399,7 @@ class Ui_main(object):
         self.fbload.setFlat(False)
         self.fbload.setObjectName("fbload")
         self.fblistwidget = QtWidgets.QTextEdit(parent=self.widget_4)
-        self.fblistwidget.setGeometry(QtCore.QRect(0, 30, 351, 271))
+        self.fblistwidget.setGeometry(QtCore.QRect(0, 30, 351, 231))
         self.fblistwidget.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.NoContextMenu)
         self.fblistwidget.setAutoFillBackground(False)
         self.fblistwidget.setStyleSheet("color: rgb(0, 0, 0);\n"
@@ -1441,9 +1441,6 @@ class Ui_main(object):
         self.logfield_3.raise_()
         self.widget_2.raise_()
         self.tablet.addTab(self.fatsboottab, "")
-        self.Adb = QtWidgets.QWidget()
-        self.Adb.setObjectName("Adb")
-        self.tablet.addTab(self.Adb, "")
         self.verticalLayout.addWidget(self.tablet)
         self.progressBar = QtWidgets.QProgressBar(parent=main)
         self.progressBar.setEnabled(True)
@@ -1510,7 +1507,6 @@ class Ui_main(object):
         self.fbBootUnlocker.setText(_translate("main", "Bootloader unlock "))
         self.fbflash.setText(_translate("main", "Flash"))
         self.tablet.setTabText(self.tablet.indexOf(self.fatsboottab), _translate("main", "Fastboot Tool"))
-        self.tablet.setTabText(self.tablet.indexOf(self.Adb), _translate("main", "Adb_tools"))
 
 
 if __name__ == "__main__":

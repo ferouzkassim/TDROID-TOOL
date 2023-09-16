@@ -1292,6 +1292,14 @@ color: rgb(85, 170, 0);</string>
            <height>21</height>
           </rect>
          </property>
+         <property name="font">
+          <font>
+           <family>Segoe UI Semibold</family>
+           <pointsize>9</pointsize>
+           <italic>false</italic>
+           <bold>false</bold>
+          </font>
+         </property>
          <property name="toolTip">
           <string extracomment="Reapir sn number not imei"/>
          </property>
@@ -1983,7 +1991,7 @@ background-color: rgb(235, 0, 0);</string>
          <x>440</x>
          <y>0</y>
          <width>421</width>
-         <height>461</height>
+         <height>471</height>
         </rect>
        </property>
        <property name="contextMenuPolicy">
@@ -2042,7 +2050,7 @@ background-color: rgb(255, 255, 255);</string>
          <x>440</x>
          <y>0</y>
          <width>451</width>
-         <height>491</height>
+         <height>471</height>
         </rect>
        </property>
        <property name="contextMenuPolicy">
@@ -3979,7 +3987,7 @@ color: rgb(85, 170, 0);</string>
           <x>0</x>
           <y>30</y>
           <width>351</width>
-          <height>271</height>
+          <height>231</height>
          </rect>
         </property>
         <property name="contextMenuPolicy">
@@ -4077,11 +4085,6 @@ color: rgb(85, 170, 0);</string>
       <zorder>fblogfield</zorder>
       <zorder>logfield_3</zorder>
       <zorder>widget_2</zorder>
-     </widget>
-     <widget class="QWidget" name="Adb">
-      <attribute name="title">
-       <string>Adb_tools</string>
-      </attribute>
      </widget>
     </widget>
    </item>

@@ -2,6 +2,8 @@ import asyncio
 import os.path
 import threading
 import time
+from pathlib import Path
+
 import serial.tools.list_ports as prtlist
 from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtCore import QThread, QEventLoop, QObject
@@ -14,6 +16,8 @@ import usbcom
 from detect import BackUP, backuping
 from gui import Ui_main
 from samsungflasher import readpit
+
+
 class Dmode(QThread):
     resultReady = pyqtSignal(list)
     updateProgress = pyqtSignal(int)
@@ -28,48 +32,96 @@ class Dmode(QThread):
         result = detect.modem.downloadinfo(detect.modem)
 
         self.resultReady.emit(result)
-#samsung flashing log thread
+
+
+# samsung flashing log thread
 class LogEmitter(QObject):
     logReady = pyqtSignal(str)
 
-class SamsungFlasherThread(QThread):
-    def __init__(self, prt, nme,lf,pbar):
+
+class baseband(QThread):
+    def __init__(self, partnem, logfield):
         super().__init__()
-        self.lf = lf
-        self.part = prt
-        self.nme = nme
-        self.pbar = pbar
+        self.partnem = partnem
+        self.logfield = logfield
+
+    def run(self):
+        asyncio.run(detect.backuping.part_mountex(BackUP, self.partnem, self.logfield))
+
+
+class SamsungFlasherThread(QThread):
+    def __init__(self, prt, nme, lf, pbar):
+        super().__init__()
+        self.lf = lf  # logfield
+        self.part = prt  # part file
+        self.nme = nme  # part name
+        self.pbar = pbar  # progress bar
+
     def run(self):
         emitter = LogEmitter()
-        #emitter.logReady.connect(self.logToGUI)
-        asyncio.run(samsungflasher.run_flashpart(self.part, self.nme, self.lf,self.pbar))
+        # emitter.logReady.connect(self.logToGUI)
+        asyncio.run(samsungflasher.run_flashpart(self.part, self.nme, self.lf, self.pbar))
+
+
+class samsungmultiflasher(QThread):
+    def __init__(self, flashincmd, logfield, pbar):
+        super().__init__()
+        self.logfield = logfield
+        self.flashincmd = flashincmd
+        self.progresbar = pbar
+
+    def run(self):
+        asyncio.run(samsungflasher.flash_parts(self.flashincmd, self.logfield, self.progresbar))
+
+
 class write_backup(QThread):
-    def __init__(self,file_to_write,logfield):
+    def __init__(self, file_to_write, logfield):
         super().__init__()
         self.file_to_write = file_to_write
         self.logfield = logfield
 
-    def run(self) :
+    def run(self):
         print('connnected here')
-        asyncio.run(detect.BackUP.qlmrestore(BackUP,self.file_to_write,self.logfield))
+        asyncio.run(detect.BackUP.qlmrestore(BackUP, self.file_to_write, self.logfield))
+
+
+class exynos_write(QThread):
+    def __init__(self, logfield, file_to_write):
+        super().__init__()
+        self.file_to_write = file_to_write
+        self.logfield = logfield
+
+    def run(self):
+        asyncio.run(detect.BackUP.exynosrestore(BackUP, self.file_to_write, self.logfield))
+
 
 class fastboot_flasher(QThread):
-    def __init__(self,part,file,widget):
+    def __init__(self, part, file, widget):
         super().__init__()
-        self.part=part
+        self.part = part
         self.file = file
         self.widget = widget
 
     def run(self):
-        asyncio.run(fastboot.usb_monitor(fastboot.fbb.fbtflasher(self.part,self.file,self.widget)))
+        asyncio.run(fastboot.usb_monitor(fastboot.fbb.fbtflasher(self.part, self.file, self.widget)))
 
+
+class srialrepair(QThread):
+    def __init__(self, newsn, logfield):
+        super().__init__(None)
+        self.newsn = newsn
+        self.logfield = logfield
+
+    def run(self):
+        task1 = asyncio.run(detect.boot.snrepair(self, self.newsn, self.logfield))
 
 
 class MainDialog(QDialog):
     def __init__(self):
         self.fastboot_flasher = None
-        self.write_backup =None
+        self.write_backup = None
         self.draftli = []
+        self.baseband = None
         super().__init__()
         self.ui = Ui_main()
         self.ui.setupUi(self)
@@ -77,7 +129,7 @@ class MainDialog(QDialog):
         """self.dmodethread = Dmode()
         self.dmodethread.resultReady.connect(self.loghandler)
         self.dmodethread.updateProgress.connect(self.updateProgressBar)"""
-        #self.samsung_thread = SamsungFlasherThread(self.ui.blline.text(), self.ui.logfield)
+        # self.samsung_thread = SamsungFlasherThread(self.ui.blline.text(), self.ui.logfield)
         # Connect to the slot method
         self.mtklist = ['Mtk General', 'SM-A013G', 'SM-A037F', 'SM-A125F', 'SM-A225F', ]
         self.exynolist = ['Exynos General', 'SM-A127F', 'SM-A217f', 'SM-A135F', 'SM-A047F']
@@ -103,13 +155,12 @@ class MainDialog(QDialog):
             self.ui.Fixbaseband.clicked.connect(lambda: self.exynosbb)
             self.ui.Write_Efs.clicked.connect(lambda: self.exynoswrtefs)
             self.ui.Read_security.clicked.connect(lambda: self.readexynosecurity)
-            # self.ui.Read_security.clicked.connect(self.)
+            self.ui.write_security.clicked.connect(self.exynosRestor)
 
         elif self.ui.modelselector.currentText() in self.mtklist:
             self.ui.Fixbaseband.clicked.connect(lambda: self.fixbbmtk)
             self.ui.Read_security.clicked.connect(lambda: [self.readmtk(), print('mtkread')])
-        else :
-            self.ui.modelselector.currentText() in self.qlmlist
+        elif self.ui.modelselector.currentText() in self.qlmlist:
             self.ui.write_security.clicked.connect(self.writeqlm)
 
         self.ui.modelselector.addItems(self.modelist)
@@ -132,7 +183,6 @@ class MainDialog(QDialog):
     def updateProgressBar(self, value):
         self.ui.progressBar.setValue(value)
 
-
     def logupdater(self, value):
         self.ui.logfield.append(value)
 
@@ -145,11 +195,11 @@ class MainDialog(QDialog):
 
     def snrepair(self, ):
         newsno = self.ui.snEdit.text()
-
         self.ui.progressBar.setValue(10)
         print(56)
-        self.ui.progressBar.setValue(50)
-        detect.repair.partrepair(detect.repair, f'serial_no', self.ui.snEdit.text())
+        self.snrepairer = srialrepair(newsno, self.ui.logfield)
+        self.snrepairer.start()
+        """detect.repair.partrepair(detect.repair, f'serial_no', self.ui.snEdit.text())"""
         self.ui.progressBar.setValue(100)
 
     def bootfix(self):
@@ -192,6 +242,7 @@ class MainDialog(QDialog):
 
         elif model in self.qlmlist:
             self.ui.MountNetwork.hide()
+            self.ui.write_security.clicked.connect(self.writeqlm)
 
     def readmtk(self):
 
@@ -229,7 +280,7 @@ class MainDialog(QDialog):
         self.ui.progressBar.setValue(100)
 
     def cpreader(self):
-        self.ui.logfield.append('reading in MTP Mode')
+        self.ui.logfield.setText('reading in MTP Mode')
         self.ui.progressBar.setValue(0)
         self.ui.logfield.setStyleSheet('color:green;font-weight:bold')
         output = ''
@@ -256,25 +307,30 @@ class MainDialog(QDialog):
         info = asyncio.run(detect.modem.Readmodem(detect.modem,
                                                   detect.modem.samport(detect.modem)))
 
-        for ifn in info:
-            for dat in ifn:
-                fida = dat.replace('(', ':\t').replace(')', "").replace('AT+DEVCONINFO', '').replace('+DEVCONINFO',
-                                                                                                     '').replace('#OK#',
-                                                                                                                 '').replace(
-                    'OK', '')
-                fida.replace(')', "")
-                for key, value in replace_dict.items():
-                    fida = fida.replace(key, value)
-                output += fida + "\n"
-                self.ui.logfield.append(fida)
-                self.ui.logfield.repaint()
+        try:
+            for ifn in info:
+                for dat in ifn:
+                    fida = dat.replace('(', ':\t').replace(')', "").replace('AT+DEVCONINFO', '').replace('+DEVCONINFO',
+                                                                                                         '').replace(
+                        '#OK#',
+                        '').replace(
+                        'OK', '')
+                    fida.replace(')', "")
+                    for key, value in replace_dict.items():
+                        fida = fida.replace(key, value)
+                    output += fida + "\n"
+                    self.ui.logfield.append(fida)
+                    self.ui.logfield.repaint()
+        except:
+            time.sleep(1.5)
+            self.ui.logfield.append('No Modem port found')
         self.ui.progressBar.setValue(100)
         return output
 
     async def dmodeinfo(self):
 
         self.ui.logfield.setStyleSheet("color: green;font-weight:bold")
-        self.ui.logfield.append('Reading info in download Mode\n')
+        self.ui.logfield.setText('Reading info in download Mode\n')
         '''dmodethread = threading.Thread(target=detect.modem.downloadinfo(detect.modem),args=[None])
         dmodethread.start()
         self.dmodethread.start()'''
@@ -295,7 +351,7 @@ class MainDialog(QDialog):
         self.ui.logfield.repaint()
 
     def open_backup(self):
-        fiel, _ = QtWidgets.QFileDialog.getOpenFileName(filter="files (*.img *.bin *.tdf *.tar *.*)",
+        fiel, _ = QtWidgets.QFileDialog.getOpenFileName(filter="files (*.img *.bin *.tdf *.tar *.* .*7z *.zip *.pit)",
                                                         initialFilter='.tdf')
         return fiel
 
@@ -310,13 +366,16 @@ class MainDialog(QDialog):
         self.ui.logfield.repaint()
 
         return response
+
     def writeqlm(self):
         print('writing the qualcom backup')
         self.ui.logfield.append('Writing back qualcom security back up file ')
         bckupfile = self.open_backup()
+        self.ui.logfield.append(f'Using backup {bckupfile}')
         " asyncio.run(detect.BackUP.qlmrestore(BackUP,bckupfile))"
-        self.write_backup = write_backup(bckupfile,self.ui.logfield)
+        self.write_backup = write_backup(bckupfile, self.ui.logfield)
         self.write_backup.start()
+        self.cpreader()
 
     # part for populating combo box
     async def detect_unplug(self):
@@ -350,13 +409,10 @@ class MainDialog(QDialog):
 
     # asyncio.run(self.serialloger())
     def exynosbb(self):
-        loging = ''
-        exnos = BackUP.part_mountex(BackUP, 'efs')
-        print('eewr')
-        for outp in exnos:
-            loging += ''.join(outp)
-        self.ui.logfield.append(loging)
+        self.baseband = baseband('efs', self.ui.logfield)
+        self.baseband.start()
         self.ui.logfield.repaint()
+        self.cpreader()
 
     def exynoswrtefs(self):
         loging = ''
@@ -368,40 +424,53 @@ class MainDialog(QDialog):
         self.ui.logfield.repaint()
 
     def exynosRestor(self):
-        backuping.exynosrestore(BackUP, self.fileloader())
-
-    async def samsung_flasher(self):
-        bl = self.ui.blline.text()
-        """ap = self.ui.apline.text()
-        cp = self.ui.cpline.text()
-        csc = self.ui.cscline.text()
-        userdata = self.ui.userdataline.text()"""
-        firmware = {
-            "-b ": bl,
-        }
-        sam = asyncio.run(samsungflasher.flashpart('-b', bl,))
-        # Wait for the task to complete
-        self.ui.logfield.append(bl)
+        print('restoring exynos backup')
+        self.ui.logfield.repaint()
+        self.ui.logfield.append('Restoring Exynos Backup')
+        self.exywrite = exynos_write(self.ui.logfield, self.fileloader())
+        self.exywrite.start()
 
     def samlog(self):
-
+        firmware_path = []
         bl = self.ui.blline.text()
         ap = self.ui.apline.text()
         cp = self.ui.cpline.text()
         csc = self.ui.cscline.text()
         userdata = self.ui.userdataline.text()
+        flashingcmd = ''
         firmware = {
             "-b ": bl,
-            "-a":ap,
-            "-c":cp,
-            "-s":csc,
-            "-u":userdata
+            "-a ": ap,
+            "-c ": cp,
+            "-s ": csc,
+            "-u ": userdata
         }
-        for name,value in firmware.items():
-            if value:
-                print(f'{name} is flashng {value}')
-        self.samsung_thread = SamsungFlasherThread("-b",bl, self.ui.logfield,self.ui.progressBar)
-        self.samsung_thread.start()
+        if any(firmware_path):
+            pass
+        for name, value in firmware.items():
+            while value:
+                firmware_path.append(f'{name} {value}')
+                print('step2')
+                break
+            """if value:
+                samthread = SamsungFlasherThread(name,value,self.ui.logfield,self.ui.progressBar)
+                self.ui.logfield.setText('samsung single flasher started')
+                print('step3')
+                #samthread.start()
+            else:
+                break"""
+        for path in firmware_path:
+            path_obj = Path(path)  # Convert the string to a pathlib Path object
+            flashingcmd += f' {path}'
+        print(flashingcmd)
+        print('step4')
+        try:
+            self.samultithread = samsungmultiflasher(self.ui.logfield, flashingcmd, self.ui.progressBar)
+            # self.ui.logfield.setText('Samsung multi flasher started')
+            self.samultithread.start()
+        except ProcessLookupError:
+            self.ui.logfield.setText('Error while flashing ')
+
     def update_text_area(self, line):
         self.ui.logfield.append(line)
 
@@ -419,7 +488,7 @@ class MainDialog(QDialog):
 
         # t1 = asyncio.create_task(fastboot.fbb.fastbootinfo(self.ui.logfield_3))
         t2 = asyncio.create_task(fastboot.usb_monitor(fastboot.fbb.fastbootinfo
-                                                      (self.ui.logfield_3),))
+                                                      (self.ui.logfield_3), ))
         await t2
 
     def fastbooinfo(self):
@@ -438,7 +507,7 @@ class MainDialog(QDialog):
                                                          )
         self.ui.fbfirmware.setText(firmware[0])
         self.ui.fbfirmware.repaint()
-        fb_var = fastboot.fbb.ext_parser(firmware)
+        fb_var = fastboot.fbb.ext_parser(firmware, self.ui.fblistwidget)
         self.ui.fblistwidget.setStyleSheet('color:white;background-color:black;'
                                            'font-size:8pt'
                                            ';font-weight:bold')
@@ -448,17 +517,16 @@ class MainDialog(QDialog):
                     i.replace('tf', '') or
                     i.replace('tf', ''))
             elif i.startswith('fastboot'):
-                self.ui.fblistwidget.append(i.replace('fastboot',''))
+                self.ui.fblistwidget.append(i.replace('fastboot', ''))
 
             self.ui.fblistwidget.repaint()
 
-        return firmware
-
+        return fb_var
 
     def fbFlashing(self):
         pth = ''
-        cmd=[]
-        file=[]
+        cmd = []
+        flashfiles = ''
         self.ui.logfield_3.setStyleSheet('color: green;'
                                          ' background-color: black;'
                                          'font-size: 8pt;'
@@ -466,30 +534,37 @@ class MainDialog(QDialog):
                                          )
         self.ui.logfield_3.append('waiting for fastboot')
         self.ui.progressBar.setValue(0)
-        #problem is here
+        # problem is here
         li = self.ui.fblistwidget.toPlainText()
         fbpath = self.ui.fbfirmware
-        filepath = fbpath.toPlainText().split()
+        filepath = fbpath.toPlainText()
         if filepath:
-            path = os.path.dirname(filepath[0])
-            print(path)
-            pth+=path
+            dirname = os.path.dirname(filepath)
+            print(dirname)
+            t12 = os.listdir(dirname)
+            firmware_parser = fastboot.fbb.xmlreader(filepath, self.ui.fblistwidget)
+            print(firmware_parser)
+            for t in t12:
+                if t.endswith('.img') or t.endswith('.bin'):
+                    if t in firmware_parser.values():
+                        print(t)
+                        filename = os.path.join(dirname, t)
+                        print(firmware_parser)
+                        print(filename)
+
+
+
         else:
             self.ui.logfield_3.setStyleSheet('Firmware Link invalid ')
-        split_li=li.split('\n')
-        print(split_li)
-        for i in split_li:
-            if i.startswith(' flash') or i.startswith(' -w'):
-                print(i)
-            else:
-                print('no flashing found')
-
-
-        self.fastboot_flasher = fastboot_flasher("bootloader","C:\\Users\\DROID\\Desktop\\sargo-sp2a.220505.008\\bootloader-sargo-b4s4-0.4-8048689.img",self.ui.logfield_3)
+        split_li = li.split('\n')
+        self.fastboot_flasher = fastboot_flasher("bootloader",
+                                                 "C:\\Users\\DROID\\Desktop\\sargo-sp2a.220505.008\\bootloader-sargo-b4s4-0.4-8048689.img",
+                                                 self.ui.logfield_3)
         self.fastboot_flasher.start()
 
-#06/02/2023 stopped lookign for fastboot ttesm to flash
-#09082023 stuck wth using diferent threads to execute the job
+
+# 06/02/2023 stopped lookign for fastboot ttesm to flash
+# 09082023 stuck wth using diferent threads to execute the job
 
 
 if __name__ == "__main__":

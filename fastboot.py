@@ -1,6 +1,9 @@
 import asyncio
 import subprocess
 import threading
+import xml.etree.ElementTree as et
+
+import fastbootpy.usb_device
 import usb
 from usb.backend import libusb1
 import fastbootpy as pyfb
@@ -85,15 +88,8 @@ class Fboot:
         li_firmware_parsers = ['.bat', '.xml', '.cfg', '.sh']
         print(firmwarepath)
 
-    def batfile(self):
-        flashing_threads = []
-        for i in self.batreaded:
-            flashing_threads.append(i.replace('fastboot', ''))
-        for p in flashing_threads:
-            str(p)
-            pthread = threading.Thread(target=fbb.fboot, args=())
-            # pthread.start()
-
+    def batfile(self,part,file,widget):
+        fastbootpy.FastbootDevice.flash(self,part)
     async def fbloger(self, stream,widget):
         print(f'the streams is{stream}')
         widget.append(stream.replace('(bootloader)','->'))
@@ -108,12 +104,27 @@ class Fboot:
 
         await asyncio.wait([stdout_task, ], return_when=asyncio.FIRST_COMPLETED)
 
-    def ext_parser(self, ext):
+    def xmlreader(self,file,widget):
+        flashingDict = {}
+        fileparse = et.parse(file)
+        for partition_index in fileparse.findall('partition_index'):
+            partition_name = partition_index.find('partition_name').text
+            file_name = partition_index.find('file_name').text
+            partition_size = partition_index.find('partition_size').text
+            storage = partition_index.find('storage').text
+            isdownload = partition_index.find('is_download').text
+            if file_name != 'NONE' and isdownload =='true' :
+                widget.append(f'file_name : {file_name}')
+                flashingDict[partition_name] = f'{file_name}'
+                widget.append(f"Partition Size: {partition_size}")
+                widget.append(f"Partition Name: {partition_name}")
+                widget.append("_" * 15)
+        return flashingDict
+    def ext_parser(self, ext,widget):
         files_to_flash = []
         for i in ext:
             files_to_flash.append(i)
         for x in files_to_flash:
-            print(x)
             if x.endswith(".bat") or x.endswith(".sh") or x.endswith('.tfb') or x.endswith('.txt'):
                 with open(x, "r") as batopener:
                     line = batopener.readlines()
@@ -127,7 +138,11 @@ class Fboot:
                             self.batreaded.append(p)
 
                     return self.batreaded
+            elif x.endswith(".xml"):
+                flashdict =self.xmlreader(x,widget)
+                return flashdict
         return files_to_flash
+
 
 
 fbb = Fboot()
@@ -149,7 +164,7 @@ async def usb_monitor(func_to_run):
     # USB\VID_18D1&PID_D00D
     # USB\VID_0E8D&PID_201C
     # USB\VID_18D1&PID_4EE0&REV_0100
-
+    #USB\VID_18D1&PID_4EE0
     # Convert the USB ID string to integer values
     # libusb install filer
     # install-filter install "--device=USB\VID_18D1&PID_4EE0&REV_0100"
@@ -157,10 +172,13 @@ async def usb_monitor(func_to_run):
     vid = [0x18d1, 0x0E8D]
     pid = [0x4ee0, 0xd001, 0x201C]
     bckedn = libusb1.get_backend()
+    for i in fastbootpy.FastbootManager.devices():
+        print(i)
     while True:
         # Check if the device with the specified vendor ID and product ID is connected
+        devices = fastbootpy.FastbootManager.devices()
         device = usb.core.find(idVendor=0x18D1, idProduct=0X4EE0, backend=bckedn)
-        if device is not None:
+        if devices is not None:
             # The device is connected, run the function asynchronously
             await func_to_run
             break  # Exit the loop once the function is run
@@ -177,10 +195,7 @@ async def usb_monitor(func_to_run):
             # Print the output of the subprocess.
             print(lbusb.stdout)
 
-            devices = usb.core.find(find_all=True)
-            """for device in devices:
-                print(f"Found device: VID={hex(device.idVendor)}, PID={hex(device.idProduct)}")
-                print(device)"""
+            devic = usb.core.find(find_all=True)
             break
         # Wait for 2 seconds before checking again
         await asyncio.sleep(0.005)

@@ -11,7 +11,10 @@ port = 5037
 def startDaemon():
     # Start the adb server
     try:
-        subprocess.run(['daemon/adb.exe', 'start-server'], capture_output=True)
+        startup_info = subprocess.STARTUPINFO()
+        startup_info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        subprocess.run(['daemon/adb.exe', 'start-server'], capture_output=True,
+                       startupinfo = startup_info)
 
     except FileNotFoundError:
         print('restarting server at')
