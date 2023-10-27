@@ -5,6 +5,7 @@ import xml.etree.ElementTree as et
 
 import fastbootpy.usb_device
 import usb
+from PyQt6.QtWidgets import QApplication
 from usb.backend import libusb1
 import fastbootpy as pyfb
 
@@ -91,8 +92,13 @@ class Fboot:
     def batfile(self,part,file,widget):
         fastbootpy.FastbootDevice.flash(self,part)
     async def fbloger(self, stream,widget):
-        print(f'the streams is{stream}')
-        widget.append(stream.replace('(bootloader)','->'))
+        lines = stream.splitlines()
+        for line in lines:
+            # Process each line as it arrives
+            await asyncio.sleep(0)  # Allow other tasks to run concurrently
+            widget.append(line.replace('(bootloader)', '->'))
+            # the missing glotch in realtime processing is QApplication.processEvents()
+            QApplication.processEvents()
 
     async def fbtflasher(self, part,file,widget):
         tflasher = await asyncio.create_subprocess_exec(self.cmd, 'flash',part,file,
@@ -101,8 +107,9 @@ class Fboot:
         stdout, stderr = await tflasher.communicate()
         td = stderr.decode()
         stdout_task = asyncio.create_task(self.fbloger(td,widget))
+        await stdout_task
+       # await asyncio.wait([stdout_task, ], return_when=asyncio.FIRST_COMPLETED)
 
-        await asyncio.wait([stdout_task, ], return_when=asyncio.FIRST_COMPLETED)
 
     def xmlreader(self,file,widget):
         flashingDict = {}

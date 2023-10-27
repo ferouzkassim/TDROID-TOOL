@@ -462,6 +462,12 @@ class Ui_main(object):
         self.fixbootloader.setObjectName("fixbootloader")
         self.snEdit = QtWidgets.QLineEdit(parent=self.widget)
         self.snEdit.setGeometry(QtCore.QRect(360, 60, 81, 21))
+        font = QtGui.QFont()
+        font.setFamily("Segoe UI Semibold")
+        font.setPointSize(9)
+        font.setBold(False)
+        font.setItalic(False)
+        self.snEdit.setFont(font)
         self.snEdit.setToolTip("")
         self.snEdit.setToolTipDuration(2)
         self.snEdit.setStyleSheet("font: 63 9pt \"Segoe UI Semibold\";")
@@ -755,13 +761,15 @@ class Ui_main(object):
         self.fblogfield.setObjectName("fblogfield")
         self.logfield_3 = QtWidgets.QTextEdit(parent=self.fatsboottab)
         self.logfield_3.setGeometry(QtCore.QRect(440, 0, 451, 471))
-        self.logfield_3.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.NoContextMenu)
+        self.logfield_3.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.PreventContextMenu)
         self.logfield_3.setAutoFillBackground(False)
         self.logfield_3.setStyleSheet("color: rgb(0, 0, 0);\n"
 "background-color: rgb(255, 255, 255);")
         self.logfield_3.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.logfield_3.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.logfield_3.setLineWidth(7)
+        self.logfield_3.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        self.logfield_3.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
         self.logfield_3.setObjectName("logfield_3")
         self.widget_2 = QtWidgets.QWidget(parent=self.fatsboottab)
         self.widget_2.setGeometry(QtCore.QRect(0, 0, 441, 221))
@@ -1399,7 +1407,7 @@ class Ui_main(object):
         self.fbload.setFlat(False)
         self.fbload.setObjectName("fbload")
         self.fblistwidget = QtWidgets.QTextEdit(parent=self.widget_4)
-        self.fblistwidget.setGeometry(QtCore.QRect(0, 30, 351, 231))
+        self.fblistwidget.setGeometry(QtCore.QRect(0, 30, 351, 221))
         self.fblistwidget.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.NoContextMenu)
         self.fblistwidget.setAutoFillBackground(False)
         self.fblistwidget.setStyleSheet("color: rgb(0, 0, 0);\n"
@@ -1507,13 +1515,3 @@ class Ui_main(object):
         self.fbBootUnlocker.setText(_translate("main", "Bootloader unlock "))
         self.fbflash.setText(_translate("main", "Flash"))
         self.tablet.setTabText(self.tablet.indexOf(self.fatsboottab), _translate("main", "Fastboot Tool"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    main = QtWidgets.QDialog()
-    ui = Ui_main()
-    ui.setupUi(main)
-    main.show()
-    sys.exit(app.exec())

@@ -1,9 +1,4 @@
-import usb
-from usb.backend import libusb1
-
-
-def usbsni():
-    for i in usb.core.find(True,libusb1):
-        print(i)
-
-usbsni()
+import clr
+samdll = 'daemon/sam.dll'
+t1 = clr.AddReference('daemon/sam.dll')
+print(t1)

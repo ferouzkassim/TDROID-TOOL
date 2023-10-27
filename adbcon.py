@@ -16,7 +16,7 @@ def startDaemon():
         subprocess.run(['daemon/adb.exe', 'start-server'], capture_output=True,
                        startupinfo = startup_info)
 
-    except FileNotFoundError:
+    except RuntimeError:
         print('restarting server at')
         subprocess.run(['daemon/adb.exe', 'kill-server'])
     # Find the first connected device

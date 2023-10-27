@@ -227,15 +227,7 @@ class BackUP(detect):
                 # print(locate)
                 # dev.pull(src=f'/storage/emulated/0/td/{part}.tdf', dest=new_pclocation)
                 os.chdir(pcdir)
-                response += f'\n {part_name} back up saved as' \
-                    # Do backup here
-                # sybcing to pc location
-                # dev.pull(src=part_name_backup, dest=f'{pclocation}')
-                # print(dev.shell(f'su -c cd /{locations}'))
-                # bckup = dev.shell((f'su -c "dd if=/{locations}/{ls_output}by-name/efs" of=/storage/emulated/0/{part_name}.tdf'))
-                # Do backup here
-                # print(ls_output)
-                # print(bckup)
+                response += f'\n {part_name} back up saved as'
             response += f'\n using {board_make} spring board' \
                         f' \n working from {pclocation}' \
                         f'\n compressing as {pclocation}_{dev.serial}'
@@ -327,8 +319,10 @@ class BackUP(detect):
                     with py7zr.SevenZipFile(pcfile, 'r') as pczip:
                         pczip.extractall(dir)
                     files = os.listdir()
+                    print(files)
                     for i in files:
                         if i.endswith('.bin') or i.endswith('.img'):
+                            print(i)
                             if i in to_look_for:
                                 dev.push(i, dest=f'storage/emulated/0/{i}\n')
                                 logfield.append(f'found {i} and pushed to dev\n')
@@ -408,9 +402,8 @@ class BackUP(detect):
             # print(pcdir)
         return response, backup_files, pclocation
 
-    def mtkrestore(self, pclocation):
+    async def mtkrestore(self, pclocation,logfield):
         startDaemon()
-        response = ''
         files_to_send = []
         pcdir, pcfile = os.path.split(pclocation)
         os.chdir(pcdir)
@@ -418,10 +411,13 @@ class BackUP(detect):
         for dev in client.devices():
             if dev:
                 os.chdir(pcdir)
-                response += f'working \n' \
+                logfield.append( f'working \n' \
                             'directory \n' \
                             'changed to \n ' \
-                            f'{pcdir}\n'
+                            f'{pcdir}\n')
+            else:
+                logfield.append(''
+                                'device not found')
 
             # print(pcfile,pcfile,pclocation,pcdir)
             os.chdir(pcdir)
@@ -430,13 +426,15 @@ class BackUP(detect):
                 os.chdir(f'{dev.serial}')
                 shtl.unpack_archive(pclocation, '.')
                 workingdir = f'{pcdir}\\{dev.serial}'
-                response += 'unparking restoring zip' \
+                logfield.append( 'unparking restoring zip' \
                             'to \n' \
-                            f'{dev.serial}'
+                            f'{dev.serial}')
+            else:
+               logfield.append('Temp folder already exists')
             filed = os.listdir(f'{pcdir}\\{dev.serial}')
-            response += '\nchecking for file convention'
+            logfield.append('checking for file convention')
             for fr in filed:
-                response += f'\nfolder contains {fr}\n'
+                logfield.append(f'folder contains {fr}')
                 # fr.split(os.getcwd())
                 files_to_send.append(fr)
 
@@ -536,26 +534,35 @@ class BackUP(detect):
                 response += f'\npacket sent to device'
         return response
 
-    def part_mountmtk(self, partname):
+    async def part_mountmtk(self,logfield):
         device = startDaemon()
 
         response = ''
         response += 'Fixing Mtk Baseband\n'
-        for dev in client.devices():
+        for dev in client.devices():  
             if dev.serial == device:
                 board_make = dev.shell('getprop ril.modem.board').strip()
-
+                logfield.append(f'using {board_make} Engine')
                 partname = ['nvdata', 'nvram', 'protect1', 'protect2', 'ncvcfg']
                 pmt = {}
                 for part in partname:
-                    dev.shell('cd /mnt/vendor')
+                    #formatting the nvprtitions
+                    dev.shell(f'su -f umount mnt/vendor/nvdata')
+                    logfield.append('Unmounting force Block1')
+                    dev.shell(f'su -f umount mnt/vendor/protect_f')
+                    logfield.append('Unmounting force Block2')
+                    dev.shell(f'su -f umount mnt/vendor/protecs_s')
+                    logfield.append('Unmounting Block3')
                     dev.shell(f'su -f umount {part}')
+                    logfield.append('Unmounting force Block5')
+                    dev.shell(f'su -c umount mnt/vendor/nvdata')
+                    logfield.append('fixing Blocks')
+                    dev.shell(f'su -c umount mnt/vendor/protect_f')
+                    dev.shell(f'su -c umount mnt/vendor/protect_s')
                     dev.shell(f'su -c umount {part}')
-                    print('unmounted data')
-                    response += 'Unmounted\n'
                     partition_path = f'{rootfs()}/{part}'
                     dev.shell(f'su -c y | "mke2fs {partition_path}"')
-                    response += 'Clearing springboard\n'
+                    logfield.append('Clearing springboard')
                     dev.shell(f'su -c y | "mkfs.ext4 {partition_path}"')
                     dev.shell(f'su -c "tune2fs -c0 -i0 {partition_path}"')
                     print('formatting')
@@ -565,6 +572,7 @@ class BackUP(detect):
                     dev.shell(f"su -c echo y | 'mke2fs {partition_path}'")
 
                 dev.shell('reboot nvrestore')
+                logfield.append('Rebooting to apply changes ')
         return response
 
     async def part_mountex(self, partname, logfield):
@@ -579,6 +587,8 @@ class BackUP(detect):
             # partition_path = f'{rootfs()}{partname}\n'
             dev.shell(f'su -c cd mnt/vendor/')
             dev.shell(f'su -c "umount efs"')
+            dev.shell(f'su -c umount efs')
+            dev.shell(f'su -c umount /mnt/vendor/efs')
             logfield.append('unmounted')
             # dev.shell(f'su -c umount {partname}')
             # print(dev.shell(f'su -c "cd mnt/vendor" && "umount {partname}" &&"ls"'))
@@ -600,8 +610,8 @@ class BackUP(detect):
             dev.shell('su -c cd dev/block/by-name')
             logfield.append('finding block')
             dev.shell(f'su -c y | mke2fs efs')
-            dev.shell(f'su -c "tune2fs -c0 -i0 /dev/block/by-name/{partname}"')
-            dev.shell(f'su -c tune2fs -c0 -i0 efs')
+            #dev.shell(f'su -c "tune2fs -c0 -i0 /dev/block/by-name/{partname}"')
+            #dev.shell(f'su -c tune2fs -c0 -i0 efs')
             logfield.append("\nDiscarding device blocks: \n")
             await asyncio.sleep(2)
             logfield.append(f'\nfixing security and tuning file system\n')
@@ -648,7 +658,7 @@ class repair(detect):
             dev.shell(f'su -c dd if=/dev/block/by-name/sec_efs of=/storage/emulated/0/{dev.serial}.7z')
             logfield.append(f'looking for {dev.serial} location\n')
             dev.pull(f'/storage/emulated/0/{dev.serial}.7z', f'{dev.serial}.7z')
-
+            dev.shell(f'su -c umount /efs')
             logfield.append('Backing up original file')
             dev.shell(f'su -c dd if=/efs/FactoryApp/serial_no of=/storage/emulated/0/sn')
             dev.shell(f'su -c dd if=/efs/sec_efs/SVC of=/storage/emulated/0/SVC')
@@ -661,7 +671,7 @@ class repair(detect):
                     sn = extractor.read()
                     logfield.append(f'Reading current Serial_no={dev.serial}\n')
                 with open('SVC','r') as svc:
-                    t1 = svc.readlines()
+                    t1 = svc.readline()
                     logfield.append('Found 2 Blocks \n')
                     for isv in t1:
                         b1 = isv.replace(f'{dev.serial}', f'{newsn}')
@@ -674,6 +684,11 @@ class repair(detect):
                 with open('SVC','w')as newsvc:
                     t3=newsvc.write(b1)
                     print(t3)
+            except UnboundLocalError:
+                print(UnboundLocalError)
+                logfield.append('Something wrong probably baseband is Unknown')
+                logfield.append('Repair sn operation failed..''..''..''')
+                logfield.append('Try fixing Basbeband First \n And Try again operation')
             finally:
                 dev.push(f'{dev.serial}.tdf', '/storage/emulated/0/serial_no')
                 dev.push('SVC','/storage/emulated/0/SVC')

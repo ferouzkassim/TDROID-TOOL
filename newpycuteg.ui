@@ -2054,7 +2054,7 @@ background-color: rgb(255, 255, 255);</string>
         </rect>
        </property>
        <property name="contextMenuPolicy">
-        <enum>Qt::NoContextMenu</enum>
+        <enum>Qt::PreventContextMenu</enum>
        </property>
        <property name="autoFillBackground">
         <bool>false</bool>
@@ -2071,6 +2071,12 @@ background-color: rgb(255, 255, 255);</string>
        </property>
        <property name="lineWidth">
         <number>7</number>
+       </property>
+       <property name="verticalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOn</enum>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QAbstractScrollArea::AdjustToContents</enum>
        </property>
       </widget>
       <widget class="QWidget" name="widget_2" native="true">
@@ -3987,7 +3993,7 @@ color: rgb(85, 170, 0);</string>
           <x>0</x>
           <y>30</y>
           <width>351</width>
-          <height>231</height>
+          <height>221</height>
          </rect>
         </property>
         <property name="contextMenuPolicy">

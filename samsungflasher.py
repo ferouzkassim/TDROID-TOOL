@@ -1,10 +1,13 @@
+import ast
 import asyncio
 import numbers
 import re
 import subprocess
+import threading
 from pathlib import Path
-
-
+import ctypes
+def file_areng():
+    pass
 async def readpit():
     startup_info = subprocess.STARTUPINFO()
     startup_info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -54,23 +57,29 @@ async def flashpart(part, file, logfield,progress_bar):
 async def run_flashpart(part, file, logfield,pbar):
     await flashpart(part, file, logfield,pbar)
 
-async def flash_parts(cmd2,logfield,progresbar):
+async def flash_parts(logfield,progresbar,*args):
     cmd = Path("daemon/sam.exe")
     startup_info = subprocess.STARTUPINFO()
     startup_info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-    flasher = await asyncio.create_subprocess_exec(cmd,cmd2,stderr=asyncio.subprocess.PIPE,
-                                             stdout=asyncio.subprocess.PIPE)
+    flasher = await subprocess.run([cmd,args],)
+    """asyncio.create_subprocess_exec(("daemon/sam.exe"),*args,stderr=asyncio.subprocess.PIPE,
+                                             stdout=asyncio.subprocess.PIPE)"""
     stdout_task = asyncio.create_task(read_output(flasher.stdout, logfield,progresbar))
     stderr_task = asyncio.create_task(read_output(flasher.stderr, logfield,progresbar))
     await asyncio.wait([stdout_task,stderr_task ], return_when=asyncio.FIRST_COMPLETED)
 
-    flasher.terminate()
-    await flasher.wait()
+
+    #await flasher.wait()
     await asyncio.gather(stderr_task,stdout_task)
+    #flasher.terminate()
 
 def pitanalyzer(pit):
     with open(pit,'r')as p:
         cont = p.readlines()
         for li in cont:
             print(li)
+def flashing_thread(*args):
+    flash_preccess = subprocess.run(['daemon/sam.exe',*args])
+    print(flash_preccess.stdout)
+    print(flash_preccess.stderr)
 #pitanalyzer('sample/orgnala03s.pit')

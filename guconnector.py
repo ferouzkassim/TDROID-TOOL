@@ -1,5 +1,7 @@
 import asyncio
 import os.path
+import pathlib
+import subprocess
 import threading
 import time
 from pathlib import Path
@@ -48,6 +50,12 @@ class baseband(QThread):
     def run(self):
         asyncio.run(detect.backuping.part_mountex(BackUP, self.partnem, self.logfield))
 
+class basbeband_sam_mtk(QThread):
+    def __init__(self,log):
+        super().__init__()
+        self.logfield = log
+    def run(self):
+        asyncio.run(detect.BackUP.part_mountmtk(self,self.logfield))
 
 class SamsungFlasherThread(QThread):
     def __init__(self, prt, nme, lf, pbar):
@@ -71,14 +79,15 @@ class samsungmultiflasher(QThread):
         self.progresbar = pbar
 
     def run(self):
-        asyncio.run(samsungflasher.flash_parts(self.flashincmd, self.logfield, self.progresbar))
-
-
+        #asyncio.run(samsungflasher.flashing_thread(self.flashincmd, self.logfield, self.progresbar))
+        multiflasher = threading.Thread(target=(samsungflasher.flashing_thread), args=['-b',self.flashincmd],)
+        multiflasher.start()
 class write_backup(QThread):
-    def __init__(self, file_to_write, logfield):
+    def __init__(self, file_to_write, logfield,soc_Type):
         super().__init__()
         self.file_to_write = file_to_write
         self.logfield = logfield
+        self.soc_type = soc_type
 
     def run(self):
         print('connnected here')
@@ -103,7 +112,7 @@ class fastboot_flasher(QThread):
         self.widget = widget
 
     def run(self):
-        asyncio.run(fastboot.usb_monitor(fastboot.fbb.fbtflasher(self.part, self.file, self.widget)))
+        asyncio.run(fastboot.fbb.fbtflasher(self.part, self.file, self.widget))
 
 
 class srialrepair(QThread):
@@ -137,6 +146,10 @@ class MainDialog(QDialog):
         self.qlmlist.sort()
         self.exynolist.sort()
         self.mtklist.sort()
+        samlog =self.ui.logfield.verticalScrollBar()
+        samlog.setValue(samlog.maximum())
+        fblog = self.ui.logfield_3.verticalScrollBar()
+        fblog.setValue(fblog.maximum())
         self.ui.progressBar.setMinimum(0)
         self.ui.progressBar.setMaximum(100)
         self.ui.progressBar.show()
@@ -171,18 +184,22 @@ class MainDialog(QDialog):
         self.ui.flashsmsng.clicked.connect(self.samlog)
         self.ui.modelselector.activated.connect(self.modelselector)
         self.ui.fixdload.clicked.connect(self.readpit)
-        self.ui.blcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.blline, self.fileloader()))
-        self.ui.apcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.apline, self.fileloader()))
-        self.ui.cpcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.cpline, self.fileloader()))
-        self.ui.csccheckbox.clicked.connect(lambda: self.loadedfile(self.ui.cscline, self.fileloader()))
-        self.ui.userdtacheckbox.clicked.connect(lambda: self.loadedfile(self.ui.userdataline, self.fileloader()))
-        self.ui.pitcheckbox.clicked.connect(lambda: self.loadedfile(self.ui.pitline, self.fileloader()))
+        self.ui.blbtn.clicked.connect(lambda: [self.loadedfile(self.ui.blline, self.fileloader()),
+                                               self.ui.blcheckbox.setChecked(True)])
+        self.ui.apbtn.clicked.connect(lambda:[self.loadedfile(self.ui.apline, self.fileloader()),
+                                               self.ui.apcheckbox.setChecked(True)])
+        self.ui.cpbdtn.clicked.connect(lambda:[self.loadedfile(self.ui.cpline, self.fileloader()),
+                                               self.ui.cpcheckbox.setChecked(True)])
+        self.ui.cscbtn.clicked.connect(lambda:[self.loadedfile(self.ui.cscline, self.fileloader()),
+                                               self.ui.csccheckbox.setChecked(True)])
+        self.ui.databtn.clicked.connect(lambda: [self.loadedfile(self.ui.userdataline, self.fileloader()),
+                                               self.ui.userdtacheckbox.setChecked(True)])
+        self.ui.pitcheckbox.clicked.connect(lambda: [self.loadedfile(self.ui.pitline, self.fileloader()),self.ui.pitcheckbox.nextCheckState(True)])
         self.ui.fbload.clicked.connect(lambda: self.fbloader())
         self.ui.logfield.setStyleSheet("color: green;font-weight:bold")
 
     def updateProgressBar(self, value):
         self.ui.progressBar.setValue(value)
-
     def logupdater(self, value):
         self.ui.logfield.append(value)
 
@@ -214,12 +231,12 @@ class MainDialog(QDialog):
     def fileloader(self):
         fiel, _ = QtWidgets.QFileDialog.getOpenFileName(filter="files (*.pit *.md5 *.tar *.zip)",
                                                         initialFilter='.tar')
-        print(fiel)
         return fiel
+
 
     def loadedfile(self, part, fiel):
         fileloaded = part.setText(fiel)
-        return fileloaded, fiel
+        return fiel
 
     def modelselector(self):
         model = self.ui.modelselector.currentText()
@@ -262,12 +279,9 @@ class MainDialog(QDialog):
         self.ui.logfield.repaint()
 
     def fixbbmtk(self):
-        loging = ''
-        print('mtking')
-        exnos = BackUP.part_mountmtk(BackUP, 'efs')
-        for outp in exnos:
-            loging += ''.join(outp)
-        self.ui.logfield.append(loging)
+        self.ui.logfield.append('Loging for Mtk Baseband repair')
+        self.basebandmtk = basbeband_sam_mtk(self.ui.logfield)
+        self.basebandmtk.start()
         self.ui.logfield.repaint()
 
     def read_info_adb(self, Rres):
@@ -412,7 +426,7 @@ class MainDialog(QDialog):
         self.baseband = baseband('efs', self.ui.logfield)
         self.baseband.start()
         self.ui.logfield.repaint()
-        self.cpreader()
+
 
     def exynoswrtefs(self):
         loging = ''
@@ -430,49 +444,29 @@ class MainDialog(QDialog):
         self.exywrite = exynos_write(self.ui.logfield, self.fileloader())
         self.exywrite.start()
 
+
     def samlog(self):
-        firmware_path = []
-        bl = self.ui.blline.text()
-        ap = self.ui.apline.text()
-        cp = self.ui.cpline.text()
-        csc = self.ui.cscline.text()
-        userdata = self.ui.userdataline.text()
-        flashingcmd = ''
-        firmware = {
-            "-b ": bl,
-            "-a ": ap,
-            "-c ": cp,
-            "-s ": csc,
-            "-u ": userdata
-        }
-        if any(firmware_path):
-            pass
-        for name, value in firmware.items():
-            while value:
-                firmware_path.append(f'{name} {value}')
-                print('step2')
-                break
-            """if value:
-                samthread = SamsungFlasherThread(name,value,self.ui.logfield,self.ui.progressBar)
-                self.ui.logfield.setText('samsung single flasher started')
-                print('step3')
-                #samthread.start()
-            else:
-                break"""
-        for path in firmware_path:
-            path_obj = Path(path)  # Convert the string to a pathlib Path object
-            flashingcmd += f' {path}'
-        print(flashingcmd)
-        print('step4')
+        bl_path = self.ui.blline.text()
+        ap_path = self.ui.apline.text()
+        cp_path = self.ui.cpline.text()
+        user_path = self.ui.userdataline.text()
+        csc_path = self.ui.cscline.text()
+        t1 = Path(bl_path)
+        print(t1)
+        flashingcmd = f'-b  {bl_path}'
+
         try:
-            self.samultithread = samsungmultiflasher(self.ui.logfield, flashingcmd, self.ui.progressBar)
-            # self.ui.logfield.setText('Samsung multi flasher started')
+            #print(t11.stderr)
+            self.samultithread = samsungmultiflasher(bl_path, self.ui.logfield, self.ui.progressBar)
+            self.ui.logfield.setText('Samsung multi flasher started')
             self.samultithread.start()
-        except ProcessLookupError:
-            self.ui.logfield.setText('Error while flashing ')
+        except :
+            self.ui.logfield.setText('Error while flashing \n make sure device is connected in download mode'
+                                     '\n make sure you have samsung drivers installed')
 
     def update_text_area(self, line):
         self.ui.logfield.append(line)
+
 
     def readpit(self):
         self.ui.logfield.setText('Fixing odin Error')
@@ -526,7 +520,7 @@ class MainDialog(QDialog):
     def fbFlashing(self):
         pth = ''
         cmd = []
-        flashfiles = ''
+        flashfiles = []
         self.ui.logfield_3.setStyleSheet('color: green;'
                                          ' background-color: black;'
                                          'font-size: 8pt;'
@@ -540,28 +534,32 @@ class MainDialog(QDialog):
         filepath = fbpath.toPlainText()
         if filepath:
             dirname = os.path.dirname(filepath)
-            print(dirname)
+            #print(dirname)
             t12 = os.listdir(dirname)
             firmware_parser = fastboot.fbb.xmlreader(filepath, self.ui.fblistwidget)
-            print(firmware_parser)
-            for t in t12:
-                if t.endswith('.img') or t.endswith('.bin'):
-                    if t in firmware_parser.values():
-                        print(t)
-                        filename = os.path.join(dirname, t)
-                        print(firmware_parser)
-                        print(filename)
+            """print(firmware_parser.items())
+            print(firmware_parser.values())"""
+            for part, file in firmware_parser.items():
+                if file in t12:
+                    filename = os.path.join(dirname,file)
+                    print(f'fastboot flash {part} {file}')
+                    self.fastboot_flasher = fastboot_flasher(part,filename,self.ui.logfield_3)
+                    self.fastboot_flasher.run()
+
+                else:
+                    self.ui.logfield.setText('Fastboot flasher broken')
+
+
 
 
 
         else:
             self.ui.logfield_3.setStyleSheet('Firmware Link invalid ')
         split_li = li.split('\n')
-        self.fastboot_flasher = fastboot_flasher("bootloader",
-                                                 "C:\\Users\\DROID\\Desktop\\sargo-sp2a.220505.008\\bootloader-sargo-b4s4-0.4-8048689.img",
+        #print(flashfiles)
+        ''' self.fastboot_flasher = fastboot_flasher("bootloader","C:\\Users\\DROID\\Desktop\\sargo-sp2a.220505.008\\bootloader-sargo-b4s4-0.4-8048689.img",
                                                  self.ui.logfield_3)
-        self.fastboot_flasher.start()
-
+        self.fastboot_flasher.start()'''
 
 # 06/02/2023 stopped lookign for fastboot ttesm to flash
 # 09082023 stuck wth using diferent threads to execute the job
