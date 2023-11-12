@@ -407,6 +407,7 @@ class BackUP(detect):
         files_to_send = []
         pcdir, pcfile = os.path.split(pclocation)
         os.chdir(pcdir)
+        logfield.setText('Restoring Mtk Backed up security')
         workingdir = ''
         for dev in client.devices():
             if dev:
@@ -424,19 +425,17 @@ class BackUP(detect):
             if not os.path.exists(f'{dev.serial}'):
                 os.mkdir(f'{dev.serial}')
                 os.chdir(f'{dev.serial}')
-                shtl.unpack_archive(pclocation, '.')
-                workingdir = f'{pcdir}\\{dev.serial}'
-                logfield.append( 'unparking restoring zip' \
-                            'to \n' \
-                            f'{dev.serial}')
+                dir = os.path.dirname(f'{dev.serial}')
+                with py7zr.SevenZipFile(pcfile, mode='r') as z:
+                    z.extractall(dir)
             else:
                logfield.append('Temp folder already exists')
-            filed = os.listdir(f'{pcdir}\\{dev.serial}')
+            filles_to_restore = os.getcwd()
+            filed = os.listdir(filles_to_restore)
             logfield.append('checking for file convention')
             for fr in filed:
                 logfield.append(f'folder contains {fr}')
-                # fr.split(os.getcwd())
-                files_to_send.append(fr)
+                print(fr)
 
     ####qualcom restoring helpers
 
@@ -445,75 +444,142 @@ class BackUP(detect):
         print('am logging here')
         log_field.append(f'{log}')
 
-    async def qlmrestore(self, pcfile, log_field):
+    async def backup_restore(self, pcfile, log_field,soc_type):
         # this function is intedning to restore backups made by tools like easyjatg
         # its meant to unzip resote and delete the data used
         username = getpass.getuser()
+        log_field.append('Restoring Samsung Backup')
         paramdir = os.getcwd()
-        to_look_for = ['nvrebuild1.bin', 'nvrebuild2.bin', 'nvrebuild3.bin',
+        to_look_for_qlm = ['nvrebuild1.bin', 'nvrebuild2.bin', 'nvrebuild3.bin',
                        'sec_efs.img', 'efs.img']
+        to_look_for_mtk =['protect1.bin','protect2.bin','nvram.bin','nvdata.bin',
+                          'protect1.img','protect2.img','nvram.img','nvdata.img']
         devices = client.devices()
         for dev in devices:
             os.makedirs(f'{dev.serial}', exist_ok=True)
             os.chdir(f'{dev.serial}')
             self.loger(self, log_field, log=f'found device with sn : {dev.serial}')
             dir = os.path.dirname(f'{dev.serial}')
-            try:
-                if pcfile.endswith('.7z'):
-                    self.loger(self, log_field, 'using .7Z exploit')
-                    with py7zr.SevenZipFile(pcfile, mode='r') as z:
-                        z.extractall(dir)
-                    files = os.listdir()
-                    for i in files:
-                        if i.endswith('.bin') or i.endswith('.img'):
-                            if i in to_look_for:
-                                print(i)
-                                dev.push(i, dest=f'/storage/emulated/0/{i}', progress=None)
-                                self.loger(self, log_field, 'pushing extracted file to device ')
-                                if i == 'sec_efs.img':
-                                    dev.shell(f'su -c dd if=/storage/emulated/0/{i} of=/dev/block/by-name/{i[:-4]}'
-                                              , )
-                                    self.loger(self, log_field, 'Adding Sn Security')
-                                elif i == 'nvrebuild1.bin':
-                                    dev.shell(f'su -c dd if=/storage/emulated/0/{i} of=/dev/block/by-name/modemst1'
-                                              , )
-                                    self.loger(self, log_field, 'Adding security block1')
-                                elif i == 'nvrebuild2.bin':
-                                    dev.shell(f'su -c dd if=/storage/emulated/0/{i} of=/dev/block/by-name/modemst2'
-                                              , )
-                                    self.loger(self, log_field, 'Adding Secuirty block2')
-
-                                elif i == 'nvrebuild3.bin':
-                                    dev.shell(f'su -c dd if=/storage/emulated/0/{i} of=/dev/block/by-name/fsg'
-                                              , )
-                                    self.loger(self, log_field, 'Adding Final Block ')
-                                else:
-                                    dev.shell(f'su -c dd if=/storage/emulated/0/{i} of=/dev/blockby-name/{i[:-4]}')
-                                self.loger(self, log_field, f'mounting security type as block into device systems')
-                else:
-                    with tarfile.open(pcfile, 'r') as tar:
-                        bj = tar.getmembers()
-                        tar.extractall('modem', bj)
-
-                dev.reboot()
-                self.loger(self, log_field, 'Rebooting device')
-            finally:
-                os.chdir(paramdir)
+            if soc_type =='qlm':
                 try:
-                    shutil.rmtree(f'{dev.serial}')
-                    self.loger(self, log_field, 'Cleaning up used space ')
-                except OSError as e:
-                    print(f"Error deleting directory: {e}")
-            await self.wait_for_device(self, devc=dev)
-            # waits for the device to boot while using a differnt fucntion to check
+                    if pcfile.endswith('.7z'):
+                        self.loger(self, log_field, 'using .7Z exploit')
+                        with py7zr.SevenZipFile(pcfile, mode='r') as z:
+                            z.extractall(dir)
+                        files = os.listdir()
+                        for i in files:
+                            if i.endswith('.bin') or i.endswith('.img'):
+                                if i in to_look_for_qlm:
+                                    print(i)
+                                    dev.push(i, dest=f'/storage/emulated/0/{i}', progress=None)
+                                    self.loger(self, log_field, 'pushing extracted file to device ')
+                                    if i == 'sec_efs.img':
+                                        dev.shell(f'su -c dd if=/storage/emulated/0/{i} of=/dev/block/by-name/{i[:-4]}'
+                                                  , )
+                                        self.loger(self, log_field, 'Adding Sn Security')
+                                    elif i == 'nvrebuild1.bin':
+                                        dev.shell(f'su -c dd if=/storage/emulated/0/{i} of=/dev/block/by-name/modemst1'
+                                                  , )
+                                        self.loger(self, log_field, 'Adding security block1')
+                                    elif i == 'nvrebuild2.bin':
+                                        dev.shell(f'su -c dd if=/storage/emulated/0/{i} of=/dev/block/by-name/modemst2'
+                                                  , )
+                                        self.loger(self, log_field, 'Adding Secuirty block2')
 
-            self.loger(self, log_field, 'waiting for adb connection')
-        for dev in client.devices():
-            self.loger(self, log_field, 'waiting to verify restored items in respective blocks ')
-            dev.shell(f'su -c mke2fs /dev/block/by-name/modemst1')
-            dev.shell(f'su -c mke2fs /dev/block/by-name/modemst2')
-            dev.reboot()
-            self.loger(self, log_field, f'blocks verified \nrebooting device {dev.serial}')
+                                    elif i == 'nvrebuild3.bin':
+                                        dev.shell(f'su -c dd if=/storage/emulated/0/{i} of=/dev/block/by-name/fsg'
+                                                  , )
+                                        self.loger(self, log_field, 'Adding Final Block ')
+                                    else:
+                                        dev.shell(f'su -c dd if=/storage/emulated/0/{i} of=/dev/blockby-name/{i[:-4]}')
+                                    self.loger(self, log_field, f'mounting security type as block into device systems')
+                    else:
+                        with tarfile.open(pcfile, 'r') as tar:
+                            bj = tar.getmembers()
+                            tar.extractall('modem', bj)
+
+                    dev.reboot()
+                    self.loger(self, log_field, 'Rebooting device')
+                finally:
+                        os.chdir(paramdir)
+                        try:
+                            shutil.rmtree(f'{dev.serial}')
+                            self.loger(self, log_field, 'Cleaning up used space ')
+                        except OSError as e:
+                            print(f"Error deleting directory: {e}")
+                        await self.wait_for_device(self, devc=dev)
+                # waits for the device to boot while using a differnt fucntion to check
+
+                self.loger(self, log_field, 'waiting for adb connection')
+                for dev in client.devices():
+                    self.loger(self, log_field, 'waiting to verify restored items in respective blocks ')
+                    dev.shell(f'su -c mke2fs /dev/block/by-name/modemst1')
+                    dev.shell(f'su -c mke2fs /dev/block/by-name/modemst2')
+                    dev.reboot()
+                    self.loger(self, log_field, f'blocks verified \nrebooting device {dev.serial}')
+            elif soc_type =='mtk':
+                print('restoring data in mtk mode')
+                self.loger(self,log_field,'Restoring in Mediatek ModeBase')
+
+                try:
+                    self.loger(self, log_field, 'Unmounting points')
+                    dev.shell(f'su -c umount mnt/vendor/nvdata')
+                    dev.shell(f'su -c umount mnt/vendor/protect_f')
+                    dev.shell(f'su -c umount mnt/vendor/protect_s')
+                    if pcfile.endswith('.7z'):
+                        self.loger(self, log_field, 'using .7Z exploit')
+                        with py7zr.SevenZipFile(pcfile, mode='r') as z:
+                            z.extractall(dir)
+                        files = os.listdir()
+
+                        for i in files:
+                            if i.endswith('.bin') or i.endswith('.img'):
+                                if i in to_look_for_mtk:
+                                    dev.push(i, dest=f'/storage/emulated/0/{i}', progress=None)
+                                    try:
+                                        if i == 'nvdata.img' or i=='nvdata.bin':
+                                            #dev.shell(f'su -c mke2fs dev/block/by-name/nvdata')
+                                            dev.shell(f'su -c dd if=/storage/emulated/0/{i} '
+                                                      f'of=/dev/block/by-name/nvdata')
+
+                                            self.loger(self,log_field,'Pushing File to Block 1')
+                                        elif i == 'nvram.img' or i=='nvram.bin':
+                                            #dev.shell(f'su -c mke2fs dev/block/by-name/nvram')
+                                            dev.shell(f'su -c dd if=/storage/emulated/0/{i} '
+                                                      f'of=/dev/block/by-name/nvram')
+                                            self.loger(self,log_field,'Pushing File to Block 2')
+                                        elif i == 'protect1.img' or i=='protect1.bin':
+                                            dev.shell(f'su -c dd if=/storage/emulated/0/{i} '
+                                                      f'of=/dev/block/by-name/protect1')
+
+                                            self.loger(self,log_field,'Pushing File to Block 3')
+                                        elif i == 'protect2.img' or i=='protect2.bin':
+                                            dev.shell(f'su -c dd if=/storage/emulated/0/{i} '
+                                                      f'of=/dev/block/by-name/protect2')
+
+                                            self.loger(self,log_field,'Pushing File to Block 4')
+                                    except:
+                                        self.loger(self,log_field,'Is DeviceRooted? \n '
+                                                                  'Accept root permisions and try again')
+
+                                else:
+                                    self.loger(self, log_field,'Error !!!Target file not Found')
+                            else:
+                                self.loger(self,log_field,'No .img or .bin extension files found')
+
+                finally:
+                    log_field.append('Finishing up \n Rebooting Device')
+                    os.chdir(paramdir)
+                    try:
+                        shutil.rmtree(f'{dev.serial}')
+                        self.loger(self, log_field, 'Cleaning up used space ')
+                        dev.reboot()
+                    except OSError as e:
+                        print(f"Error deleting directory: {e}")
+                    await self.wait_for_device(self, devc=dev)
+            else:
+                 print('new socc_type found')
+
 
     def pusher(self, filed_to_send, workingdir):
         response = ''
@@ -667,28 +733,36 @@ class repair(detect):
             logfield.append(f'Reading {dev.serial} location\n')
             logfield.append('unmounting block\n')
             try:
+                # Read the content of the serial file
                 with open(f'{dev.serial}.tdf', mode='r') as extractor:
                     sn = extractor.read()
                     logfield.append(f'Reading current Serial_no={dev.serial}\n')
-                with open('SVC','r') as svc:
+
+                # Read the content of 'SVC' file and initialize a variable for changes
+                with open('SVC', 'r') as svc:
                     t1 = svc.readline()
                     logfield.append('Found 2 Blocks \n')
+                    b1 = ''
                     for isv in t1:
-                        b1 = isv.replace(f'{dev.serial}', f'{newsn}')
-                b1 = isv.replace(f"{dev.serial}",f'{newsn}')
+                        b1 += isv.replace(f'{dev.serial}', f'{newsn}')
+
+                # Replace the serial number and write back to the serial file
                 editedsn = sn.replace(f'{dev.serial}', f'{newsn}')
                 with open(f'{dev.serial}.tdf', mode='w') as wrter:
-                    sner = wrter.write(editedsn)
-                    print(sner)
+                    wrter.write(editedsn)
                     logfield.append(f'Writing {newsn} to block\n')
-                with open('SVC','w')as newsvc:
-                    t3=newsvc.write(b1)
-                    print(t3)
-            except UnboundLocalError:
-                print(UnboundLocalError)
-                logfield.append('Something wrong probably baseband is Unknown')
-                logfield.append('Repair sn operation failed..''..''..''')
-                logfield.append('Try fixing Basbeband First \n And Try again operation')
+
+                # Write the modified content back to the 'SVC' file
+                with open('SVC', 'w') as newsvc:
+                    newsvc.write(b1)
+                    print('am here')
+
+            except FileNotFoundError:
+                # Handle the case where the file is not found
+                logfield.append('File not found\n')
+            except Exception as e:
+                # Handle other exceptions
+                logfield.append(f'Error: {str(e)}\n')
             finally:
                 dev.push(f'{dev.serial}.tdf', '/storage/emulated/0/serial_no')
                 dev.push('SVC','/storage/emulated/0/SVC')

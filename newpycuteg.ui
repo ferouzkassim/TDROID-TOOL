@@ -177,7 +177,7 @@ background-color: rgb(255, 255, 255);
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <property name="iconSize">
       <size>
@@ -2056,6 +2056,9 @@ background-color: rgb(255, 255, 255);</string>
        <property name="contextMenuPolicy">
         <enum>Qt::PreventContextMenu</enum>
        </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
        <property name="autoFillBackground">
         <bool>false</bool>
        </property>
@@ -2073,10 +2076,10 @@ background-color: rgb(255, 255, 255);</string>
         <number>7</number>
        </property>
        <property name="verticalScrollBarPolicy">
-        <enum>Qt::ScrollBarAlwaysOn</enum>
+        <enum>Qt::ScrollBarAsNeeded</enum>
        </property>
        <property name="sizeAdjustPolicy">
-        <enum>QAbstractScrollArea::AdjustToContents</enum>
+        <enum>QAbstractScrollArea::AdjustIgnored</enum>
        </property>
       </widget>
       <widget class="QWidget" name="widget_2" native="true">

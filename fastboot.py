@@ -1,4 +1,5 @@
 import asyncio
+import os
 import subprocess
 import threading
 import xml.etree.ElementTree as et
@@ -39,6 +40,7 @@ class Fboot:
         process = subprocess.run(command, capture_output=True)
         # Assign the output streams directly to self.fastb
         self.fastb = (process.stderr, process.stdout)
+
 
     def get_output(self):
         stdout_output, stderr_output = self.fastb
@@ -101,13 +103,21 @@ class Fboot:
             QApplication.processEvents()
 
     async def fbtflasher(self, part,file,widget):
-        tflasher = await asyncio.create_subprocess_exec(self.cmd, 'flash',part,file,
+        #with disabled popus
+
+        tflasher = await asyncio.to_thread(subprocess.run, [self.cmd, 'flash', part, file],
+                                           stderr=subprocess.PIPE, stdout=subprocess.PIPE,
+                                           creationflags=subprocess.CREATE_NO_WINDOW)
+
+        td = tflasher.stderr.decode()
+        await self.fbloger(td, widget)
+        """tflasher = await asyncio.create_subprocess_exec(self.cmd, 'flash',part,file,
                                                         stderr=asyncio.subprocess.PIPE,
                                                         stdout=asyncio.subprocess.PIPE)
         stdout, stderr = await tflasher.communicate()
         td = stderr.decode()
         stdout_task = asyncio.create_task(self.fbloger(td,widget))
-        await stdout_task
+        await stdout_task"""
        # await asyncio.wait([stdout_task, ], return_when=asyncio.FIRST_COMPLETED)
 
 

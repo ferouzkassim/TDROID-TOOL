@@ -1,6 +1,8 @@
 import ast
 import asyncio
 import numbers
+import os
+import pathlib
 import re
 import subprocess
 import threading
@@ -17,45 +19,30 @@ async def readpit():
     text = stdout.decode()
     return text
 async def read_output(stream, logfield, progress_bar):
-    while True:
-        line = await stream.readline()
-        if not line:
-            break
-        log = line.decode().strip()
-        try:
-            log_as_int = int(log)
-            if 0 <= log_as_int <= 100:
-                progress_bar.setValue(log_as_int)
-            else:
-                logfield.append(log)
-        except ValueError:
-            logfield.append(log)
+    #if stream is type
+    logfield.append(stream)
+    print(stream)
 
 
-
+cmd = "daemon/sam.exe"
 async def flashpart(part, file, logfield,progress_bar):
-    cmd = "daemon/sam"
     progress_bar.setValue=0
     progress_bar.setMaximum=100
     startup_info = subprocess.STARTUPINFO()
     startup_info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-    process = await asyncio.create_subprocess_exec(
-        cmd,'--ignore-md5', part, file,
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE,startupinfo=startup_info
-    )
+    try:
+        proces = await asyncio.to_thread(subprocess.run,[cmd,part,file,'--ignore-md5'],
+                                         stderr= subprocess.PIPE,
+                                         stdout = subprocess.PIPE,
+                                         creationflags =subprocess.CREATE_NO_WINDOW)
 
-    stdout_task = asyncio.create_task(read_output(process.stdout, logfield,progress_bar))
-    stderr_task = asyncio.create_task(read_output(process.stderr, logfield,progress_bar))
 
-    await asyncio.wait([stdout_task,stderr_task ], return_when=asyncio.FIRST_COMPLETED)
+        await read_output(proces.stdout.decode(),logfield,progress_bar)
+        #await read_output(proces.stdout,logfield,progress_bar)
+    except Exception as xcv:
+        print(f'the problem is f {xcv}')
+        logfield.append(f'An Error occurred Check File Paths or {xcv}')
 
-    process.terminate()
-    await process.wait()
-
-    await asyncio.gather(stdout_task,stderr_task)
-async def run_flashpart(part, file, logfield,pbar):
-    await flashpart(part, file, logfield,pbar)
 
 async def flash_parts(logfield,progresbar,*args):
     cmd = Path("daemon/sam.exe")
