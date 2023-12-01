@@ -61,15 +61,14 @@ class basbeband_sam_mtk(QThread):
 
 
 class SamsungFlasherThread(QThread):
-    def __init__(self, prt, file, lf, pbar):
+    def __init__(self, prt, lf, pbar):
         super().__init__()
         self.lf = lf  # logfield
-        self.part = prt  # part file
-        self.file = file  # part name
+        self.part_file = prt  # part file and file
         self.pbar = pbar  # progress bar
 
     def run(self):
-        asyncio.run(samsungflasher.flashpart(self.part, self.file,self.lf, self.pbar))
+        tsam=samsungflasher.flashpart(self.part_file, self.lf, self.pbar)
 
 
 """class samsungmultiflasher(QThread):
@@ -93,7 +92,9 @@ class write_backup(QThread):
         self.soc_type = soc_Type
 
     def run(self):
-        asyncio.run(detect.BackUP.backup_restore(BackUP, self.file_to_write, self.logfield,self.soc_type))
+        asyncio.run(detect.BackUP.backup_restore(BackUP, self.file_to_write, self.logfield, self.soc_type))
+
+
 class exynos_write(QThread):
     def __init__(self, logfield, file_to_write):
         super().__init__()
@@ -243,11 +244,10 @@ class MainDialog(QDialog):
 
     def loadedfile(self, part, file):
         if file:
-            fileloaded = part.setText(str(file))
+            fileloaded = part.setText(file)
         else:
             # Handle the case where the file path is None (e.g., user canceled the file dialog)
             print("File loading canceled or failed.")
-
 
     def modelselector(self):
         model = self.ui.modelselector.currentText()
@@ -472,16 +472,29 @@ class MainDialog(QDialog):
         cp_path = self.ui.cpline.text()
         user_path = self.ui.userdataline.text()
         csc_path = self.ui.cscline.text()
-        file_name = Path(bl_path)
+        samsung_flashingcmmd = ''
+        samsung_dict = {bl_path: '-b', ap_path: '-a',
+                        cp_path: '-c', user_path: '-u', csc_path: '-s'}
+
+        if bl_path:
+            samsung_flashingcmmd += fr'{samsung_dict.get(bl_path)} "{bl_path}" '
+        if ap_path:
+            samsung_flashingcmmd += fr'{samsung_dict.get(ap_path)} "{ap_path}" '
+        if cp_path:
+            samsung_flashingcmmd += fr'{samsung_dict.get(cp_path)} "{cp_path}" '
+        if user_path:
+            samsung_flashingcmmd += fr'{samsung_dict.get(user_path)} "{user_path}" '
+        if csc_path:
+            samsung_flashingcmmd += fr'{samsung_dict.get(csc_path)} "{csc_path}" '
+
         try:
-            # print(t11.stderr)\
-            # self.ui.logfield.append('Samsung multi flasher started')
-            self.samultithread = SamsungFlasherThread('-b', file_name, self.ui.logfield, self.ui.progressBar)
-            self.samultithread.start()
+            samthread = SamsungFlasherThread(samsung_flashingcmmd, self.ui.logfield, self.ui.progressBar)
+            samthread.run()  # Use start() instead of run()
+            print(samsung_flashingcmmd)
         except Exception as e:
             print(f"An error occurred: {e}")
-            self.ui.logfield.setText('Error while flashing \n make sure device is connected in download mode'
-                                     '\n make sure you have samsung drivers installed')
+            self.ui.logfield.setText('Error while flashing \n make sure the device is connected in download mode'
+                                     '\n make sure you have Samsung drivers installed')
 
     def update_text_area(self, line):
         self.ui.logfield.append(line)
@@ -500,7 +513,7 @@ class MainDialog(QDialog):
 
         # t1 = asyncio.create_task(fastboot.fbb.fastbootinfo(self.ui.logfield_3))
         t2 = asyncio.create_task(fastboot.fbb.fastbootinfo
-                                                      (self.ui.logfield_3), )
+                                 (self.ui.logfield_3), )
         await t2
 
     def fastbooinfo(self):
