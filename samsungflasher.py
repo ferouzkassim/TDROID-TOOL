@@ -7,7 +7,8 @@ import re
 import subprocess
 import threading
 from pathlib import Path
-import ctypes
+from PyQt6.QtCore import QThread, QEventLoop, QObject
+from PyQt6.QtCore import pyqtSignal,pyqtSlot
 
 
 def file_areng():
@@ -30,50 +31,62 @@ def read_output(stream, logfield, progress_bar):
     print(stream)
 
 
+main_loop = asyncio.get_event_loop()
+class SamsungFlasherThread(QThread):
+    log_signal = pyqtSignal(str)
+    progress_signal = pyqtSignal(int)
+    def __init__(self, lf, pbar):
+        super().__init__()
+        self.lf = lf  # logfield
+        #self.part_file = prt  # part file and file
+        self.pbar = pbar  # progress bar
 
-def flashpart(part_file, logfield, progress_bar):
-    progress_bar.setValue(0)
-    progress_bar.setMaximum(100)
-    cmd ='daemon\sam.exe'
-    try:
-        def read_stream(stream, logfield):
-            for line in stream:
-                logfield.append(line.strip())
+    def set_part_file(self, part_file):
+        self.part_file = part_file
+    def run(self):
+        asyncio.run(self.samflashing())
+    async def read_stream(self, stream):
+        while True:
+            line = await stream.readuntil(b'\n')  # Read until a newline character is encountered
+            if not line:
+                break
+            self.process_output(line)
+    def process_output(self, line):
+        if isinstance(line, int):
+            self.progress_signal.emit(line)
+        else:
+            decoded_line = line.decode()
+            if decoded_line.endswith('%') and decoded_line[:-1].isdigit():
+                progress_value = int(decoded_line[:-1])
+                print(progress_value)
+                self.progress_signal.emit(decoded_line)
+            else:
+                self.log_signal.emit(decoded_line)
+                print(decoded_line, end='')
 
-        def samflashing(part_file, logfield, progress_bar):
-            sampop = subprocess.Popen([cmd ,f' {part_file}'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    async def samflashing(self):
+        try:
+            samflasher = await asyncio.create_subprocess_shell(
+                f'daemon\\sam.exe --ignore-md5 {self.part_file}',
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            stdout_reader = asyncio.create_task(self.read_stream(samflasher.stdout))
+            stderr_reader = asyncio.create_task(self.read_stream(samflasher.stderr))
 
-            # Start threads to read stdout and stderr concurrently
-            stdout_thread = threading.Thread(target=read_stream, args=(sampop.stdout, logfield))
-            stderr_thread = threading.Thread(target=read_stream, args=(sampop.stderr, logfield))
+            await samflasher.wait()
 
-            stdout_thread.start()
-            stderr_thread.start()
+            # Ensure that the output readers have finished
+            await asyncio.gather(stdout_reader, stderr_reader)
+            self.log_signal.emit('Flashing Samsung device completed')
+        except Exception as e:
+            print(e)
 
-            # Wait for the process to complete and retrieve stdout and stderr
-            stdout, stderr = sampop.communicate()
+    @pyqtSlot(int)
+    def updateProgressBar(self, value):
+        self.pbar.setValue(value)
 
-            # Wait for threads to complete
-            stdout_thread.join()
-            stderr_thread.join()
 
-            # Optionally, you can append stdout and stderr to the logfield
-            logfield.append(stdout.strip())
-            logfield.append(stderr.strip())
-
-        # Start the flashing thread
-        samthread = threading.Thread(target=samflashing, args=(part_file, logfield, progress_bar))
-        samthread.start()
-
-        # Wait for the flashing thread to complete
-        samthread.join()
-
-        # Once the thread completes, update the logfield
-        logfield.append('Flashing Samsung device completed')
-
-    except Exception as xcv:
-        print(f'The problem is: {xcv}')
-        logfield.append(f'An Error occurred')
 async def flash_parts(logfield, progresbar, *args):
     cmd = "daemon/sam.exe"
     startup_info = subprocess.STARTUPINFO()

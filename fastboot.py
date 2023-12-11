@@ -3,13 +3,12 @@ import os
 import subprocess
 import threading
 import xml.etree.ElementTree as et
-
+import concurrent.futures
 import fastbootpy.usb_device
 import usb
 from PyQt6.QtWidgets import QApplication
 from usb.backend import libusb1
 import fastbootpy as pyfb
-
 
 '''class fbpy:
     def __int__(self):
@@ -29,10 +28,11 @@ fb = fbpy()
 fb.info()
 '''
 
+
 class Fboot:
     def __init__(self):
         self.fastb = None
-        self.cmd = "daemon/fastboot.exe"
+        self.cmd = "daemon\\fastboot.exe"
         self.batreaded = []
 
     def fboot(self, cmd1, cmd2):
@@ -40,7 +40,6 @@ class Fboot:
         process = subprocess.run(command, capture_output=True)
         # Assign the output streams directly to self.fastb
         self.fastb = (process.stderr, process.stdout)
-
 
     def get_output(self):
         stdout_output, stderr_output = self.fastb
@@ -53,7 +52,7 @@ class Fboot:
 
         return decoded_line
 
-    async def fastbootinfo(self, logfield):
+    async def fastbootinfo(self, logfield, ):
         fbb = Fboot()
         fbb.fboot('getvar', 'all', )
         result = fbb.get_output()
@@ -91,53 +90,91 @@ class Fboot:
         li_firmware_parsers = ['.bat', '.xml', '.cfg', '.sh']
         print(firmwarepath)
 
-    def batfile(self,part,file,widget):
-        fastbootpy.FastbootDevice.flash(self,part)
-    async def fbloger(self, stream,widget):
-        lines = stream.splitlines()
-        for line in lines:
-            # Process each line as it arrives
-            await asyncio.sleep(0)  # Allow other tasks to run concurrently
-            widget.append(line.replace('(bootloader)', '->'))
-            # the missing glotch in realtime processing is QApplication.processEvents()
-            QApplication.processEvents()
+    def batfile(self, part, file, widget):
+        fastbootpy.FastbootDevice.flash(self, part)
 
-    async def fbtflasher(self, part,file,widget):
-        #with disabled popus
+    def fbloger(self, st_out, widget):
+        widget.append(st_out.readline())
+        print(f'the stout is {st_out}')
 
-        tflasher = await asyncio.to_thread(subprocess.run, [self.cmd, 'flash', part, file],
-                                           stderr=subprocess.PIPE, stdout=subprocess.PIPE,
-                                           creationflags=subprocess.CREATE_NO_WINDOW)
+    async def fbtflasher(self, part, file, widget):
+        try:
+            # with disabled popups
+            tflasher = await asyncio.create_subprocess_shell(
+                f'{self.cmd} flash {part} {file}',
+                stderr=asyncio.subprocess.PIPE,
+                stdout=asyncio.subprocess.PIPE
+            )
 
-        td = tflasher.stderr.decode()
-        await self.fbloger(td, widget)
-        """tflasher = await asyncio.create_subprocess_exec(self.cmd, 'flash',part,file,
-                                                        stderr=asyncio.subprocess.PIPE,
-                                                        stdout=asyncio.subprocess.PIPE)
-        stdout, stderr = await tflasher.communicate()
-        td = stderr.decode()
-        stdout_task = asyncio.create_task(self.fbloger(td,widget))
-        await stdout_task"""
-       # await asyncio.wait([stdout_task, ], return_when=asyncio.FIRST_COMPLETED)
+            # Use asyncio.StreamReader to read subprocess output asynchronously
+            stdout_reader = asyncio.StreamReader()
+            stderr_reader = asyncio.StreamReader()
+
+            asyncio.ensure_future(self.read_stream(tflasher.stdout, widget))
+            asyncio.ensure_future(self.read_stream(tflasher.stderr, widget))
+
+            # Wait for the subprocess to complete
+            await tflasher.wait()
+
+        except Exception as e:
+            # Handle any exceptions that might occur during the subprocess execution
+            widget.append(f"An error occurred: {str(e)}")
+
+    async def read_stream(self,strem, widget):
+        while True:
+            line = await strem.readline()
+            if not line:
+                break
+            decoded_line = line.decode('utf-8')
+            widget.append(decoded_line)
 
 
-    def xmlreader(self,file,widget):
-        flashingDict = {}
-        fileparse = et.parse(file)
-        for partition_index in fileparse.findall('partition_index'):
-            partition_name = partition_index.find('partition_name').text
-            file_name = partition_index.find('file_name').text
-            partition_size = partition_index.find('partition_size').text
-            storage = partition_index.find('storage').text
-            isdownload = partition_index.find('is_download').text
-            if file_name != 'NONE' and isdownload =='true' :
-                widget.append(f'file_name : {file_name}')
-                flashingDict[partition_name] = f'{file_name}'
-                widget.append(f"Partition Size: {partition_size}")
-                widget.append(f"Partition Name: {partition_name}")
-                widget.append("_" * 15)
-        return flashingDict
-    def ext_parser(self, ext,widget):
+
+    def xmlreader(self, file, widget):
+        flashing_dict = {}
+        tree = et.parse(file)
+
+        try:
+            for partition_index in tree.findall('partition_index'):
+                partition_name = partition_index.find('partition_name').text
+                file_name = partition_index.find('file_name').text
+                partition_size = partition_index.find('partition_size').text
+                storage = partition_index.find('storage').text
+                is_download = partition_index.find('is_download').text
+
+                if file_name != 'NONE' and is_download == 'true':
+                    widget.append(f'file_name : {file_name}')
+                    flashing_dict[partition_name] = file_name
+                    widget.append(f"Partition Size: {partition_size}")
+                    widget.append(f"Partition Name: {partition_name}")
+                    widget.append("_" * 15)
+        except Exception as e:
+            # Handle specific exceptions, log the error, and decide on appropriate actions
+            widget.append(f"Error parsing partition_index: {e}")
+
+        try:
+            for stor in tree.findall('.//storage_type'):
+
+                partition_name = stor.findall('partition_name').text
+                file_name = stor.findall('file_name').text
+                partition_size = stor.findall('partition_size').text
+                storage = stor.findall('storage').text
+                is_download = stor.findall('is_download').text
+
+                if file_name != 'NONE' and is_download == 'true':
+                    widget.append(f'file_name : {file_name}')
+                    flashing_dict[partition_name] = file_name
+                    widget.append(f"Partition Size: {partition_size}")
+                    widget.append(f"Partition Name: {partition_name}")
+                    widget.append("_" * 15)
+        except:
+            # Exception as :
+            # Handle specific exceptions, log the error, and decide on appropriate actions
+            # widget.append(f"Error parsing storage_type: {e}")
+            print('e.args')
+        return flashing_dict
+
+    def ext_parser(self, ext, widget):
         files_to_flash = []
         for i in ext:
             files_to_flash.append(i)
@@ -156,10 +193,9 @@ class Fboot:
 
                     return self.batreaded
             elif x.endswith(".xml"):
-                flashdict =self.xmlreader(x,widget)
+                flashdict = self.xmlreader(x, widget)
                 return flashdict
         return files_to_flash
-
 
 
 fbb = Fboot()
@@ -181,7 +217,7 @@ async def usb_monitor(func_to_run):
     # USB\VID_18D1&PID_D00D
     # USB\VID_0E8D&PID_201C
     # USB\VID_18D1&PID_4EE0&REV_0100
-    #USB\VID_18D1&PID_4EE0
+    # USB\VID_18D1&PID_4EE0
     # Convert the USB ID string to integer values
     # libusb install filer
     # install-filter install "--device=USB\VID_18D1&PID_4EE0&REV_0100"

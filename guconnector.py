@@ -60,15 +60,7 @@ class basbeband_sam_mtk(QThread):
         asyncio.run(detect.BackUP.part_mountmtk(self, self.logfield))
 
 
-class SamsungFlasherThread(QThread):
-    def __init__(self, prt, lf, pbar):
-        super().__init__()
-        self.lf = lf  # logfield
-        self.part_file = prt  # part file and file
-        self.pbar = pbar  # progress bar
 
-    def run(self):
-        tsam=samsungflasher.flashpart(self.part_file, self.lf, self.pbar)
 
 
 """class samsungmultiflasher(QThread):
@@ -128,7 +120,6 @@ class srialrepair(QThread):
 
 class MainDialog(QDialog):
     def __init__(self):
-        self.samultithread = None
         self.fastboot_flasher = None
         self.write_backup = None
         self.draftli = []
@@ -137,11 +128,9 @@ class MainDialog(QDialog):
         self.ui = Ui_main()
         self.ui.setupUi(self)
         # threading download mode slotsss
-        """self.dmodethread = Dmode()
-        self.dmodethread.resultReady.connect(self.loghandler)
-        self.dmodethread.updateProgress.connect(self.updateProgressBar)"""
-        # self.samsung_thread = SamsungFlasherThread(self.ui.blline.text(), self.ui.logfield)
-        # Connect to the slot method
+        self.samthread = samsungflasher.SamsungFlasherThread(self.ui.logfield, self.ui.progressBar)
+        self.samthread.log_signal.connect(self.logupdater)
+        self.samthread.progress_signal.connect(self.updateProgressBar)
         self.mtklist = ['Mtk General', 'SM-A013G', 'SM-A037F', 'SM-A125F', 'SM-A225F', 'SM-A022F']
         self.exynolist = ['Exynos General', 'SM-A127F', 'SM-A217f', 'SM-A135F', 'SM-A047F']
         self.qlmlist = ['SM-A235F']
@@ -488,9 +477,10 @@ class MainDialog(QDialog):
             samsung_flashingcmmd += fr'{samsung_dict.get(csc_path)} "{csc_path}" '
 
         try:
-            samthread = SamsungFlasherThread(samsung_flashingcmmd, self.ui.logfield, self.ui.progressBar)
-            samthread.run()  # Use start() instead of run()
-            print(samsung_flashingcmmd)
+            if not self.samthread.isRunning():
+                # Pass self.part_file as an argument to the thread
+                self.samthread.set_part_file(samsung_flashingcmmd)
+                self.samthread.start()
         except Exception as e:
             print(f"An error occurred: {e}")
             self.ui.logfield.setText('Error while flashing \n make sure the device is connected in download mode'
@@ -512,10 +502,12 @@ class MainDialog(QDialog):
         self.ui.progressBar.setValue(0)
 
         # t1 = asyncio.create_task(fastboot.fbb.fastbootinfo(self.ui.logfield_3))
-        t2 = asyncio.create_task(fastboot.fbb.fastbootinfo
+        try:
+            t2 = asyncio.create_task(fastboot.fbb.fastbootinfo
                                  (self.ui.logfield_3), )
-        await t2
-
+            await t2
+        except:
+            self.ui.logfield.append('Device Not connected ')
     def fastbooinfo(self):
 
         asyncio.run(self.runfboot())
@@ -583,6 +575,7 @@ class MainDialog(QDialog):
 
                 else:
                     self.ui.logfield.setText('Fastboot flasher broken')
+
             self.ui.progressBar.setValue(100)
         else:
             self.ui.logfield_3.setStyleSheet('Firmware Link invalid ')

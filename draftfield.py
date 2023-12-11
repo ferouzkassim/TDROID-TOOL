@@ -1,35 +1,77 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QFileDialog
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QLabel, QPushButton, QVBoxLayout, QProgressBar
+from PyQt6.QtCore import QThread, QObject, pyqtSignal as Signal, pyqtSlot as Slot
+import time
 
 
-class PathSelector(QWidget):
-    def __init__(self):
-        super().__init__()
+class Worker(QObject):
+    progress = Signal(int)
+    completed = Signal(int)
 
-        self.init_ui()
+    @Slot(int)
+    def do_work(self, n):
+        for i in range(1, n+1):
+            time.sleep(1)
+            self.progress.emit(i)
 
-    def init_ui(self):
+        self.completed.emit(i)
+
+
+class MainWindow(QMainWindow):
+    work_requested = Signal(int)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.setGeometry(100, 100, 300, 50)
+        self.setWindowTitle('QThread Demo')
+
+        # setup widget
+        self.widget = QWidget()
         layout = QVBoxLayout()
+        self.widget.setLayout(layout)
+        self.setCentralWidget(self.widget)
 
-        self.path_line_edit = QLineEdit(self)
-        layout.addWidget(self.path_line_edit)
+        self.progress_bar = QProgressBar(self)
+        self.progress_bar.setValue(0)
 
-        select_button = QPushButton('Select Path', self)
-        select_button.clicked.connect(self.show_dialog)
-        layout.addWidget(select_button)
+        self.btn_start = QPushButton('Start', clicked=self.start)
 
-        self.setLayout(layout)
+        layout.addWidget(self.progress_bar)
+        layout.addWidget(self.btn_start)
 
-    def show_dialog(self):
-        file_dialog = QFileDialog()
-        selected_path = file_dialog.getExistingDirectory(self, 'Select Directory')
+        self.worker = Worker()
+        self.worker_thread = QThread()
 
-        if selected_path:
-            self.path_line_edit.setText(selected_path)
+        self.worker.progress.connect(self.update_progress)
+        self.worker.completed.connect(self.complete)
+
+        self.work_requested.connect(self.worker.do_work)
+
+        # move worker to the worker thread
+        self.worker.moveToThread(self.worker_thread)
+
+        # start the thread
+        self.worker_thread.start()
+
+        # show the window
+        self.show()
+
+    def start(self):
+        self.btn_start.setEnabled(False)
+        n = 5
+        self.progress_bar.setMaximum(n)
+        self.work_requested.emit(n)
+
+    def update_progress(self, v):
+        self.progress_bar.setValue(v)
+
+    def complete(self, v):
+        self.progress_bar.setValue(v)
+        self.btn_start.setEnabled(True)
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    path_selector = PathSelector()
-    path_selector.show()
-    sys.exit(app.exec_())
+    window = MainWindow()
+    sys.exit(app.exec())
