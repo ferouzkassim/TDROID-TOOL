@@ -51,18 +51,31 @@ class SamsungFlasherThread(QThread):
             if not line:
                 break
             self.process_output(line)
+
     def process_output(self, line):
-        if isinstance(line, int):
-            self.progress_signal.emit(line)
-        else:
-            decoded_line = line.decode()
-            if decoded_line.endswith('%') and decoded_line[:-1].isdigit():
-                progress_value = int(decoded_line[:-1])
-                print(progress_value)
-                self.progress_signal.emit(decoded_line)
-            else:
+        print(line)
+        try:
+            decoded_line = line.decode().strip()
+
+            if decoded_line.startswith('('):
+                # Lines starting with '(' are printed
+                print(f'the {decoded_line}')
+            elif decoded_line.endswith('%)'):
+                # Lines ending with '%)' are progress values
+                progress_value = int(decoded_line.split('(')[-1].split('%)')[0])
+                self.progress_signal.emit(progress_value)
+                print(f'fuohlk{decoded_line}')
+            elif 'cannot find device' in decoded_line.lower():
+                # Lines containing 'cannot find device' are handled separately
                 self.log_signal.emit(decoded_line)
-                print(decoded_line, end='')
+            else:
+                # All other lines are emitted as logs
+                print('mhkgj')
+                self.log_signal.emit(decoded_line)
+        except ValueError as e:
+            print(f"Error decoding line: {e}")
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
 
     async def samflashing(self):
         try:
@@ -72,21 +85,15 @@ class SamsungFlasherThread(QThread):
                 stderr=asyncio.subprocess.PIPE
             )
             stdout_reader = asyncio.create_task(self.read_stream(samflasher.stdout))
-            stderr_reader = asyncio.create_task(self.read_stream(samflasher.stderr))
+            #stderr_reader = asyncio.create_task(self.read_stream(samflasher.stderr))
 
             await samflasher.wait()
 
             # Ensure that the output readers have finished
-            await asyncio.gather(stdout_reader, stderr_reader)
+            await asyncio.gather(stdout_reader)
             self.log_signal.emit('Flashing Samsung device completed')
         except Exception as e:
             print(e)
-
-    @pyqtSlot(int)
-    def updateProgressBar(self, value):
-        self.pbar.setValue(value)
-
-
 async def flash_parts(logfield, progresbar, *args):
     cmd = "daemon/sam.exe"
     startup_info = subprocess.STARTUPINFO()

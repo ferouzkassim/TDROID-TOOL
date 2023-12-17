@@ -59,23 +59,6 @@ class basbeband_sam_mtk(QThread):
     def run(self):
         asyncio.run(detect.BackUP.part_mountmtk(self, self.logfield))
 
-
-
-
-
-"""class samsungmultiflasher(QThread):
-    def __init__(self, flashincmd, logfield, pbar):
-        super().__init__()
-        self.logfield = logfield
-        self.flashincmd = flashincmd
-        self.progresbar = pbar
-
-    def run(self):
-        #asyncio.run(samsungflasher.flashing_thread(self.flashincmd, self.logfield, self.progresbar))
-        multiflasher = threading.Thread(target=(samsungflasher.flashing_thread), args=['-b',self.flashincmd],)
-        multiflasher.start()"""
-
-
 class write_backup(QThread):
     def __init__(self, file_to_write, logfield, soc_Type):
         super().__init__()
@@ -131,6 +114,8 @@ class MainDialog(QDialog):
         self.samthread = samsungflasher.SamsungFlasherThread(self.ui.logfield, self.ui.progressBar)
         self.samthread.log_signal.connect(self.logupdater)
         self.samthread.progress_signal.connect(self.updateProgressBar)
+        #flashng thread
+        self.fastbootThread  = fastboot.Fboot(self.ui.logfield_3)
         self.mtklist = ['Mtk General', 'SM-A013G', 'SM-A037F', 'SM-A125F', 'SM-A225F', 'SM-A022F']
         self.exynolist = ['Exynos General', 'SM-A127F', 'SM-A217f', 'SM-A135F', 'SM-A047F']
         self.qlmlist = ['SM-A235F']
@@ -524,7 +509,7 @@ class MainDialog(QDialog):
                                                          )
         self.ui.fbfirmware.setText(firmware[0])
         self.ui.fbfirmware.repaint()
-        fb_var = fastboot.fbb.ext_parser(firmware, self.ui.fblistwidget)
+        fb_var = fastboot.ext_parser(firmware, self.ui.fblistwidget)
         self.ui.fblistwidget.setStyleSheet('color:white;background-color:black;'
                                            'font-size:8pt'
                                            ';font-weight:bold')
@@ -559,19 +544,14 @@ class MainDialog(QDialog):
             dirname = os.path.dirname(filepath)
             # print(dirname)
             t12 = os.listdir(dirname)
-            firmware_parser = fastboot.fbb.xmlreader(filepath, self.ui.fblistwidget)
-            """print(firmware_parser.items())
-            print(firmware_parser.values())"""
+            firmware_parser = fastboot.xmlreader(filepath, self.ui.fblistwidget)
             file_count = 0
             for part, file in firmware_parser.items():
                 file_count += 1
                 if file in t12:
                     filename = os.path.join(dirname, file)
                     print(f'fastboot flash {part} {file}')
-                    self.fastboot_flasher = fastboot_flasher(part, filename, self.ui.logfield_3)
-                    self.fastboot_flasher.run()
-                    self.ui.progressBar.setValue(file_count)
-
+                    fbb = fastboot.Fboot.setfile(self,part,file)
 
                 else:
                     self.ui.logfield.setText('Fastboot flasher broken')

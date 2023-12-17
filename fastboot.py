@@ -6,34 +6,23 @@ import xml.etree.ElementTree as et
 import concurrent.futures
 import fastbootpy.usb_device
 import usb
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import QThread, QEventLoop, QObject
+from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from usb.backend import libusb1
 import fastbootpy as pyfb
 
-'''class fbpy:
-    def __int__(self):
-        pass
 
-    def info(self):
-        dev = pyfb.FastbootManager.devices()
-        print('logginh')
-        print(dev)
-        for i in dev:
-            print(i)
-            
-            pyfb.FastbootDevice.getvar(i,'all')
-
-
-fb = fbpy()
-fb.info()
-'''
-
-
-class Fboot:
-    def __init__(self):
+class Fboot(QThread):
+    def __init__(self,widget):
         self.fastb = None
         self.cmd = "daemon\\fastboot.exe"
         self.batreaded = []
+        """self.part = part
+        self.file = file"""
+        self.widget = widget
+    def setfile(self,file,part):
+        self.file = file
+        self.part = part
 
     def fboot(self, cmd1, cmd2):
         command = [self.cmd, cmd1, cmd2]
@@ -105,22 +94,14 @@ class Fboot:
                 stderr=asyncio.subprocess.PIPE,
                 stdout=asyncio.subprocess.PIPE
             )
-
-            # Use asyncio.StreamReader to read subprocess output asynchronously
-            stdout_reader = asyncio.StreamReader()
-            stderr_reader = asyncio.StreamReader()
-
-            asyncio.ensure_future(self.read_stream(tflasher.stdout, widget))
-            asyncio.ensure_future(self.read_stream(tflasher.stderr, widget))
-
-            # Wait for the subprocess to complete
-            await tflasher.wait()
+            stdout_reader = asyncio.create_task(self.read_stream(tflasher.stdout, widget))
+            await stdout_reader, tflasher.wait()
 
         except Exception as e:
             # Handle any exceptions that might occur during the subprocess execution
             widget.append(f"An error occurred: {str(e)}")
 
-    async def read_stream(self,strem, widget):
+    async def read_stream(self, strem, widget):
         while True:
             line = await strem.readline()
             if not line:
@@ -128,77 +109,74 @@ class Fboot:
             decoded_line = line.decode('utf-8')
             widget.append(decoded_line)
 
+def xmlreader( file, widget):
+    flashing_dict = {}
+    tree = et.parse(file)
+
+    try:
+        for partition_index in tree.findall('partition_index'):
+            partition_name = partition_index.find('partition_name').text
+            file_name = partition_index.find('file_name').text
+            partition_size = partition_index.find('partition_size').text
+            storage = partition_index.find('storage').text
+            is_download = partition_index.find('is_download').text
+
+            if file_name != 'NONE' and is_download == 'true':
+                widget.append(f'file_name : {file_name}')
+                flashing_dict[partition_name] = file_name
+                widget.append(f"Partition Size: {partition_size}")
+                widget.append(f"Partition Name: {partition_name}")
+                widget.append("_" * 15)
+    except Exception as e:
+        # Handle specific exceptions, log the error, and decide on appropriate actions
+        widget.append(f"Error parsing partition_index: {e}")
+
+    try:
+        for stor in tree.findall('.//storage_type'):
+
+            partition_name = stor.findall('partition_name').text
+            file_name = stor.findall('file_name').text
+            partition_size = stor.findall('partition_size').text
+            storage = stor.findall('storage').text
+            is_download = stor.findall('is_download').text
+
+            if file_name != 'NONE' and is_download == 'true':
+                widget.append(f'file_name : {file_name}')
+                flashing_dict[partition_name] = file_name
+                widget.append(f"Partition Size: {partition_size}")
+                widget.append(f"Partition Name: {partition_name}")
+                widget.append("_" * 15)
+    except:
+        # Exception as :
+        # Handle specific exceptions, log the error, and decide on appropriate actions
+        # widget.append(f"Error parsing storage_type: {e}")
+        print('e.args')
+    return flashing_dict
+
+def ext_parser(ext, widget):
+    files_to_flash = []
+    for i in ext:
+        files_to_flash.append(i)
+    for x in files_to_flash:
+        if x.endswith(".bat") or x.endswith(".sh") or x.endswith('.tfb') or x.endswith('.txt'):
+            with open(x, "r") as batopener:
+                line = batopener.readlines()
+                for p in line:
+                    if p.startswith('tf'):
+                        p.replace('tf', '')
+                        self.batreaded.append(p)
+                    if p.startswith('fastboot'):
+                        p.replace('fastboot', ''
+                                  )
+                        self.batreaded.append(p)
+
+                return self.batreaded
+        elif x.endswith(".xml"):
+            flashdict = xmlreader(x, widget)
+            return flashdict
+    return files_to_flash
 
 
-    def xmlreader(self, file, widget):
-        flashing_dict = {}
-        tree = et.parse(file)
-
-        try:
-            for partition_index in tree.findall('partition_index'):
-                partition_name = partition_index.find('partition_name').text
-                file_name = partition_index.find('file_name').text
-                partition_size = partition_index.find('partition_size').text
-                storage = partition_index.find('storage').text
-                is_download = partition_index.find('is_download').text
-
-                if file_name != 'NONE' and is_download == 'true':
-                    widget.append(f'file_name : {file_name}')
-                    flashing_dict[partition_name] = file_name
-                    widget.append(f"Partition Size: {partition_size}")
-                    widget.append(f"Partition Name: {partition_name}")
-                    widget.append("_" * 15)
-        except Exception as e:
-            # Handle specific exceptions, log the error, and decide on appropriate actions
-            widget.append(f"Error parsing partition_index: {e}")
-
-        try:
-            for stor in tree.findall('.//storage_type'):
-
-                partition_name = stor.findall('partition_name').text
-                file_name = stor.findall('file_name').text
-                partition_size = stor.findall('partition_size').text
-                storage = stor.findall('storage').text
-                is_download = stor.findall('is_download').text
-
-                if file_name != 'NONE' and is_download == 'true':
-                    widget.append(f'file_name : {file_name}')
-                    flashing_dict[partition_name] = file_name
-                    widget.append(f"Partition Size: {partition_size}")
-                    widget.append(f"Partition Name: {partition_name}")
-                    widget.append("_" * 15)
-        except:
-            # Exception as :
-            # Handle specific exceptions, log the error, and decide on appropriate actions
-            # widget.append(f"Error parsing storage_type: {e}")
-            print('e.args')
-        return flashing_dict
-
-    def ext_parser(self, ext, widget):
-        files_to_flash = []
-        for i in ext:
-            files_to_flash.append(i)
-        for x in files_to_flash:
-            if x.endswith(".bat") or x.endswith(".sh") or x.endswith('.tfb') or x.endswith('.txt'):
-                with open(x, "r") as batopener:
-                    line = batopener.readlines()
-                    for p in line:
-                        if p.startswith('tf'):
-                            p.replace('tf', '')
-                            self.batreaded.append(p)
-                        if p.startswith('fastboot'):
-                            p.replace('fastboot', ''
-                                      )
-                            self.batreaded.append(p)
-
-                    return self.batreaded
-            elif x.endswith(".xml"):
-                flashdict = self.xmlreader(x, widget)
-                return flashdict
-        return files_to_flash
-
-
-fbb = Fboot()
 
 
 # fbb.fastbootinfo()
